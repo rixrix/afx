@@ -39,106 +39,81 @@ AI coding assistants are powerful but lose context easily:
 
 AFX gives Claude Code a memory and a rulebook:
 
-**Specs as Source of Truth**: Four-file structure per feature (spec, design, tasks, journal) that Claude reads and follows
+**1. Specs as Source of Truth & Traceability**
 
-**Code-to-Spec Tracing**: Every function includes `@see` annotations linking back to the spec that required it. No orphaned code.
+Every function gets an automatic `@see` link mapping it back to the exact spec requirement.
 
-**Context-Aware Commands**: `/afx:next` actually understands project state and tells you what to work on next
+```mermaid
+graph LR
+    A[spec.md] --> B[design.md]
+    B --> C[tasks.md]
+    C -. "@see" .-> D[Code]
+    D -. "@see" .-> A
 
-**Session Continuity**: `/afx:session save` captures discussion context into the journal. Resume work days later without re-explaining everything.
+    style A fill:#fff3cd
+    style B fill:#cfe2ff
+    style C fill:#d1e7dd
+    style D fill:#f8d7da
+```
 
-**Execution Verification**: `/afx:check path` traces code execution from UI through business logic to database, proving the feature actually works
+**2. Execution Verification**
 
-**Two-Stage Verification**: Agent marks tasks `[OK]`, human approves `[OK]` - both required to close a task
+Code isn't done just because it exists. `/afx:check path` traces logic from the UI down to the database to cryptographically prove the path works.
+
+```mermaid
+graph TD
+    A[UI / Controller] --> B[Business Logic]
+    B --> C[Database / External API]
+
+    style A fill:#e1f5ff
+    style C fill:#d4edda
+```
+
+**3. Two-Stage Quality Gates**
+
+AI agents can hallucinate completion. AFX forces tasks to require both `[Agent OK]` and `[Human OK]` before they can be closed.
+
+```mermaid
+stateDiagram-v2
+    state "Agent Implementation" as AI
+    state "Human Review" as HR
+    state "Task Closed" as C
+
+    [*] --> AI
+    AI --> HR: [Agent OK]
+    HR --> AI: Rejected
+    HR --> C: [Human OK]
+    C --> [*]
+```
+
+**4. Stateful Session Handoffs & Continuity**
+
+Close your laptop without losing context. `/afx:session save` records your train of thought, and `/afx:handoff prepare` bundles it so another agent can instantly resume tomorrow.
+
+```mermaid
+sequenceDiagram
+    participant A as Agent 1 (Day 1)
+    participant H as handoff.md
+    participant B as Agent 2 (Day 2)
+
+    A->>H: /afx:handoff prepare
+    Note over A,H: Saves tasks, decisions, uncommitted files
+    B->>H: /afx:handoff resume
+    Note over H,B: Loads exact mental state
+    B->>B: /afx:dev code (Continues work)
+```
 
 ## Why AFX?
 
-**Without AFX:**
+| Problem           | Without AFX                                                                            | With AFX                                                                         |
+| :---------------- | :------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------- |
+| **Context**       | "Claude, can you continue from yesterday?" → _Spends 10 minutes re-explaining context_ | `/afx:work resume` → _Claude reads journal, picks up exactly where you left off_ |
+| **Scope**         | Claude "fixes a bug" → _Refactors 3 unrelated files you didn't ask for_                | Claude follows specs → _Only implements what's approved, no scope creep_         |
+| **Understanding** | "Why does this function exist?" → _No idea, Claude wrote it 2 weeks ago_               | Every function has a `@see` link → _Instant understanding of why code exists_    |
+| **Completion**    | Task says "Done" → _Code exists but isn't actually called anywhere_                    | Task requires verification → _Both agent AND human must approve before closing_  |
+| **Verification**  | Need to prove feature works → _Manually click through UI hoping nothing breaks_        | `/afx:check path` → _Automated trace from UI → business logic → database_        |
 
-- "Claude, can you continue from yesterday?" → _Spends 10 minutes re-explaining context_
-- Claude "fixes a bug" → _Refactors 3 unrelated files you didn't ask for_
-- "Why does this function exist?" → _No idea, Claude wrote it 2 weeks ago_
-- Task says "Done" → _Code exists but isn't actually called anywhere_
-- Need to prove feature works → _Manually click through UI hoping nothing breaks_
-
-**With AFX:**
-
-- `/afx:work resume` → _Claude reads journal, picks up exactly where you left off_
-- Claude follows specs → _Only implements what's approved, no scope creep_
-- Every function has `@see` link → _Instant understanding of why code exists_
-- Task requires verification → _Both agent AND human must approve before closing_
-- `/afx:check path` → _Automated trace from UI → business logic → database_
-
-## Quick Start
-
-### One-Line Install
-
-```bash
-# From your project directory
-curl -sL https://raw.githubusercontent.com/rix/afx/main/install.sh | bash -s -- .
-```
-
-Or if you have AFX cloned locally:
-
-```bash
-./path/to/afx/install.sh /path/to/your/project
-```
-
-This installs:
-
-- Slash commands to `.claude/commands/`
-- Templates to `docs/agenticflowx/templates/`
-- Configuration file `.afx.yaml`
-- AFX documentation to `docs/agenticflowx/`
-- AFX snippets to `CLAUDE.md`
-
-### Install Options
-
-```bash
-# Commands only (minimal install)
-curl -sL .../install.sh | bash -s -- --commands-only .
-
-# Skip CLAUDE.md modification
-curl -sL .../install.sh | bash -s -- --no-claude-md .
-
-# Skip AFX documentation (docs/agenticflowx/)
-curl -sL .../install.sh | bash -s -- --no-docs .
-
-# Preview changes without applying
-curl -sL .../install.sh | bash -s -- --dry-run .
-
-# Overwrite existing files (fresh install)
-curl -sL .../install.sh | bash -s -- --force .
-```
-
-### Updating AFX
-
-When the AFX framework is updated, you can pull the latest changes:
-
-```bash
-# Update existing installation (preserves your .afx.yaml config)
-curl -sL https://raw.githubusercontent.com/rix/afx/main/install.sh | bash -s -- --update .
-
-# Or if you have AFX cloned locally
-./path/to/afx/install.sh --update .
-```
-
-The updater:
-
-- Updates all slash commands and templates
-- Updates AFX documentation in `docs/agenticflowx/`
-- Preserves your `.afx.yaml` configuration
-- Replaces the AFX section in `CLAUDE.md` (your custom content is preserved)
-- Uses boundary markers (`<!-- AFX:START -->` / `<!-- AFX:END -->`) for clean updates
-
-### Initialize Your First Feature
-
-```bash
-# In Claude Code, run:
-/afx:init feature user-authentication
-```
-
-This creates the four-file spec structure:
+## The Four-File Structure
 
 ```
 docs/specs/user-authentication/
@@ -148,8 +123,6 @@ docs/specs/user-authentication/
 ├── tasks.md     # Implementation checklist - WHEN/WHO
 └── journal.md   # Session logs - WHY decisions were made
 ```
-
-**The four-file structure explained:**
 
 **`spec.md`** - Requirements only. No implementation details. This is a living document that represents the _current factual state_ of requirements.
 
@@ -198,7 +171,7 @@ graph LR
 ```
 
 - **Separation of concerns**: Requirements don't change when implementation details do
-- **Approval workflow**: Freeze spec.md, iterate on design.md
+- **Approval workflow**: Freeze `spec.md`, iterate on `design.md`
 - **Context preservation**: Journal captures the "why" that's lost in code comments
 - **Agent guidance**: Claude reads the right file for the right purpose
 
@@ -530,15 +503,11 @@ graph LR
 
 Traces code execution through the stack to prove the feature actually works:
 
-```mermaid
-graph TD
-    A[User clicks Login button] --> B[LoginForm.handleSubmit<br/>src/components/LoginForm.tsx:42]
-    B --> C[authService.login<br/>src/services/auth.ts:18]
-    C --> D[validateCredentials<br/>src/auth/validator.ts:91]
-    D --> E[db.users.findOne<br/>src/db/users.ts:15]
-
-    style A fill:#e1f5ff
-    style E fill:#d4edda
+```text
+[UI] src/components/LoginForm.tsx:42
+ └── [Service] src/services/auth.ts:18
+      └── [Logic] src/auth/validator.ts:91
+           └── [Database] src/db/users.ts:15
 ```
 
 **Why it's blocking**: Without path verification, you can't prove the feature is wired up correctly. Code might exist but never be called.
@@ -553,6 +522,19 @@ Verifies every function has valid `@see` annotations linking to specs. Finds:
 - Broken links to non-existent spec sections
 - Missing `@see` annotations in new code
 
+**Example:**
+
+```typescript
+// ❌ Orphaned function (Fails Gate 2)
+export function calculateTax(amount) { ... }
+
+// ✅ Compliant function (Passes Gate 2)
+/**
+ * @see docs/specs/checkout/design.md#31-tax-calculation
+ */
+export function calculateTax(amount) { ... }
+```
+
 ### Gate 3: Spec Integrity
 
 **Command**: `/afx:check links`
@@ -563,6 +545,13 @@ Validates spec document cross-references:
 - Task references to design sections
 - Journal entries citing specific tasks
 
+**Example:**
+
+```bash
+❌ Error in docs/specs/auth/tasks.md: Task 1.2 references #jwt-format, but section doesn't exist in design.md
+✅ Success: All 142 spec cross-references resolve correctly.
+```
+
 ### Gate 4: Requirements Alignment
 
 **Command**: `/afx:task audit`
@@ -572,6 +561,16 @@ Compares implementation against task acceptance criteria:
 - All required functionality implemented
 - Edge cases handled per spec
 - No out-of-scope additions
+
+**Example:**
+
+```markdown
+# Failure Report from /afx:task audit
+
+Task: 1.2 Implement JWT token generation
+Status: REJECTED ❌
+Reason: Spec requires 24-hour expiry, but implementation hardcodes 1-hour expiry.
+```
 
 ## What Makes AFX Different
 
@@ -585,17 +584,18 @@ Compares implementation against task acceptance criteria:
 
 ## Core Philosophy
 
-**State vs Event Separation**: Maintain a strict boundary between living documents (`spec.md`, `design.md`) which must always reflect the _current factual state_ without chronological history, and append-only logs (`journal.md`, `tasks.md`, `changelog.md`) which record the _events_ of how the system evolved.
-
-**Specs as executable contracts**: Specifications aren't documentation that gets written and forgotten. They're living contracts that AI agents read and enforce during development. Claude Code follows specs like a compiler follows syntax rules.
-
-**Bidirectional traceability**: Code points to specs (`@see` annotations), and specs point to code (through task completion). You can navigate in both directions: from requirement to implementation, and from implementation back to requirement.
-
-**Context over memory**: AI agents don't have memory between sessions. AFX gives them context instead. The journal preserves not just what was done, but why it was done. This makes interrupted work resumable.
-
-**Two-stage verification**: AI agents are good at implementation but can hallucinate completion. Human verification adds the second approval gate. Both columns must say `[OK]` before tasks close.
-
-**Execution proof over promises**: Code can exist without being called. `/afx:check path` doesn't trust that code works - it traces execution from entry point to database to prove the path exists.
+- **State vs Event Separation**
+  - Maintain a strict boundary between living documents (`spec.md`, `design.md`) which reflect the _current factual state_, and append-only logs (`journal.md`, `tasks.md`, `changelog.md`) which record _events_ of how the system evolved.
+- **Specs as Executable Contracts**
+  - Specifications are living rules AI agents read and enforce during runtime, not documentation that gets written and forgotten.
+- **Bidirectional Traceability**
+  - Code points to specs (`@see`), and specs point to code (via tasks). Navigate seamlessly from requirement to implementation and back.
+- **Context over Memory**
+  - AI agents don't have memory between sessions. The journal preserves the "why" behind the "what," making interrupted work resumable.
+- **Two-Stage Verification**
+  - Agents implement; humans verify. Both columns must say `[OK]` before tasks close.
+- **Execution Proof over Promises**
+  - Don't trust that code works just because it exists. `/afx:check path` traces execution from the entry point to the database to prove the path is wired up.
 
 ## Best Used For
 
@@ -661,6 +661,75 @@ tags: [auth, security, api] # Categorization
 | Lost in codebase, what should I work on?      | Context-aware guidance based on project state            | `/afx:next`                    |
 | Need to understand what this function does    | Read `@see` annotation to jump to spec                   | Check JSDoc in code            |
 | Task marked done but not actually complete    | Two-stage verification: agent + human both must approve  | `/afx:task verify → close`     |
+
+## Quick Start
+
+### One-Line Install
+
+```bash
+# From your project directory
+curl -sL https://raw.githubusercontent.com/rix/afx/main/install.sh | bash -s -- .
+```
+
+Or if you have AFX cloned locally:
+
+```bash
+./path/to/afx/install.sh /path/to/your/project
+```
+
+This installs:
+
+- Slash commands to `.claude/commands/`
+- Templates to `docs/agenticflowx/templates/`
+- Configuration file `.afx.yaml`
+- AFX documentation to `docs/agenticflowx/`
+- AFX snippets to `CLAUDE.md`
+
+### Install Options
+
+```bash
+# Commands only (minimal install)
+curl -sL .../install.sh | bash -s -- --commands-only .
+
+# Skip CLAUDE.md modification
+curl -sL .../install.sh | bash -s -- --no-claude-md .
+
+# Skip AFX documentation (docs/agenticflowx/)
+curl -sL .../install.sh | bash -s -- --no-docs .
+
+# Preview changes without applying
+curl -sL .../install.sh | bash -s -- --dry-run .
+
+# Overwrite existing files (fresh install)
+curl -sL .../install.sh | bash -s -- --force .
+```
+
+### Updating AFX
+
+When the AFX framework is updated, you can pull the latest changes:
+
+```bash
+# Update existing installation (preserves your .afx.yaml config)
+curl -sL https://raw.githubusercontent.com/rix/afx/main/install.sh | bash -s -- --update .
+
+# Or if you have AFX cloned locally
+./path/to/afx/install.sh --update .
+```
+
+The updater:
+
+- Updates all slash commands and templates
+- Updates AFX documentation in `docs/agenticflowx/`
+- Preserves your `.afx.yaml` configuration
+- Replaces the AFX section in `CLAUDE.md` (your custom content is preserved)
+- Uses boundary markers (`<!-- AFX:START -->` / `<!-- AFX:END -->`) for clean updates
+
+### Initialize Your First Feature
+
+```bash
+# In Claude Code, run:
+/afx:init feature user-authentication
+```
 
 ## Contributing
 
