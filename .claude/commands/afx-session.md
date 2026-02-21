@@ -23,7 +23,7 @@ If `.afx.yaml` doesn't exist, use defaults.
 
 ```bash
 /afx:session note "content" [tags] [--ref id]    # Smart Note (New! Unifies note/capture/append)
-/afx:session save [feature]                      # Save session to log (formerly record)
+/afx:session save [feature]                      # Save session to log
 /afx:session show [feature|all]                  # Show recent discussions
 /afx:session active [feature|all]                # Show only active discussions
 /afx:session search "<query>"                    # Search notes
@@ -77,15 +77,15 @@ Next (ranked):
 
 Determine action from first argument:
 
-| Subcommand | Purpose                                                        |
-| ---------- | -------------------------------------------------------------- |
-| `note`     | Smart capture (handles notes, tags, and appending)             |
-| `save`     | Summarize conversation into permanent record (formerly record) |
-| `show`     | Display recent discussions                                     |
-| `active`   | Show only active discussions (tagged `status:active`)          |
-| `search`   | Search notes and discussions across all journals               |
-| `recap`    | Generate comprehensive recap for session resumption            |
-| `promote`  | Promote discussion to ADR or new feature spec                  |
+| Subcommand | Purpose                                               |
+| ---------- | ----------------------------------------------------- |
+| `note`     | Smart capture (handles notes, tags, and appending)    |
+| `save`     | Summarize conversation into permanent record          |
+| `show`     | Display recent discussions                            |
+| `active`   | Show only active discussions (tagged `status:active`) |
+| `search`   | Search notes and discussions across all journals      |
+| `recap`    | Generate comprehensive recap for session resumption   |
+| `promote`  | Promote discussion to ADR or new feature spec         |
 
 **Stores discussions in**: `docs/specs/journal.md` (global) or `docs/specs/{feature}/journal.md` (feature-specific).
 
@@ -145,7 +145,7 @@ to: docs/specs/user-auth/journal.md
 
 ---
 
-## 2. save (formerly record)
+## 2. save
 
 **Usage**: `/afx:session save [feature]`
 
@@ -173,6 +173,7 @@ The Agent MUST actively monitor the conversation depth. Suggest `/afx:session sa
 **Do NOT wait for the user.** If the user says "Okay, that makes sense, let's move on", you SHOULD interject:
 
 > "Before we move on, should I save this decision about Postgres to the session log?
+
 > `> /afx:session save`"
 
 ---
@@ -402,13 +403,11 @@ Next: /afx:work status # Then continue with suggested task
 
 1. **Find** discussion by ID in `docs/specs/journal.md`
 2. **Create** new feature spec structure:
-   ```
+   ```text
    docs/specs/{new-feature}/
-   ├── readme.md       # Generated from discussion context
    ├── spec.md         # Stub with discussion summary as starting point
    ├── design.md       # Empty template
    ├── tasks.md        # Empty template
-   ├── changelog.md    # Initial entry
    └── journal.md  # Move discussion here
    ```
 3. **Move** the discussion from `journal.md` to new feature's journal.md

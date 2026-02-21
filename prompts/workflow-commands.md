@@ -89,7 +89,7 @@ When starting or resuming work on a ticket:
 **Session Capture**
 
 - `/afx:session note "content" [tags]` - Smart note (unifies capture/append)
-- `/afx:session save [feature]` - Save session to log (formerly record)
+- `/afx:session save [feature]` - Save session to log
 - `/afx:session show [feature|all]` - Show recent discussions
 - `/afx:session active [feature|all]` - Show active discussions
 - `/afx:session search "query"` - Search notes across journals
@@ -103,11 +103,11 @@ When starting or resuming work on a ticket:
 - `/afx:report orphans [path]` - Code without @see links
 - `/afx:report coverage <spec>` - Spec → Code coverage map
 
-**Setup & Handoff**
+**Setup & Context**
 
 - `/afx:init feature <name>` - Create new feature spec
-- `/afx:handoff prepare [feature]` - Generate handoff bundle
-- `/afx:handoff resume` - Load context from previous handoff
+- `/afx:context save [feature]` - Generate context bundle
+- `/afx:context load` - Load context from previous context
 - `/afx:help` - Show command reference
 
 ### Session Discussion Capture

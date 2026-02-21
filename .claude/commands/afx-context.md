@@ -2,58 +2,55 @@
 afx: true
 type: COMMAND
 status: Living
-tags: [afx, command, handoff, session]
+tags: [afx, command, context, session]
 ---
 
-# /afx:handoff
-
-Agent session handoff protocol for seamless context transfer between AI sessions.
+# 🤝 Session Context protocol for seamless context transfer between AI sessions.
 
 ## Configuration
 
 **Read `.afx.yaml`** at project root to resolve paths:
 
-- `paths.specs` - Where spec files live (default: `docs/specs`)
+- `paths.specs` - Where `afx-context.md` and feature specs live (default: `docs/specs`)
 
 If `.afx.yaml` doesn't exist, use defaults.
 
 ## Usage
 
 ```bash
-/afx:handoff prepare [feature]    # Generate handoff (auto-detects all features if omitted)
-/afx:handoff resume               # Load context from docs/specs/handoff.md
-/afx:handoff history [feature]    # Show spec evolution timeline
-/afx:handoff impact <change>      # Analyze cross-feature impact
+/afx:context save [feature]       # Generate context (auto-detects all features if omitted)
+/afx:context load                 # Load context from docs/specs/afx-context.md
+/afx:context history [feature]    # Show spec evolution timeline
+/afx:context impact <change>      # Analyze cross-feature impact
 ```
 
 ## Purpose
 
 Formalize context transfer between AI agent sessions. When an agent times out, disconnects, or needs to hand off work, this command ensures the next agent can resume exactly where the previous one left off.
 
-**Also serves as human memory refresh** — handoffs are written detailed enough for a developer to recall a session from 3+ days ago, including reasoning, decisions, and research findings.
+**Also serves as human memory refresh** — contexts are written detailed enough for a developer to recall a session from 3+ days ago, including reasoning, decisions, and research findings.
 
-**Unique to AFX**: No other framework provides structured agent-to-agent handoff with context preservation.
+**Unique to AFX**: No other framework provides structured agent-to-agent context with context preservation.
 
 ## Agent Instructions
 
 ### Next Command Suggestion (MANDATORY)
 
-| Context                         | Suggested Next Command                      |
-| ------------------------------- | ------------------------------------------- |
-| After `prepare` (handoff ready) | Share bundle, then session ends             |
-| After `resume` (context loaded) | `/afx:dev code` to continue work            |
-| After `history` (reviewing)     | `/afx:work next` or `/afx:dev`              |
-| After `impact` (analyzing)      | Review affected files, then `/afx:dev code` |
+| Context                       | Suggested Next Command                      |
+| ----------------------------- | ------------------------------------------- |
+| After `save` (context ready)  | Share bundle, then session ends             |
+| After `load` (context loaded) | `/afx:dev code` to continue work            |
+| After `history` (reviewing)   | `/afx:work next` or `/afx:dev`              |
+| After `impact` (analyzing)    | Review affected files, then `/afx:dev code` |
 
 ---
 
 ## Storage
 
-**Single file**: `docs/specs/handoff.md`
+**Single file**: `docs/specs/afx-context.md`
 
 - One centralized location — no scanning across spec folders
-- `prepare` overwrites this file (single source of truth)
-- `resume` reads this file, then asks user whether to clear it
+- `pCreate or overwrite the `afx-context.md` file using this structure, filled with data from the steps above.sume` reads this file, then asks user whether to clear it
 - History preserved via one-liner archive entries in each feature's `journal.md` (historical contexts and narratives should _always_ go here, never in living documents like `design.md` or `spec.md`)
 
 ---
@@ -62,22 +59,22 @@ Formalize context transfer between AI agent sessions. When an agent times out, d
 
 ---
 
-## 1. prepare
+## 1. save
 
-Generate a detailed handoff bundle for the next agent session (or for human recall).
+Generate a detailed context bundle for the next agent session (or for human recall).
 
 ### Usage
 
 s
 
 ```bash
-/afx:handoff prepare              # Auto-detect all features from git diff + session context
-/afx:handoff prepare user-auth    # Single feature override
+/afx:context save                 # Auto-detect all features from git diff + session context
+/afx:context save user-auth       # Single feature override
 ```
 
 ### Process
 
-1. **Safety check**: Read `docs/specs/handoff.md` — if it has content (status: Active), ask user: "⚠️ Previous handoff exists. Clear and overwrite?" Wait for confirmation before proceeding.
+1. If `.afx.yaml` not found, use `docs/specs/afx-context.md` as default. If it exists and is NOT cleared, warn: "Existing context found. Overwrite?" Wait for confirmation before proceeding.
 2. **Detect features**: From git diff + session context (or argument). Identify ALL features touched this session.
 3. **Read session state** (per feature):
    - Current/completed tasks from tasks.md
@@ -86,11 +83,11 @@ s
    - Blockers (any BLOCKED entries in Work Sessions)
 4. **Read uncommitted files**: `git diff --stat` + `git status`
 5. **Generate bundle**: Detailed markdown using the template below
-6. **Persist**: Write to `docs/specs/handoff.md` (overwrite) 
+6. **Persist**: Write to `docs/specs/afx-context.md` (overwrite)
 
 ### Template
 
-**CRITICAL**: The prepare output must be detailed enough for a human to recall the session 3+ days later. Include reasoning, not just actions. Preserve specifics verbatim (numbers, counts, call sites). Use emojis and tables for visual scanning.
+**CRITICAL**: The save output must be detailed enough for a human to recall the session 3+ days later. Include reasoning, not just actions. Preserve specifics verbatim (numbers, counts, call sites). Use emojis and tables for visual scanning.
 
 ````markdown
 ---
@@ -102,7 +99,7 @@ branch: { branch-name }
 features: [{ feature1 }, { feature2 }]
 ---
 
-# 🤝 Handoff
+# 🤝 Context
 
 📅 **Prepared**: {date}
 🌿 **Branch**: `{branch}`
@@ -212,52 +209,45 @@ Include specific numbers, findings, or outcomes.}
 ## 🚀 Commands to Start
 
 ```bash
-/afx:handoff resume         # Load this context
-/afx:work resume             # Continue implementation
+/afx:context load           # Load this context
+/afx:work resume            # Continue implementation
 ```
 ````
 
 ---
 
-## 2. resume
+## 2. load
 
-Load context from a previous handoff. Fast — reads a single file.
+Load context from a previous context. Fast — reads a single file.
 
 ### Usage
 
 ```bash
-/afx:handoff resume               # Load from docs/specs/handoff.md
+/afx:context load                 # Load from docs/specs/afx-context.md
 ```
 
 ### Process
 
-1. **Read** `docs/specs/handoff.md`
-2. **Check status**: If file is empty or status is `Cleared`, inform user "No active handoff found" and suggest `/afx:handoff prepare`
-3. **Output full content**: Display the handoff bundle as-is. **DO NOT compress, summarize, or omit details** — the prepare step already structured it for consumption
-4. **Ask user**: "Clear handoff.md?" — wait for confirmation
-5. **If confirmed**:
-   - Archive one-liner per feature to each feature's `journal.md` under `## Handoffs`:
+1. **Read** `docs/specs/afx-context.md`
+2. **Check empty**: If `afx-context.md` has `status: Cleared` or is missing, inform user "No active context found" and suggest `/afx:context save`
+3. **Output full content**: Display the context bundle as-is. **DO NOT compress, summarize, or omit details** — the save step already structured it for consumption
+4. **Archive**: Provide a one-liner archive entry for the user to optionally paste into their `journal.md` under `## Contexts`:
 
-     ```markdown
-     ### {date} — Handoff Resumed
+   ```markdown
+   ### {date} — Context Loaded
 
-     **Prepared**: {original prepare date}
-     **Features**: {feature list}
-     **Cleared by**: Agent (new session)
-     ```
-
-   - Update `docs/specs/handoff.md`: set frontmatter `status: Cleared` and remove body content (keep frontmatter)
-
-6. **If declined**: Leave handoff.md intact for re-reading later
+   **Saved**: {original save date}
+   **Features**: {feature list}
+   ```
 
 ### Output
 
-The full handoff bundle content, followed by:
+The full context bundle content, followed by:
 
 ```markdown
 ---
 
-✅ **Context loaded from** `docs/specs/handoff.md`
+✅ **Context loaded from** `docs/specs/afx-context.md`
 
 Next (ranked):
 
@@ -275,15 +265,14 @@ Show spec evolution timeline - what changed and when.
 ### Usage
 
 ```bash
-/afx:handoff history user-auth
-/afx:handoff history all               # All specs
+/afx:context history user-auth
+/afx:context history all               # All specs
 ```
 
 ### Process
 
-1. **Read changelog.md**: Extract version entries
-2. **Read git log**: Commits touching spec files
-3. **Build timeline**: Merge and sort by date
+1. **Read git log**: Commits touching spec files
+2. **Build timeline**: Summarize commits and sort by date
 
 ### Output
 
@@ -333,8 +322,8 @@ Analyze cross-feature impact when specs change.
 ### Usage
 
 ```bash
-/afx:handoff impact "Remove ClaimStatus.DRAFT"
-/afx:handoff impact design.md#supplier-assignment
+/afx:context impact "Remove ClaimStatus.DRAFT"
+/afx:context impact design.md#supplier-assignment
 ```
 
 ### Process
@@ -400,6 +389,6 @@ Next: /afx:dev code # Start migration if approved
 
 | Command              | Relationship                                    |
 | -------------------- | ----------------------------------------------- |
-| `/afx:work status`   | Quick state; handoff is comprehensive           |
-| `/afx:session recap` | Discussion summary; handoff includes work state |
-| `/afx:report`        | Metrics; handoff is per-session context         |
+| `/afx:work status`   | Quick state; context is comprehensive           |
+| `/afx:session recap` | Discussion summary; context includes work state |
+| `/afx:report`        | Metrics; context is per-session context         |

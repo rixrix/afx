@@ -44,26 +44,22 @@ The core insight: eliminate the gap between intent and implementation by making 
 
 ```
 docs/specs/{feature-name}/
-├── readme.md        # Status dashboard + links to GitHub
 ├── spec.md          # WHAT to build (requirements)
 ├── design.md        # HOW to build it (architecture)
 ├── tasks.md         # WHEN to build (implementation tasks)
-├── changelog.md     # Version history (optional)
 ├── journal.md       # Session discussion capture (via /afx:session)
 └── research/        # ADRs, RFCs, decision records
 ```
 
 ### File Purposes
 
-| File            | Purpose                                           | Updated When       | Reviewed By   |
-| --------------- | ------------------------------------------------- | ------------------ | ------------- |
-| `spec.md`       | Requirements, user stories, acceptance criteria   | Planning phase     | Stakeholders  |
-| `design.md`     | Architecture, data models, API contracts          | Design phase       | Engineers     |
-| `tasks.md`      | Implementation tasks with cross-references        | Pre-implementation | Engineers     |
-| `readme.md`     | Current status, links to GitHub issues/milestones | Throughout         | Everyone      |
-| `changelog.md`  | Version history of spec changes                   | On changes         | Human + Agent |
-| `journal.md`    | Session discussions, captured via `/afx:session`  | During sessions    | Agent         |
-| `research/*.md` | ADRs, RFCs, decision records                      | Design phase       | Human + Agent |
+| File            | Purpose                                          | Updated When       | Reviewed By   |
+| --------------- | ------------------------------------------------ | ------------------ | ------------- |
+| `spec.md`       | Requirements, user stories, acceptance criteria  | Planning phase     | Stakeholders  |
+| `design.md`     | Architecture, data models, API contracts         | Design phase       | Engineers     |
+| `tasks.md`      | Implementation tasks with cross-references       | Pre-implementation | Engineers     |
+| `journal.md`    | Session discussions, captured via `/afx:session` | During sessions    | Agent         |
+| `research/*.md` | ADRs, RFCs, decision records                     | Design phase       | Human + Agent |
 
 ### Journal Structure
 
@@ -166,7 +162,6 @@ The `tasks.md` file bridges the gap between design and GitHub issues:
 │  5. IMPLEMENT                                                     │
 │     Work through GitHub issues                                    │
 │     Update tasks.md checkboxes as work completes                  │
-│     Update readme.md with progress                                │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -210,7 +205,6 @@ See the full **[AFX (AgenticFlowX)](../agenticflowx/agenticflowx.md)** guide for
 ### Milestones
 
 - Create one milestone per feature phase (e.g., "Warranty Claims MVP")
-- Link milestone in the feature's `readme.md`
 
 ### Epic Issues
 
@@ -260,7 +254,6 @@ Claude Code can read these files to understand:
 - What the feature should do (spec.md)
 - How it should be built (design.md)
 - What tasks need to be done (tasks.md)
-- Current progress (readme.md)
 
 ### Generate Tasks from Specs
 
@@ -280,18 +273,15 @@ docs/
 ├── agenticflowx/                # AgenticFlowX Framework
 │   ├── agenticflowx.md         # AFX Framework Reference
 │   ├── guide.md                # SDD Guide (This file)
-│   └── templates/              # Spec templates
+│   └── templates/              # Spec templates (spec, design, tasks, journal, adr)
 │
 ├── specs/                      # Spec-driven feature docs
-│   ├── readme.md               # Project Dashboard
 │   ├── journal.md              # Global discussions
 │   ├── research/               # Global ADRs
 │   ├── {feature}/              # Feature Modules
-│   │   ├── readme.md
 │   │   ├── spec.md
 │   │   ├── design.md
 │   │   ├── tasks.md
-│   │   ├── changelog.md        # (optional)
 │   │   ├── journal.md          # Session discussions (via /afx:session)
 │   │   └── research/           # ADRs, RFCs, decision records
 │
@@ -325,8 +315,6 @@ docs/
 
 7. Create GitHub milestone and issues (from tasks.md phases)
 
-8. Update `readme.md` with links
-
 ---
 
 ## References
@@ -352,7 +340,6 @@ This approach is inspired by:
 | Understand what a feature should do | `{feature}/spec.md`            |
 | Understand how it's built           | `{feature}/design.md`          |
 | See what tasks need to be done      | `{feature}/tasks.md`           |
-| See current status & GitHub links   | `{feature}/readme.md`          |
 | Create a new feature                | Copy `templates/` folder       |
 | Set up AI-assisted development      | `agenticflowx/agenticflowx.md` |
 | Find tool-specific docs             | `docs/guides/`                 |

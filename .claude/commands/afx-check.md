@@ -404,7 +404,7 @@ Per AFX, annotations MUST have a PRD link:
 
 ## 3. links
 
-Verify spec integrity - check links and update changelog.
+Verify spec integrity - check cross-references.
 
 ### Usage
 
@@ -420,7 +420,7 @@ Examples:
 
 ### Purpose
 
-**Spec Integrity Sync**. Verify links and update the changelog.
+**Spec Integrity Sync**. Verify links across core phase files.
 
 ### Process
 
@@ -437,18 +437,9 @@ Examples:
 2. **Verify** that every Requirement (e.g., `FR-1`) in `spec.md` is referenced in `design.md` and `tasks.md`.
 3. **Fix** any broken anchors or file paths immediately.
 
-#### 2. Changelog Maintenance
+#### 2. Report
 
-1. **Read** the recent changes made to the spec files.
-2. **Check** `CHANGELOG.md`.
-3. **Update** `CHANGELOG.md` if recent changes are not logged:
-   - Add a `[Unreleased]` section if missing.
-   - Log changes under `### Added`, `### Changed`, or `### Fixed`.
-   - Use concise, past-tense descriptions.
-
-#### 3. Report
-
-Output a summary of what was fixed and what was logged.
+Output a summary of what was fixed.
 
 ### Reference: Anchor Generation
 
@@ -500,26 +491,6 @@ Output a summary of what was fixed and what was logged.
 
 > Implements: [FR-1](spec.md#functional-requirements)
 ```
-
-### Reference: Changelog Updates
-
-#### Semantic Versioning Rules
-
-| Change Type                  | Version Bump |
-| ---------------------------- | ------------ |
-| Breaking spec/design changes | MAJOR        |
-| New features, non-breaking   | MINOR        |
-| Fixes, docs updates          | PATCH        |
-
-#### Entry Categories
-
-- **Added**: New features or requirements
-- **Changed**: Updates to existing functionality
-- **Deprecated**: Features marked for removal
-- **Removed**: Deleted features or requirements
-- **Fixed**: Bug fixes or corrections
-
----
 
 ## 4. schema
 

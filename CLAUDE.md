@@ -71,7 +71,7 @@ Code MUST link back to specs via JSDoc `@see` annotations:
 | `/afx:task`     | Task verification and auditing                      |
 | `/afx:session`  | Discussion capture and recall                       |
 | `/afx:init`     | Feature scaffolding                                 |
-| `/afx:handoff`  | Agent session handoff                               |
+| `/afx:context`  | Agent session context                               |
 
 ### Standard Workflow
 

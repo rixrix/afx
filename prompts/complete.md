@@ -83,7 +83,7 @@ tags: [feature, topic] # Content tags (Obsidian convention)
 ---
 ```
 
-**Minimal Schema (COMMAND, README, JOURNAL, CHANGELOG):**
+**Minimal Schema (COMMAND, JOURNAL):**
 
 ```yaml
 ---
@@ -96,16 +96,14 @@ tags: [afx, command, topic]
 
 **Document Types:**
 
-| Type        | Purpose               | Location                            |
-| ----------- | --------------------- | ----------------------------------- |
-| `SPEC`      | Feature specification | docs/specs/{feature}/spec.md        |
-| `DESIGN`    | Technical design      | docs/specs/{feature}/design.md      |
-| `TASKS`     | Implementation tasks  | docs/specs/{feature}/tasks.md       |
-| `JOURNAL`   | Session log           | docs/specs/{feature}/journal.md     |
-| `CHANGELOG` | Version history       | docs/specs/{feature}/changelog.md   |
-| `README`    | Feature landing page  | docs/specs/{feature}/readme.md      |
-| `RES`       | Research/exploration  | docs/specs/{feature}/research/\*.md |
-| `ADR`       | Architecture decision | docs/specs/{feature}/research/\*.md |
+| Type      | Purpose               | Location                            |
+| --------- | --------------------- | ----------------------------------- |
+| `SPEC`    | Feature specification | docs/specs/{feature}/spec.md        |
+| `DESIGN`  | Technical design      | docs/specs/{feature}/design.md      |
+| `TASKS`   | Implementation tasks  | docs/specs/{feature}/tasks.md       |
+| `JOURNAL` | Session log           | docs/specs/{feature}/journal.md     |
+| `RES`     | Research/exploration  | docs/specs/{feature}/research/\*.md |
+| `ADR`     | Architecture decision | docs/specs/{feature}/research/\*.md |
 
 ## AgenticFlowX - Session Continuity
 
@@ -190,11 +188,11 @@ When starting or resuming work on a ticket:
 - `/afx:report orphans [path]` - Code without @see links
 - `/afx:report coverage <spec>` - Spec → Code coverage map
 
-**Setup & Handoff**
+**Setup & Context**
 
 - `/afx:init feature <name>` - Create new feature spec
-- `/afx:handoff prepare [feature]` - Generate handoff bundle
-- `/afx:handoff resume` - Load context from previous handoff
+- `/afx:context save [feature]` - Generate context bundle
+- `/afx:context load` - Load context from previous context
 - `/afx:help` - Show command reference
 
 ### Session Discussion Capture

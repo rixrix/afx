@@ -109,33 +109,7 @@ DATE=$(date +%Y-%m-%d)
 PREFIX=$(echo "$FEATURE" | awk -F- '{print toupper(substr($1,0,1) substr($2,0,1))}')
 [ ${#PREFIX} -lt 2 ] && PREFIX=$(echo "$FEATURE" | awk '{print toupper(substr($0,0,2))}')
 
-# 1. README
-cat <<EOF > "$SPEC_DIR/readme.md"
----
-afx: true
-type: README
-status: Draft
-owner: Team
-tags: [$FEATURE, dashboard]
----
-
-# $FEATURE
-
-> Brief description of the feature
-
-**Status**: Draft
-**Created**: $DATE
-
-## Phase Status
-
-| Phase | Description         | Status  |
-| ----- | ------------------- | ------- |
-| 0     | Infrastructure      | Pending |
-| 1     | Core Implementation | Pending |
-| 2     | Testing             | Pending |
-EOF
-
-# 2. SPEC
+# 1. SPEC
 cat <<EOF > "$SPEC_DIR/spec.md"
 # Requirements: $FEATURE
 
@@ -152,7 +126,7 @@ cat <<EOF > "$SPEC_DIR/spec.md"
 | NFR-1 | ... | P1 |
 EOF
 
-# 3. DESIGN
+# 2. DESIGN
 cat <<EOF > "$SPEC_DIR/design.md"
 # Design: $FEATURE
 
@@ -170,7 +144,7 @@ graph TD
 ## API
 EOF
 
-# 4. TASKS
+# 3. TASKS
 cat <<EOF > "$SPEC_DIR/tasks.md"
 # Tasks: $FEATURE
 
@@ -179,7 +153,7 @@ cat <<EOF > "$SPEC_DIR/tasks.md"
 - [ ] Task 1.1
 EOF
 
-# 5. JOURNAL
+# 4. JOURNAL
 cat <<EOF > "$SPEC_DIR/journal.md"
 ---
 afx: true
@@ -206,16 +180,6 @@ tags: [$FEATURE, journal]
 | ---- | ---- | ------ | -------------- | ----- | ----- |
 EOF
 
-# 6. CHANGELOG
-cat <<EOF > "$SPEC_DIR/changelog.md"
-# Changelog: $FEATURE
-
-## [Unreleased]
-
-### Added
-- Initial spec creation
-EOF
-
 echo "Feature '$FEATURE' initialized at $SPEC_DIR"
 ```
 
@@ -229,11 +193,9 @@ echo "Feature '$FEATURE' initialized at $SPEC_DIR"
 
 ### Files Created
 
-- readme.md - Status dashboard
 - spec.md - Requirements (edit first)
 - design.md - Technical architecture
 - tasks.md - Implementation tasks
-- changelog.md - Version history
 - journal.md - Discussion capture
 - research/ - ADRs directory
 
@@ -252,10 +214,10 @@ Use templates from `docs/agenticflowx/templates/`:
 
 ```bash
 docs/agenticflowx/templates/
-├── readme.md
 ├── spec.md
 ├── design.md
-└── tasks.md
+├── tasks.md
+└── adr.md
 ```
 
 ---

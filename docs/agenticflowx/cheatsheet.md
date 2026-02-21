@@ -58,14 +58,14 @@ tags: [afx, reference, cheatsheet]
 
 ---
 
-## Phase 4: Ship & Handoff
+## Phase 4: Ship & Context
 
 | Goal             | Command                             | Notes                                  |
 | :--------------- | :---------------------------------- | :------------------------------------- |
 | **Human Verify** | `/afx:work approve <task> "note"`   | Mark task as human-verified.           |
 | **Close Issue**  | `/afx:work close <issue> "summary"` | Updates docs, syncing logs, closes.    |
-| **Handoff**      | `/afx:handoff prepare`              | Bundle context for next agent/session. |
-| **Resume Agent** | `/afx:handoff resume`               | Load context from previous agent.      |
+| **Context**      | `/afx:context save`                 | Bundle context for next agent/session. |
+| **Load Context** | `/afx:context load`                 | Load context from previous agent.      |
 
 ---
 

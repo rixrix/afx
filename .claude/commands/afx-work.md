@@ -421,17 +421,16 @@ Unlike `/afx:work next` which finds the next ready task, `/afx:work resume` cont
 2. **Parse README.md**: Extract phase status table
 3. **Find active phases**: Look for "Next" or "In Progress" status
 4. **Read tasks.md**: Find first unchecked task in active phase
-5. **Read CHANGELOG.md**: Get last update date (optional)
-6. **Check GitHub** (optional): If `gh` available, get linked issue numbers
-7. **Display table**: Show all resumable sessions
+5. **Check GitHub** (optional): If `gh` available, get linked issue numbers
+6. **Display table**: Show all resumable sessions
 
 ```markdown
 ## Available Sessions
 
-| #   | Spec              | Phase | Next Task                     | Last Update |
-| --- | ----------------- | ----- | ----------------------------- | ----------- |
-| 1   | user-auth         | 7     | 7.1 Create supplier constants | 2025-12-13  |
-| 2   | users-permissions | 0     | 0.1 Package scaffolding       | 2025-12-09  |
+| #   | Spec              | Phase | Next Task                     |
+| --- | ----------------- | ----- | ----------------------------- |
+| 1   | user-auth         | 7     | 7.1 Create supplier constants |
+| 2   | users-permissions | 0     | 0.1 Package scaffolding       |
 
 GitHub: Available (issues linked)
 
@@ -482,9 +481,7 @@ When called with specific spec:
 - **Design:** [design.md](docs/specs/{name}/design.md)
 - **Research:** {if applicable, link to research/\*.md}
 
-### Key Decisions
-
-{list from CHANGELOG.md or discovered issues if available}
+{list from discovered issues if available}
 ```
 
 #### 4. Verification Commands
@@ -495,7 +492,6 @@ When called with specific spec:
 - [ ] `npx tsc --noEmit`
 - [ ] `npx nx build {app}`
 - [ ] Update tasks.md checkboxes
-- [ ] Add CHANGELOG.md entry (if significant)
 
 Next: /afx:dev code # Continue implementation
 ```
@@ -506,7 +502,6 @@ Next: /afx:dev code # Continue implementation
 | ----------------- | ----------------------------------------------------- |
 | `README.md`       | Phase status table (Complete, Next, Pending)          |
 | `tasks.md`        | Task checkboxes `- [x]` vs `- [ ]`, task descriptions |
-| `CHANGELOG.md`    | Last update date, recent decisions                    |
 | `journal.md`      | Past session logs synced from GitHub via sync         |
 | `design.md`       | Implementation context, code samples                  |
 | GitHub (optional) | Issue numbers, session logs, discovered issues        |
@@ -562,13 +557,11 @@ Bidirectional synchronization between local AgenticFlowX files and GitHub Issues
 Ensure **Session Continuity** by syncing:
 
 1. **GitHub → Local**: Pull "Session Log" from issue body/comments into `docs/specs/{module}/journal.md`.
-2. **Local → GitHub**: Push `CHANGELOG.md` updates to the GitHub issue.
 
 ### Context
 
 - **Data Sources**:
   - `docs/specs/{module}/journal.md` (Local continuity log)
-  - `docs/specs/{module}/CHANGELOG.md` (Version history)
   - GitHub Issue (Remote continuity log)
 
 ### Process
@@ -585,30 +578,12 @@ Ensure **Session Continuity** by syncing:
    - Append new rows to `docs/specs/{module}/journal.md`.
    - If file doesn't exist, create it.
 
-#### Direction 2: Local → GitHub (Changelog Push)
-
-1. **Check Unreleased Changes**:
-   - Read `docs/specs/{module}/CHANGELOG.md`.
-   - Check for entries under `[Unreleased]`.
-2. **Post Update**:
-   - If unreleased changes exist, post comment to GitHub Issue:
-
-     ```markdown
-     **Changelog Update**:
-
-     - Added: Feature X
-     - Fixed: Bug Y
-     ```
-
-   - (Optional) If `gh` CLI allows, update Issue Description references.
-
 ### Output
 
-```
+```markdown
 Synced 3 session entries from Issue #123 to journal.md
-Posted 2 changelog updates to Issue #123
 
-Next: /afx:work next docs/specs/{feature}   # Continue with next task
+Next: /afx:work next docs/specs/{feature} # Continue with next task
 ```
 
 ---
@@ -906,7 +881,7 @@ Examples:
 
 - `feature`: Optional. Auto-detected from git branch if omitted (e.g., `feat/user-auth` → `user-auth`)
 - `issue-number`: Required. GitHub issue number to close
-- `summary`: Required. Completion summary for changelog and issue comment
+- `summary`: Required. Completion summary for issue comment
 
 ### Purpose
 
@@ -915,7 +890,7 @@ Closes a GitHub issue and performs **bidirectional sync** to ensure all AgenticF
 1. **GitHub → Local**: Pull any final updates from issue
 2. **Local → GitHub**: Push completion summary
 3. **Close issue**: With completion comment
-4. **Update all docs**: changelog, journal, tasks verification
+4. **Update all docs**: journal, tasks verification
 
 ### Actions
 
@@ -983,29 +958,11 @@ gh issue view {issue-number} --json body,comments
 **Step 5b - Push to GitHub:**
 
 - Read local `journal.md` Work Sessions table
-- Read local `changelog.md` unreleased section
 - Post completion comment to issue with:
   - Final journal state
-  - Changelog summary
   - Completion summary
 
 #### 6. Update Local Documentation
-
-**Update `changelog.md`:**
-
-```markdown
-## [{version}] - {YYYY-MM-DD}
-
-### Added
-
-- {summary from close command}
-
-### Changed
-
-- {any changes from session-log}
-```
-
-If no changelog.md exists, create one.
 
 **Update `journal.md`:**
 
@@ -1030,8 +987,7 @@ gh issue close {issue-number} --comment "$(cat <<'EOF'
 ### Journal (Final)
 {table from journal.md}
 
-### Changelog
-{unreleased entries}
+
 
 ---
 Closed via `/afx:work close`
@@ -1128,8 +1084,6 @@ The `close` command ensures consistency between GitHub and local files:
 | -------------- | -------------------------------------------- | ---------------------- |
 | GitHub → Local | Session Log entries from issue body/comments | journal.md             |
 | GitHub → Local | Discovered Issues from issue comments        | journal.md Discussions |
-| Local → GitHub | Final Work Sessions table                    | Issue close comment    |
-| Local → GitHub | Changelog entries                            | Issue close comment    |
 | Local → GitHub | Completion summary                           | Issue close comment    |
 
 ### Workflow Integration

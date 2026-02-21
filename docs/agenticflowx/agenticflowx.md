@@ -38,8 +38,8 @@ Unlike frameworks that generate code _from_ specs, AFX requires code to link _ba
 | :--------------- | :------------------------------------------------------------ | :------------------------------------------- |
 | **Traceability** | **Bidirectional**: Code links to Spec (`@see task.md`).       | **Unidirectional**: Specs likely forgotten.  |
 | **Verification** | **Runtime**: `/afx:check path` proves execution.              | **Static**: Tests only.                      |
-| **Context**      | **Persistent**: Session logs (`/afx:session`) survive reboot. | **Ephemeral**: Context lost on window close. |
-| **Handoff**      | **Structured**: `/afx:handoff` serializes state.              | **None**: Next agent starts blind.           |
+| **Memory**       | **Persistent**: Session logs (`/afx:session`) survive reboot. | **Ephemeral**: Context lost on window close. |
+| **Context**      | **Structured**: `/afx:context` serializes state.              | **None**: Next agent starts blind.           |
 | **Docs**         | **Living**: Updated via PRs with code.                        | **Stale**: Wikis/Docs drift from reality.    |
 | **Decisions**    | Promoted to immutable ADRs.                                   | Lost in Slack/Teams threads.                 |
 
@@ -63,12 +63,12 @@ Unlike frameworks that generate code _from_ specs, AFX requires code to link _ba
   - **Active Inference**: Auto-suggests saving key decisions.
   - **Smart Tagging**: Auto-categorizes discussion topics.
   - **Bidirectional Sync**: GitHub Issue comments ↔ Local `journal.md`.
-- **State Handoff** (`/afx:handoff`): Serializes logic state, uncommitted changes, and decision context for the next agent.
+- **State Context** (`/afx:context`): Serializes logic state, uncommitted changes, and decision context for the next agent.
 - **Impact Analysis**: Calculates cross-feature risk when specifications change.
 
 ### 4. Traceability Guardrails
 
-- **Link Integrity**: Enforces `@see` backlinks in code. Updates `CHANGELOG.md` automatically.
+- **Link Integrity**: Enforces `@see` backlinks in code.
 - **Orphan Detection** (`/afx:report orphans`): Hunts for code detached from specs.
 - **Refactor Contracts**: Enforces "Update Design First" workflow for architectural changes.
 
@@ -299,7 +299,7 @@ tags: [feature, topic] # Content tags (Obsidian convention)
 ---
 ```
 
-### Minimal Schema (COMMAND, README, JOURNAL, CHANGELOG)
+### Minimal Schema (COMMAND, JOURNAL)
 
 ```yaml
 ---
@@ -326,30 +326,29 @@ tags: [topic1, topic2]
 
 ### Document Types
 
-| Type        | Description                                                    | Location                            |
-| :---------- | :------------------------------------------------------------- | :---------------------------------- |
-| `SPEC`      | **Living state doc**: Functional requirements and user stories | `docs/specs/{feature}/spec.md`      |
-| `DESIGN`    | **Living state doc**: Technical architecture and data models   | `docs/specs/{feature}/design.md`    |
-| `TASKS`     | Implementation checklist and status                            | `docs/specs/{feature}/tasks.md`     |
-| `RES`       | Research findings (exploration)                                | `docs/specs/{feature}/research/`    |
-| `ADR`       | Architectural Decision Record (final decision)                 | `docs/specs/{feature}/research/`    |
-| `README`    | Feature landing page / index                                   | `docs/specs/{feature}/readme.md`    |
-| `JOURNAL`   | **Append-only historical log**: Session logs and history       | `docs/specs/{feature}/journal.md`   |
-| `CHANGELOG` | Version history                                                | `docs/specs/{feature}/changelog.md` |
-| `COMMAND`   | AFX slash command definition                                   | `.claude/commands/afx-*.md`         |
-| `GUIDE`     | Developer guides and handbooks                                 | `docs/guides/*.md`                  |
-| `FRAMEWORK` | Framework documentation (like this file)                       | `docs/agenticflowx/*.md`            |
+| Type        | Description                                                              | Location                          |
+| :---------- | :----------------------------------------------------------------------- | :-------------------------------- |
+| Type        | Description                                                              | Location                          |
+| :---------- | :----------------------------------------------------------------------- | :-------------------------------- |
+| `SPEC`      | **Living state doc**: Functional requirements and user stories           | `docs/specs/{feature}/spec.md`    |
+| `DESIGN`    | **Living state doc**: Technical architecture and data models             | `docs/specs/{feature}/design.md`  |
+| `TASKS`     | Implementation checklist and status                                      | `docs/specs/{feature}/tasks.md`   |
+| `RES`       | Research findings (exploration)                                          | `docs/specs/{feature}/research/`  |
+| `ADR`       | Architectural Decision Record (final decision)                           | `docs/specs/{feature}/research/`  |
+| `JOURNAL`   | **Append-only historical log**: Session logs and history                 | `docs/specs/{feature}/journal.md` |
+| `COMMAND`   | AFX slash command definition                                             | `.claude/commands/afx-*.md`       |
+| `GUIDE`     | Developer guides and handbooks                                           | `docs/guides/*.md`                |
+| `FRAMEWORK` | Framework documentation (like this file)                                 | `docs/agenticflowx/*.md`          |
 
 ### Ordering Conventions
 
 | Document Type | Ordering        | Rationale                                          |
 | :------------ | :-------------- | :------------------------------------------------- |
-| **CHANGELOG** | Newest first    | Users want to see recent changes at top            |
 | **JOURNAL**   | Oldest first    | Discussions build context chronologically          |
 | **Work Log**  | Oldest first    | Session history reads like a timeline              |
 | **ADRs**      | Number prefixed | `0001-`, `0002-` ensure chronological file sorting |
 
-> **Why the difference?** Changelogs are read "what changed recently?" (scan from top). Journals are read "what led to this decision?" (follow the story).
+> **Why the difference?** Journals are read "what led to this decision?" (follow the story).
 
 ## Directory Structure
 
@@ -369,15 +368,12 @@ project-root/
 │   ├── research/        # Context: Global exploration
 │   │
 │   └── specs/           # Product Specs
-│       ├── readme.md        # System Dashboard
 │       ├── journal.md       # Global discussions
 │       ├── research/        # Global ADRs
 │       └── {feature}/       # Feature specs
-│           ├── readme.md
 │           ├── spec.md
 │           ├── design.md
 │           ├── tasks.md
-│           ├── changelog.md
 │           ├── journal.md
 │           └── research/
 ```
@@ -439,7 +435,6 @@ The `research/` directory stores decisions, proposals, and reference material. A
 | **Architecture** | design.md      | **State**: How to build, interfaces, schemas, patterns | Human + Agent |
 | **Tasks**        | tasks.md       | **History**: What to do, grouped by phase              | Human + Agent |
 | **Execution**    | GitHub Ticket  | **History**: Granular subtasks, session state          | Agent         |
-| **History**      | changelog.md   | **History**: Version tracking                          | Human + Agent |
 | **Research**     | research/\*.md | ADRs, RFCs, decision records                           | Human + Agent |
 
 ## Traceability & Annotation Standards
@@ -547,10 +542,10 @@ test("submitClaim creates new claim", async () => {
 
 ### Principles
 
-1. **Logical Grouping**: Group related tasks into single GitHub tickets.
-2. **Dependency Order**: Tasks within a group should flow naturally.
-3. **Agentic Scope**: Each ticket represents one focused work session.
-4. **File Proximity**: Tasks touching the same files should be grouped together.
+1.  **Logical Grouping**: Group related tasks into single GitHub tickets.
+2.  **Dependency Order**: Tasks within a group should flow naturally.
+3.  **Agentic Scope**: Each ticket represents one focused work session.
+4.  **File Proximity**: Tasks touching the same files should be grouped together.
 
 ### Naming & Numbering
 
@@ -561,11 +556,11 @@ Tasks: {Phase}.{Task}             (e.g., 0.1, 1.2)
 
 ### Definition of Done
 
-1. **Code exists**: Files created/modified as specified with `@see` links.
-2. **Path verified**: `/afx:check path` passes for the feature.
-3. **Types compile**: `npx tsc --noEmit` passes.
-4. **Tests pass**: Relevant tests execute successfully.
-5. **Build works**: `npx nx build` completes.
+1.  **Code exists**: Files created/modified as specified with `@see` links.
+2.  **Path verified**: `/afx:check path` passes for the feature.
+3.  **Types compile**: `npx tsc --noEmit` passes.
+4.  **Tests pass**: Relevant tests execute successfully.
+5.  **Build works**: `npx nx build` completes.
 
 ## GitHub Ticket Protocol
 
@@ -629,32 +624,32 @@ Agents **MUST** parse tickets using this template structure:
 
 When starting/resuming a session, Agents **MUST**:
 
-1. **READ** GitHub ticket (if exists) → See current state
-2. **READ** `journal.md` → Understand last session's work
-3. **CHECK** Discovered Issues → See pending edge cases
-4. **READ** linked spec/design → Get exact values and patterns
-5. **EXECUTE** only the assigned task
-6. **UPDATE** Journal when done
+1.  **READ** GitHub ticket (if exists) → See current state
+2.  **READ** `journal.md` → Understand last session's work
+3.  **CHECK** Discovered Issues → See pending edge cases
+4.  **READ** linked spec/design → Get exact values and patterns
+5.  **EXECUTE** only the assigned task
+6.  **UPDATE** Journal when done
 
-## Handoff Protocol
+## Context Protocol
 
-Before an agent session ends (timeout, window close), use `/afx:handoff prepare` to bundle context:
+Before an agent session ends (timeout, window close), use `/afx:context save` to bundle context:
 
 **Pre-Exit Checklist**:
 
-1. Update `journal.md` with latest session row.
-2. Commit "WIP" if necessary (or stash).
-3. Run `/afx:handoff prepare`.
+1.  Update `journal.md` with latest session row.
+2.  Commit "WIP" if necessary (or stash).
+3.  Run `/afx:context save`.
 
 **Entry Checklist**:
 
-1. Run `/afx:handoff resume`.
+1.  Run `/afx:context load`.
 
 **What Gets Bundled**:
 
 - Uncommitted changes + Active Task status + Key Decisions
 - Writes a "Prompt Bundle" to the session log
-- Next agent runs `/afx:handoff resume` to load that exact mental state
+  - New agent reads `docs/specs/afx-context.md`, reconstructs the context, and picks up seamlessly.
 
 > **Why?** Prevents "context death" where the next agent has to re-read everything from scratch.
 
@@ -878,14 +873,14 @@ When a GitHub issue is linked to the spec:
 | `/afx:discover tools`             | List dev/deployment tools              |
 | `/afx:discover capabilities`      | High-level project automation overview |
 
-### Setup & Handoff
+### Setup & Context
 
 | Command                    | Purpose                            |
 | :------------------------- | :--------------------------------- |
 | `/afx:init feature <name>` | Create new feature spec            |
 | `/afx:init config`         | Manage `.afx.yaml`                 |
-| `/afx:handoff prepare`     | Generate handoff bundle            |
-| `/afx:handoff resume`      | Load context from previous handoff |
+| `/afx:context save`        | Generate context bundle            |
+| `/afx:context load`        | Load context from previous context |
 | `/afx:help`                | Show command reference             |
 
 ## CLI Tooling Scripts

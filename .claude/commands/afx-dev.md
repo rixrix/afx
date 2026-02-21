@@ -69,21 +69,20 @@ Next (ranked):
 | Artifact             | When to Update                              |
 | -------------------- | ------------------------------------------- |
 | GitHub Session Log   | Always (date, task, action, files modified) |
-| Spec Changelog       | If behavior/API added or changed            |
 | Task Checkboxes      | Always for task-based work                  |
 | Discovered Issues    | If edge cases or issues found               |
 | `@see` links in code | Always for new code                         |
 
 ### When to Update by Action
 
-| Action     | Session Log | Changelog           | Task Checkbox | Discovered Issues |
-| ---------- | ----------- | ------------------- | ------------- | ----------------- |
-| `code`     | Always      | If behavior added   | Always        | If found          |
-| `debug`    | Always      | If spec was wrong   | N/A           | Always            |
-| `refactor` | Always      | If API changed      | If task-based | If found          |
-| `review`   | N/A         | N/A                 | N/A           | Always            |
-| `test`     | Always      | N/A                 | If task-based | If found          |
-| `optimize` | Always      | If behavior changed | If task-based | If found          |
+| Action     | Session Log | Task Checkbox | Discovered Issues |
+| ---------- | ----------- | ------------- | ----------------- |
+| `code`     | Always      | Always        | If found          |
+| `debug`    | Always      | N/A           | Always            |
+| `refactor` | Always      | If task-based | If found          |
+| `review`   | N/A         | N/A           | Always            |
+| `test`     | Always      | If task-based | If found          |
+| `optimize` | Always      | If task-based | If found          |
 
 ### Context Resumption
 
@@ -151,7 +150,7 @@ Before finishing:
 - [ ] Execution traces to DB?
 - [ ] `@see` links present?
 - [ ] `tsc` passes?
-- [ ] **Traceability**: Session Log, Changelog, Task checkbox updated? (See [Bidirectional Traceability](#bidirectional-traceability-mandatory))
+- [ ] **Traceability**: Session Log, Task checkbox updated? (See [Bidirectional Traceability](#bidirectional-traceability-mandatory))
 
 **Next Command** (after implementation):
 
@@ -306,7 +305,7 @@ Refactor code while preserving spec alignment.
 - [ ] All @see links valid
 - [ ] Tests pass
 - [ ] Build succeeds
-- [ ] **Traceability**: Session Log updated, Changelog updated if API changed (See [Bidirectional Traceability](#bidirectional-traceability-mandatory))
+- [ ] **Traceability**: Session Log updated (See [Bidirectional Traceability](#bidirectional-traceability-mandatory))
 
 Next: /afx:check path {feature-path} # Verify refactored code
 ```
@@ -439,7 +438,6 @@ Generate or run tests based on spec requirements.
 ```bash
 npx nx test {package}
 ```
-````
 
 Results: {X} passed, {Y} failed, {Z} skipped
 
@@ -467,7 +465,6 @@ Or if tests fail:
 ```
 
 Next: /afx:dev debug # Investigate test failures
-
 ````
 
 ---
@@ -480,7 +477,7 @@ Optimize performance based on constraints.
 
 ```bash
 /afx:dev optimize [target]
-````
+```
 
 ### Process
 
@@ -535,7 +532,6 @@ Optimize performance based on constraints.
 ### Traceability
 
 - [ ] Session Log updated
-- [ ] Changelog updated (if behavior changed)
 - [ ] Task checkbox marked (if task-based)
 - [ ] Discovered Issues documented (See [Bidirectional Traceability](#bidirectional-traceability-mandatory))
 

@@ -86,19 +86,19 @@ stateDiagram-v2
     C --> [*]
 ```
 
-**4. Stateful Session Handoffs & Continuity**
+**4. Stateful Session Contexts & Continuity**
 
-Close your laptop without losing context. `/afx:session save` records your train of thought, and `/afx:handoff prepare` bundles it so another agent can instantly resume tomorrow.
+Close your laptop without losing context. `/afx:session save` records your train of thought, and `/afx:context save` bundles it so another agent can instantly resume tomorrow.
 
 ```mermaid
 sequenceDiagram
     participant A as Agent 1 (Day 1)
-    participant H as handoff.md
+    participant H as afx-context.md
     participant B as Agent 2 (Day 2)
 
-    A->>H: /afx:handoff prepare
+    A->>H: /afx:context save
     Note over A,H: Saves tasks, decisions, uncommitted files
-    B->>H: /afx:handoff resume
+    B->>H: /afx:context load
     Note over H,B: Loads exact mental state
     B->>B: /afx:dev code (Continues work)
 ```
@@ -115,13 +115,13 @@ sequenceDiagram
 
 ## The Four-File Structure
 
-```
+```text
 docs/specs/user-authentication/
-├── readme.md    # Feature dashboard (start here)
 ├── spec.md      # Requirements - WHAT to build
 ├── design.md    # Architecture - HOW to build it
 ├── tasks.md     # Implementation checklist - WHEN/WHO
-└── journal.md   # Session logs - WHY decisions were made
+├── journal.md   # Session logs - WHY decisions were made
+└── research/    # (Auxiliary) ADRs and decision records
 ```
 
 **`spec.md`** - Requirements only. No implementation details. This is a living document that represents the _current factual state_ of requirements.
@@ -151,6 +151,12 @@ docs/specs/user-authentication/
 - Records context: what was discussed, why decisions were made, blockers encountered
 - Makes sessions resumable days/weeks later
 - Example: "Decided on JWT over sessions due to mobile app requirements"
+
+**`research/`** - (Auxiliary) Dedicated space for Architectural Decision Records (ADRs) and deep-dive explorations.
+
+- Used when a decision is too complex for a quick `journal.md` entry.
+- Stores immutable records of why a specific technical path was chosen.
+- Keeps `design.md` clean by moving historical context out of the living document.
 
 **Why four files instead of one?**
 
@@ -235,8 +241,8 @@ Creates the four-file spec structure (spec.md, design.md, tasks.md, journal.md) 
 - `recall <session-id>` - Restore previous session context
 - `list` - Browse all recorded sessions across features
 
-**`/afx:handoff create|accept`** - Agent transitions
-Package current context for handoff to another agent or future session. Includes spec state, task progress, verification status, and discussion history.
+**`/afx:context save|load`** - Context transitions
+Package current context for transfer to another agent or future session. Includes spec state, task progress, verification status, and discussion history.
 
 ### Reporting
 
@@ -342,14 +348,14 @@ stateDiagram-v2
 # Task closed with both verifications
 ```
 
-**Day 3: Handoff to another developer**
+**Day 3: Transfer to another developer**
 
 ```bash
-/afx:handoff create
+/afx:context save
 # Packages: spec state, completed tasks, open discussions, verification status
 
 # Other developer:
-/afx:handoff accept
+/afx:context load
 # Full context restored, continues from task 1.3 without explanation needed
 ```
 
@@ -413,7 +419,7 @@ graph LR
 afx/
 ├── .claude/commands/     # AFX slash commands for Claude Code
 ├── docs/                 # Framework documentation
-├── templates/            # Spec templates (spec, design, tasks, journal, readme)
+├── templates/            # Spec templates (spec, design, tasks, journal, adr)
 ├── prompts/              # CLAUDE.md integration snippets
 ├── examples/             # Example project setup
 ├── install.sh            # One-line installer script
@@ -426,7 +432,7 @@ afx/
 your-project/
 ├── .claude/commands/     # AFX slash commands
 ├── docs/
-│   ├── afx/              # AFX reference documentation
+│   ├── agenticflowx/     # AFX reference documentation
 │   │   ├── agenticflowx.md
 │   │   ├── guide.md
 │   │   ├── cheatsheet.md
@@ -435,7 +441,7 @@ your-project/
 │   │       ├── design.md
 │   │       ├── tasks.md
 │   │       ├── journal.md
-│   │       └── readme.md
+│   │       └── adr.md
 │   └── specs/            # Your feature specifications
 │       └── {feature}/
 │           ├── spec.md
@@ -585,7 +591,7 @@ Reason: Spec requires 24-hour expiry, but implementation hardcodes 1-hour expiry
 ## Core Philosophy
 
 - **State vs Event Separation**
-  - Maintain a strict boundary between living documents (`spec.md`, `design.md`) which reflect the _current factual state_, and append-only logs (`journal.md`, `tasks.md`, `changelog.md`) which record _events_ of how the system evolved.
+  - Maintain a strict boundary between living documents (`spec.md`, `design.md`) which reflect the _current factual state_, and append-only logs (`journal.md`, `tasks.md`) which record _events_ of how the system evolved.
 - **Specs as Executable Contracts**
   - Specifications are living rules AI agents read and enforce during runtime, not documentation that gets written and forgotten.
 - **Bidirectional Traceability**
@@ -649,18 +655,18 @@ tags: [auth, security, api] # Categorization
 
 ## Common Scenarios
 
-| Problem                                       | Solution                                                 | Command                        |
-| --------------------------------------------- | -------------------------------------------------------- | ------------------------------ |
-| Need to step away mid-task                    | Save context, resume later with full memory              | `/afx:session save → resume`   |
-| Claude added features I didn't ask for        | Claude reads approved spec, only implements listed tasks | `/afx:work next <spec>`        |
-| Need to prove feature actually works          | Trace execution from UI → logic → database               | `/afx:check path`              |
-| Can't remember why we made a design decision  | Recall saved session with full context                   | `/afx:session recall`          |
-| New developer needs to take over              | Package context, handoff with zero explanation needed    | `/afx:handoff create → accept` |
-| Refactor broke something but tests still pass | Path verification catches missing execution links        | `/afx:check path`              |
-| Which code breaks if I change this spec?      | Impact analysis shows all `@see` links to that section   | `/afx:report traceability`     |
-| Lost in codebase, what should I work on?      | Context-aware guidance based on project state            | `/afx:next`                    |
-| Need to understand what this function does    | Read `@see` annotation to jump to spec                   | Check JSDoc in code            |
-| Task marked done but not actually complete    | Two-stage verification: agent + human both must approve  | `/afx:task verify → close`     |
+| Problem                                       | Solution                                                 | Command                      |
+| --------------------------------------------- | -------------------------------------------------------- | ---------------------------- |
+| Need to step away mid-task                    | Save context, resume later with full memory              | `/afx:session save → resume` |
+| Claude added features I didn't ask for        | Claude reads approved spec, only implements listed tasks | `/afx:work next <spec>`      |
+| Need to prove feature actually works          | Trace execution from UI → logic → database               | `/afx:check path`            |
+| Can't remember why we made a design decision  | Recall saved session with full context                   | `/afx:session recall`        |
+| New developer needs to take over              | Package context, transfer with zero explanation needed   | `/afx:context save → load`   |
+| Refactor broke something but tests still pass | Path verification catches missing execution links        | `/afx:check path`            |
+| Which code breaks if I change this spec?      | Impact analysis shows all `@see` links to that section   | `/afx:report traceability`   |
+| Lost in codebase, what should I work on?      | Context-aware guidance based on project state            | `/afx:next`                  |
+| Need to understand what this function does    | Read `@see` annotation to jump to spec                   | Check JSDoc in code          |
+| Task marked done but not actually complete    | Two-stage verification: agent + human both must approve  | `/afx:task verify → close`   |
 
 ## Quick Start
 

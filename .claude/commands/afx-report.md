@@ -89,7 +89,7 @@ echo "| --- | --- |"
 find docs/specs -maxdepth 1 -type d | grep -v "docs/specs$" | while read -r DIR; do
   FEATURE=$(basename "$DIR")
   if [ "$FEATURE" != "_templates" ] && [ "$FEATURE" != "readme.md" ]; then
-    REQUIRED=("readme.md" "spec.md" "design.md" "tasks.md" "journal.md")
+    REQUIRED=("spec.md" "design.md" "tasks.md" "journal.md")
     MISSING_FILES=""
     for FILE in "${REQUIRED[@]}"; do
       if [ ! -f "$DIR/$FILE" ]; then
@@ -200,14 +200,12 @@ For each orphan, add @see reference:
  * @see docs/specs/{feature}/tasks.md#{task}
  */
 ```
-````
 
 Next (ranked):
 
 1. /afx:check lint notification.service.ts:1 # Fix first orphan
 2. /afx:dev code # Add @see links
 3. /afx:report health # Re-check after fixes
-
 ````
 
 ---
@@ -220,7 +218,7 @@ Show requirements coverage - which spec items have implementations.
 
 ```bash
 /afx:report coverage <spec>
-````
+```
 
 ### Process
 
@@ -349,12 +347,12 @@ Next (ranked):
 
 ## Metric Definitions
 
-| Metric                | Calculation                                                                              |
-| --------------------- | ---------------------------------------------------------------------------------------- |
-| **Spec Completeness** | % of specs with all required files (readme, spec, design, tasks, changelog, session-log) |
-| **Link Validity**     | % of @see links that resolve to valid anchors                                            |
-| **Code Coverage**     | % of spec requirements with at least one @see backlink                                   |
-| **Session Activity**  | % of specs with session log entries in last 30 days                                      |
+| Metric                | Calculation                                                       |
+| --------------------- | ----------------------------------------------------------------- |
+| **Spec Completeness** | % of specs with all required files (spec, design, tasks, journal) |
+| **Link Validity**     | % of @see links that resolve to valid anchors                     |
+| **Code Coverage**     | % of spec requirements with at least one @see backlink            |
+| **Session Activity**  | % of specs with session log entries in last 30 days               |
 
 ---
 

@@ -2,73 +2,59 @@
 
 > Add this section to your CLAUDE.md to document the frontmatter schema for AFX documents.
 
-```markdown
 ### AFX Frontmatter Schema
 
-All AFX-managed files use YAML frontmatter for Obsidian/Dataview compatibility. The `afx: true` marker identifies AFX-owned documents.
+All AFX-managed files use YAML frontmatter to support external tooling and metadata queries. The `afx: true` marker identifies AFX-owned documents.
 
 **Full Schema (SPEC, DESIGN, TASKS):**
 
-\`\`\`yaml
+```yaml
 ---
 afx: true # AFX ownership marker (required)
 type: SPEC # Document type (required)
 status: Draft # Draft | Approved | Living
-owner: '@handle' # GitHub handle
+owner: "@handle" # GitHub handle
 priority: High # High | Medium | Low (SPEC only)
 version: 1.0 # Semantic versioning
 created: YYYY-MM-DDTHH:MM:SSZ # ISO 8601 creation timestamp
 last_verified: YYYY-MM-DD # Last review date
 tags: [feature, topic] # Content tags (Obsidian convention)
 ---
-\`\`\`
+```
 
-**Minimal Schema (COMMAND, README, JOURNAL, CHANGELOG):**
+**Minimal Schema (COMMAND, JOURNAL):**
 
-\`\`\`yaml
+```yaml
 ---
 afx: true
 type: COMMAND
 status: Living
 tags: [afx, command, topic]
 ---
-\`\`\`
+```
 
 **Research Schema (RES, ADR):**
 
-\`\`\`yaml
+```yaml
 ---
 afx: true
 id: 0001 # Optional numbered ID
 type: RES # RES | ADR
 status: Approved # Draft | Approved | Deprecated
-owner: '@handle'
+owner: "@handle"
 date: YYYY-MM-DD # Decision/creation date
 tags: [topic1, topic2]
 ---
-\`\`\`
+```
 
 **Document Types:**
 
-| Type        | Purpose               | Location                            |
-| ----------- | --------------------- | ----------------------------------- |
-| `SPEC`      | Feature specification | docs/specs/{feature}/spec.md        |
-| `DESIGN`    | Technical design      | docs/specs/{feature}/design.md      |
-| `TASKS`     | Implementation tasks  | docs/specs/{feature}/tasks.md       |
-| `JOURNAL`   | Session log           | docs/specs/{feature}/journal.md     |
-| `CHANGELOG` | Version history       | docs/specs/{feature}/changelog.md   |
-| `README`    | Feature landing page  | docs/specs/{feature}/readme.md      |
-| `RES`       | Research/exploration  | docs/specs/{feature}/research/*.md  |
-| `ADR`       | Architecture decision | docs/specs/{feature}/research/*.md  |
-| `COMMAND`   | AFX slash command     | .claude/commands/afx-*.md           |
-
-**Dataview Queries:**
-
-\`\`\`dataview
-# All AFX files
-FROM "" WHERE afx = true
-
-# All specs in Draft
-FROM "docs/specs" WHERE type = "SPEC" AND status = "Draft"
-\`\`\`
-```
+| Type      | Purpose               | Location                            |
+| --------- | --------------------- | ----------------------------------- |
+| `SPEC`    | Feature specification | docs/specs/{feature}/spec.md        |
+| `DESIGN`  | Technical design      | docs/specs/{feature}/design.md      |
+| `TASKS`   | Implementation tasks  | docs/specs/{feature}/tasks.md       |
+| `JOURNAL` | Session log           | docs/specs/{feature}/journal.md     |
+| `RES`     | Research/exploration  | docs/specs/{feature}/research/\*.md |
+| `ADR`     | Architecture decision | docs/specs/{feature}/research/\*.md |
+| `COMMAND` | AFX slash command     | .claude/commands/afx-\*.md          |
