@@ -30,6 +30,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `/afx:handoff` - Agent session handoff
 - `/afx:help` - Command reference
 
+## [1.0.1] - 2026-02-22
+
+### Added
+
+- Industry-standard template for Architectural Decision Records (`templates/adr.md`).
+- Concrete example ADR in `examples/minimal-project`.
+
+### Changed
+
+- Comprehensively updated `README.md` to be less verbose, and highlight the `research/` directory.
+- Renamed the agent `/afx:handoff` command to `/afx:context` for better terminology alignment.
+- Renamed context subcommands from `prepare/resume` to `save/load`.
+- Updated data retention logic in `/afx:context load` to preserve the context file during load operations rather than immediately clearing it, protecting against accidental window closes.
+- Unified and scrubbed legacy `(formerly X)` historical command references from living documentation.
+
+### Removed
+
+- Deleted the obsolete `templates/readme.md` file.
+- Stripped all `changelog` sections out of individual `.claude/commands/*.md` documents in favor of this single root CHANGELOG.md.
+- Removed Obsidian-specific Dataview queries from the `yaml-frontmatter.md` prompt to remain tool-agnostic.
+
+### Fixed
+
+- Re-formatted broken markdown codeblocks and syntax wrappers inside `prompts/yaml-frontmatter.md`.
+- Corrected linguistic overlaps in documentation (e.g., "Context to another developer") generated during the handoff terminology rename.
+
 ## [Unreleased]
 
 ### Planned
