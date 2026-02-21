@@ -56,6 +56,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Re-formatted broken markdown codeblocks and syntax wrappers inside `prompts/yaml-frontmatter.md`.
 - Corrected linguistic overlaps in documentation (e.g., "Context to another developer") generated during the handoff terminology rename.
 
+## [1.0.4] - 2026-02-22
+
+### Changed
+
+- Transitioned the YAML frontmatter `@handle` dummy string from double quotes to single quotes to align with standard style preferences in generated defaults.
+
+## [1.0.3] - 2026-02-22
+
+### Fixed
+
+- Fixed a bug in `install.sh` where updating `CLAUDE.md` failed with an `awk: newline in string` error due to multi-line evaluation limits. The script now employs a robust file-slicing method.
+
+## [1.0.2] - 2026-02-22
+
+### Fixed
+
+- Abstracted the hardcoded repository path out of `install.sh` and corrected outdated payload endpoints in `README.md` to properly point at `rixrix/afx.git`.
+
 ## [Unreleased]
 
 ### Planned
