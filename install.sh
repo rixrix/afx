@@ -15,9 +15,12 @@
 
 set -e
 
-# AFX Version (update this when releasing)
-AFX_VERSION="1.0.0"
+# AFX Version (dynamic from CHANGELOG.md)
 AFX_REPO="rixrix/afx"
+AFX_VERSION=$(curl -sL "https://raw.githubusercontent.com/${AFX_REPO}/main/CHANGELOG.md" | awk '/^## \[/ {print substr($2, 2, length($2)-2); exit}')
+if [ -z "$AFX_VERSION" ]; then
+    AFX_VERSION="Unknown"
+fi
 
 # Boundary markers for CLAUDE.md
 AFX_START_MARKER="<!-- AFX:START - Managed by AFX. Do not edit manually. -->"
