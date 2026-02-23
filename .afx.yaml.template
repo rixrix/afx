@@ -9,6 +9,7 @@ version: '1.0'
 # ─────────────────────────────────────────────────────────────────────────────
 paths:
   specs: 'docs/specs'                    # Root directory for all specs
+  adr: 'docs/adr'                        # Global architecture decision records
   templates: 'docs/agenticflowx/templates'        # Path to AFX templates
   sessions: 'docs/specs'                 # Global discussions (root)
 

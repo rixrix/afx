@@ -115,13 +115,15 @@ sequenceDiagram
 
 ## The Four-File Structure
 
+Every feature gets four files that separate concerns cleanly:
+
 ```text
 docs/specs/user-authentication/
 ├── spec.md      # Requirements - WHAT to build
 ├── design.md    # Architecture - HOW to build it
 ├── tasks.md     # Implementation checklist - WHEN/WHO
 ├── journal.md   # Session logs - WHY decisions were made
-└── research/    # (Auxiliary) ADRs and decision records
+└── research/    # (Auxiliary) Feature-local ADRs
 ```
 
 **`spec.md`** - Requirements only. No implementation details. This is a living document that represents the _current factual state_ of requirements.
@@ -152,7 +154,7 @@ docs/specs/user-authentication/
 - Makes sessions resumable days/weeks later
 - Example: "Decided on JWT over sessions due to mobile app requirements"
 
-**`research/`** - (Auxiliary) Dedicated space for Architectural Decision Records (ADRs) and deep-dive explorations.
+**`research/`** - (Auxiliary) Dedicated space for feature-local decision records and deep-dive explorations.
 
 - Used when a decision is too complex for a quick `journal.md` entry.
 - Stores immutable records of why a specific technical path was chosen.
@@ -180,6 +182,45 @@ graph LR
 - **Approval workflow**: Freeze `spec.md`, iterate on `design.md`
 - **Context preservation**: Journal captures the "why" that's lost in code comments
 - **Agent guidance**: Claude reads the right file for the right purpose
+
+## Architecture Decision Records (ADRs)
+
+Decisions get lost in Slack threads, PR comments, and meeting notes. ADRs capture _why_ a technical choice was made so future developers (and AI agents) don't re-debate settled decisions.
+
+AFX supports ADRs at two levels:
+
+```text
+docs/adr/                          # Global ADRs (cross-cutting)
+├── ADR-0001-database-choice.md
+├── ADR-0002-api-versioning.md
+└── ...
+
+docs/specs/{feature}/research/     # Feature-local ADRs
+├── 0001-auth-provider.md
+└── ...
+```
+
+**Global ADRs** (`docs/adr/`) are for decisions that affect the entire project — database choice, API versioning strategy, deployment architecture, coding standards. These are created with:
+
+```bash
+/afx:init adr "database choice"
+# Creates: docs/adr/ADR-0001-database-choice.md
+```
+
+**Feature-local ADRs** (`docs/specs/{feature}/research/`) are scoped to a single feature — which auth provider to use, pagination strategy for a specific API, etc. These are promoted from discussions via `/afx:session promote`.
+
+Each ADR follows a standard lifecycle:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Proposed
+    Proposed --> Accepted
+    Proposed --> Rejected
+    Accepted --> Deprecated
+    Accepted --> Superseded
+```
+
+**Why this matters for AI agents**: When Claude encounters a decision point (e.g., "Should I use Redis or Memcached for caching?"), it checks existing ADRs first. If `ADR-0003-caching-strategy.md` already says "Use Redis because X, Y, Z", Claude follows the decision instead of re-debating it.
 
 ## Global Context vs Local Context
 
@@ -239,8 +280,10 @@ Scans your codebase to understand build systems, test runners, package managers,
 **`/afx:dev code|refactor|fix`** - Traced development
 Write code with automatic `@see` annotation insertion. Claude links every function back to the spec section or task that required it. No orphaned code.
 
-**`/afx:init feature|experiment <name>`** - Scaffold new work
-Creates the four-file spec structure (spec.md, design.md, tasks.md, journal.md) with proper frontmatter and templates.
+**`/afx:init feature|adr <name>`** - Scaffold new work
+
+- `feature <name>` - Creates the four-file spec structure (spec.md, design.md, tasks.md, journal.md)
+- `adr <title>` - Creates a global ADR in `docs/adr/` with auto-incrementing numbering
 
 ### Verification
 
@@ -441,7 +484,10 @@ graph LR
 ```
 afx/
 ├── .claude/commands/     # AFX slash commands for Claude Code
-├── docs/                 # Framework documentation
+├── docs/
+│   ├── adr/             # Global Architecture Decision Records
+│   ├── agenticflowx/    # Framework documentation
+│   └── specs/           # Feature specifications
 ├── templates/            # Spec templates (spec, design, tasks, journal, adr)
 ├── prompts/              # CLAUDE.md integration snippets
 ├── examples/             # Example project setup
@@ -455,6 +501,7 @@ afx/
 your-project/
 ├── .claude/commands/     # AFX slash commands
 ├── docs/
+│   ├── adr/              # Global Architecture Decision Records
 │   ├── agenticflowx/     # AFX reference documentation
 │   │   ├── agenticflowx.md
 │   │   ├── guide.md
@@ -484,6 +531,7 @@ version: "1.0"
 
 paths:
   specs: "docs/specs"
+  adr: "docs/adr"
   templates: "docs/agenticflowx/templates"
 
 features:
@@ -713,6 +761,7 @@ This installs:
 - Configuration file `.afx.yaml`
 - AFX documentation to `docs/agenticflowx/`
 - AFX snippets to `CLAUDE.md`
+- Directory structure: `docs/specs/` and `docs/adr/`
 
 ## How to create your first specs
 

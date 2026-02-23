@@ -1,0 +1,36 @@
+# AFX dogfooding — using AFX to develop AFX
+version: "1.0"
+
+paths:
+  specs: "docs/specs"
+  adr: "docs/adr" # Global architecture decision records
+  templates: "templates" # Templates live at repo root
+  sessions: "docs/specs"
+
+features:
+  - global-adr
+
+context:
+  architecture: "docs/agenticflowx"
+
+prefixes:
+  specs: GEN
+  global-adr: GA
+
+quality_gates:
+  require_path_check: false # No runtime code to trace
+  require_human_approval: true
+  block_on_mock_code: false # No source code
+
+verification:
+  two_stage: true
+  stale_threshold_days: 30
+
+ai_attribution:
+  enabled: true # Enable @ai-assisted annotations
+  required: false # Set to true for compliance-heavy projects
+  format: "@ai-assisted {model} {date}"
+
+# No source code — these don't apply for a docs/tooling repo
+require_see_links: []
+scan_for_orphans: []

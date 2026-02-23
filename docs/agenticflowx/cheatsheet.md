@@ -22,6 +22,7 @@ tags: [afx, reference, cheatsheet]
 | Goal                    | Command                           | Notes                                |
 | :---------------------- | :-------------------------------- | :----------------------------------- |
 | **New Feature**         | `/afx:init feature <name>`        | Creates full scaffold (`docs/specs`) |
+| **New ADR**             | `/afx:init adr <title>`           | Creates global ADR in `docs/adr/`    |
 | **Discover Project**    | `/afx:discover capabilities`      | Understand existing setup            |
 | **Find Infrastructure** | `/afx:discover infra [type]`      | Locate provisioning scripts          |
 | **Find Scripts**        | `/afx:discover scripts [keyword]` | Find automation/deployment scripts   |
@@ -84,10 +85,14 @@ export function search() { ... }
 ## File Layout
 
 ```text
-docs/specs/{feature}/
+docs/adr/                  # Global ADRs (cross-cutting decisions)
+├── ADR-0001-slug.md
+└── ...
+
+docs/specs/{feature}/      # Feature specs
 ├── spec.md       # Requirements (What)
 ├── design.md     # Architecture (How)
 ├── tasks.md      # Checklist (Progress)
 ├── journal.md    # Discussion Log (History)
-└── research/     # Decisions (ADRs)
+└── research/     # Feature-local decisions (ADRs)
 ```

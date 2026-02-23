@@ -343,19 +343,19 @@ tags: [topic1, topic2]
 
 ### Document Types
 
-| Type        | Description                                                              | Location                          |
-| :---------- | :----------------------------------------------------------------------- | :-------------------------------- |
-| Type        | Description                                                              | Location                          |
-| :---------- | :----------------------------------------------------------------------- | :-------------------------------- |
-| `SPEC`      | **Living state doc**: Functional requirements and user stories           | `docs/specs/{feature}/spec.md`    |
-| `DESIGN`    | **Living state doc**: Technical architecture and data models             | `docs/specs/{feature}/design.md`  |
-| `TASKS`     | Implementation checklist and status                                      | `docs/specs/{feature}/tasks.md`   |
-| `RES`       | Research findings (exploration)                                          | `docs/specs/{feature}/research/`  |
-| `ADR`       | Architectural Decision Record (final decision)                           | `docs/specs/{feature}/research/`  |
-| `JOURNAL`   | **Append-only historical log**: Session logs and history                 | `docs/specs/{feature}/journal.md` |
-| `COMMAND`   | AFX slash command definition                                             | `.claude/commands/afx-*.md`       |
-| `GUIDE`     | Developer guides and handbooks                                           | `docs/guides/*.md`                |
-| `FRAMEWORK` | Framework documentation (like this file)                                 | `docs/agenticflowx/*.md`          |
+| Type        | Description                                                              | Location                                                         |
+| :---------- | :----------------------------------------------------------------------- | :--------------------------------------------------------------- |
+| Type        | Description                                                              | Location                                                         |
+| :---------- | :----------------------------------------------------------------------- | :--------------------------------                                |
+| `SPEC`      | **Living state doc**: Functional requirements and user stories           | `docs/specs/{feature}/spec.md`                                   |
+| `DESIGN`    | **Living state doc**: Technical architecture and data models             | `docs/specs/{feature}/design.md`                                 |
+| `TASKS`     | Implementation checklist and status                                      | `docs/specs/{feature}/tasks.md`                                  |
+| `RES`       | Research findings (exploration)                                          | `docs/specs/{feature}/research/`                                 |
+| `ADR`       | Architectural Decision Record (final decision)                           | `docs/adr/` (global) or `docs/specs/{feature}/research/` (local) |
+| `JOURNAL`   | **Append-only historical log**: Session logs and history                 | `docs/specs/{feature}/journal.md`                                |
+| `COMMAND`   | AFX slash command definition                                             | `.claude/commands/afx-*.md`                                      |
+| `GUIDE`     | Developer guides and handbooks                                           | `docs/guides/*.md`                                               |
+| `FRAMEWORK` | Framework documentation (like this file)                                 | `docs/agenticflowx/*.md`                                         |
 
 ### Ordering Conventions
 
@@ -380,6 +380,10 @@ project-root/
 │   │   ├── guide.md          # Methodology (SDD)
 │   │   └── templates/        # Spec templates
 │   │
+│   ├── adr/             # Global Architecture Decision Records
+│   │   ├── ADR-0001-short-slug.md
+│   │   └── ...
+│   │
 │   ├── architecture/    # Context: System constraints
 │   ├── proposals/       # Context: Business intent
 │   ├── research/        # Context: Global exploration
@@ -403,6 +407,10 @@ AFX settings are stored in `.afx.yaml` at project root:
 # .afx.yaml - key settings
 version: "1.0"
 
+paths:
+  specs: "docs/specs" # Feature spec directory
+  adr: "docs/adr" # Global ADR directory (default: docs/adr)
+
 ai_attribution:
   enabled: true # Enable @ai-assisted annotations
   required: false # Set true for compliance projects
@@ -425,6 +433,15 @@ See [.afx.yaml](../../.afx.yaml) for all configuration options.
 ## Research Folder Standards
 
 The `research/` directory stores decisions, proposals, and reference material. All files must follow naming conventions and include frontmatter.
+
+### Global vs Feature-Local ADRs
+
+| Scope             | Location                         | Naming                       | Use When                                            |
+| :---------------- | :------------------------------- | :--------------------------- | :-------------------------------------------------- |
+| **Global**        | `docs/adr/`                      | `ADR-NNNN-slug.md` (4-digit) | Cross-cutting decisions affecting the whole project |
+| **Feature-local** | `docs/specs/{feature}/research/` | `0001-slug.md`               | Decisions scoped to a single feature                |
+
+Global ADRs are created via `/afx:init adr <title>`. The path is configured in `.afx.yaml` under `paths.adr` (default: `docs/adr`).
 
 ### File Types & Naming
 
@@ -895,6 +912,7 @@ When a GitHub issue is linked to the spec:
 | Command                    | Purpose                            |
 | :------------------------- | :--------------------------------- |
 | `/afx:init feature <name>` | Create new feature spec            |
+| `/afx:init adr <title>`    | Create global ADR in `docs/adr/`   |
 | `/afx:init config`         | Manage `.afx.yaml`                 |
 | `/afx:context save`        | Generate context bundle            |
 | `/afx:context load`        | Load context from previous context |

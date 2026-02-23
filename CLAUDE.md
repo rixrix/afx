@@ -19,11 +19,13 @@ This is a **documentation and tooling repository** - it contains:
 afx/
 ├── .claude/commands/     # AFX slash commands (/afx:*)
 ├── docs/
-│   └── agenticflowx/
-│       ├── agenticflowx.md  # Full framework manual
-│       ├── guide.md         # SDD methodology guide
-│       └── cheatsheet.md    # Quick reference
-├── templates/           # Spec templates (spec.md, design.md, tasks.md, etc.)
+│   ├── adr/             # Global Architecture Decision Records
+│   ├── agenticflowx/
+│   │   ├── agenticflowx.md  # Full framework manual
+│   │   ├── guide.md         # SDD methodology guide
+│   │   └── cheatsheet.md    # Quick reference
+│   └── specs/           # Feature specs (spec.md, design.md, tasks.md, journal.md)
+├── templates/           # Spec templates (spec.md, design.md, tasks.md, adr.md, etc.)
 ├── prompts/             # Snippets to add to target project CLAUDE.md
 ├── examples/            # Example project setup
 └── .afx.yaml.template   # Configuration template
@@ -70,7 +72,7 @@ Code MUST link back to specs via JSDoc `@see` annotations:
 | `/afx:check`    | Quality gates (path, lint, links)                   |
 | `/afx:task`     | Task verification and auditing                      |
 | `/afx:session`  | Discussion capture and recall                       |
-| `/afx:init`     | Feature scaffolding                                 |
+| `/afx:init`     | Feature scaffolding + ADR creation                  |
 | `/afx:context`  | Agent session context                               |
 
 ### Standard Workflow
@@ -103,7 +105,7 @@ All AFX documents use YAML frontmatter:
 afx: true # AFX ownership marker
 type: SPEC # SPEC | DESIGN | TASKS | JOURNAL | COMMAND
 status: Draft # Draft | Approved | Living
-owner: '@handle'
+owner: "@handle"
 version: 1.0
 tags: [feature, topic]
 ---

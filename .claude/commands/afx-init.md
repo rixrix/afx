@@ -9,13 +9,22 @@ tags: [afx, command, init, scaffolding]
 
 Feature spec scaffolding for AgenticFlowX projects.
 
-**Config**: Reads settings from `.afx.yaml` at project root.
+## Configuration
+
+**Read `.afx.yaml`** at project root to resolve paths:
+
+- `paths.specs` - Where spec files live (default: `docs/specs`)
+- `paths.adr` - Where global ADRs live (default: `docs/adr`)
+- `paths.templates` - Where templates live (default: `docs/agenticflowx/templates`)
+
+If `.afx.yaml` doesn't exist, use defaults.
 
 ## Usage
 
 ```bash
 /afx:init feature <name>                    # Create new feature spec
 /afx:init feature <name> --from <template>  # Create from existing template
+/afx:init adr <title>                       # Create numbered ADR in docs/adr/
 /afx:init template <name>                   # Create reusable template from feature
 /afx:init prefix <feature> <prefix>         # Set discussion ID prefix
 /afx:init config <action> <key> [value]     # Manage .afx.yaml config
@@ -30,6 +39,7 @@ Feature spec scaffolding for AgenticFlowX projects.
 | Context                  | Suggested Next Command                |
 | ------------------------ | ------------------------------------- |
 | After `feature` created  | `/afx:spec show <name>`               |
+| After `adr` created      | `Edit docs/adr/ADR-NNNN-*.md`         |
 | After `template` created | `/afx:init feature --from <template>` |
 | After `prefix` set       | `/afx:session capture <feature>`      |
 
@@ -376,6 +386,73 @@ esac
 
 ---
 
+## 5. adr
+
+Create a global architecture decision record in `docs/adr/`.
+
+### Usage
+
+```bash
+/afx:init adr <title>
+```
+
+Where `<title>` is a short noun phrase (e.g., "database choice", "api versioning strategy"). Gets kebab-cased into the filename slug.
+
+### Process
+
+1. Read `paths.adr` from `.afx.yaml` (default: `docs/adr`)
+2. Create ADR directory if it doesn't exist
+3. Scan directory for highest existing `ADR-NNNN` number
+4. Increment → next number, zero-padded to 4 digits
+5. Slugify title → kebab-case
+6. Read `templates/adr.md` for the file structure and frontmatter format
+7. **Generate real content** — use the title to write a meaningful first draft:
+   - **Context**: Describe the problem space and why this decision is needed now
+   - **Decision**: State "To be decided" with the key options identified
+   - **Rationale**: Leave as "Pending analysis" (user fills this after deciding)
+   - **Consequences**: List likely trade-offs for each option being considered
+   - **Alternatives Considered**: List 2-3 concrete alternatives relevant to the title
+8. Write the file using the **Write tool** (NOT a bash heredoc with placeholders)
+9. Output confirmation with file path
+
+**IMPORTANT**: Do NOT just copy the template with `{placeholder}` text. You MUST generate real, meaningful content for each section based on the ADR title and any available project context.
+
+### Numbering Script
+
+Run this to determine the next ADR number and resolve the directory:
+
+```bash
+CONFIG=".afx.yaml"
+ADR_DIR="docs/adr"
+if [ -f "$CONFIG" ]; then
+  CONFIGURED=$(grep 'adr:' "$CONFIG" | head -1 | sed "s/.*adr:[[:space:]]*['\"]*//" | sed "s/['\"].*//")
+  [ -n "$CONFIGURED" ] && ADR_DIR="$CONFIGURED"
+fi
+mkdir -p "$ADR_DIR"
+LAST=$(ls "$ADR_DIR"/ADR-*.md 2>/dev/null | sed 's/.*ADR-\([0-9]*\).*/\1/' | sort -n | tail -1)
+NEXT=$(printf "%04d" $(( ${LAST:-0} + 1 )))
+echo "NEXT=$NEXT ADR_DIR=$ADR_DIR"
+```
+
+Then use the **Write tool** to create `$ADR_DIR/ADR-$NEXT-{slug}.md` with the generated content.
+
+### Output
+
+```markdown
+## ADR Created: ADR-NNNN-{slug}
+
+**File**: docs/adr/ADR-NNNN-{slug}.md
+**Status**: Proposed
+
+Next (ranked):
+
+1. Edit docs/adr/ADR-NNNN-{slug}.md # Fill in context & decision
+2. /afx:session capture specs "ADR discussion" # Capture related discussion
+3. /afx:work status # Check project state
+```
+
+---
+
 ## Error Handling
 
 **Feature already exists:**
@@ -404,6 +481,14 @@ Choose a different prefix: /afx:init prefix {feature} XX
 ```
 Error: Template 'custom-template' not found
 Available templates: default, api-feature, ui-component
+```
+
+**ADR title missing:**
+
+```
+Error: Title required
+Usage: /afx:init adr <title>
+Example: /afx:init adr "database choice"
 ```
 
 ---
@@ -491,3 +576,4 @@ tags: [{ feature }, journal]
 | `/afx:work plan`   | Generate tasks after spec created |
 | `/afx:session`     | Capture discussions in journal    |
 | `/afx:check links` | Verify spec integrity             |
+| `/afx:init adr`    | Create global ADR in docs/adr/    |

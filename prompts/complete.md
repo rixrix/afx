@@ -96,14 +96,14 @@ tags: [afx, command, topic]
 
 **Document Types:**
 
-| Type      | Purpose               | Location                            |
-| --------- | --------------------- | ----------------------------------- |
-| `SPEC`    | Feature specification | docs/specs/{feature}/spec.md        |
-| `DESIGN`  | Technical design      | docs/specs/{feature}/design.md      |
-| `TASKS`   | Implementation tasks  | docs/specs/{feature}/tasks.md       |
-| `JOURNAL` | Session log           | docs/specs/{feature}/journal.md     |
-| `RES`     | Research/exploration  | docs/specs/{feature}/research/\*.md |
-| `ADR`     | Architecture decision | docs/specs/{feature}/research/\*.md |
+| Type      | Purpose               | Location                                                     |
+| --------- | --------------------- | ------------------------------------------------------------ |
+| `SPEC`    | Feature specification | docs/specs/{feature}/spec.md                                 |
+| `DESIGN`  | Technical design      | docs/specs/{feature}/design.md                               |
+| `TASKS`   | Implementation tasks  | docs/specs/{feature}/tasks.md                                |
+| `JOURNAL` | Session log           | docs/specs/{feature}/journal.md                              |
+| `RES`     | Research/exploration  | docs/specs/{feature}/research/\*.md                          |
+| `ADR`     | Architecture decision | docs/adr/ (global) or docs/specs/{feature}/research/ (local) |
 
 ## AgenticFlowX - Session Continuity
 
@@ -197,6 +197,7 @@ When starting or resuming work on a ticket:
 **Setup & Context**
 
 - `/afx:init feature <name>` - Create new feature spec
+- `/afx:init adr <title>` - Create global ADR in `docs/adr/`
 - `/afx:context save [feature]` - Generate context bundle
 - `/afx:context load` - Load context from previous context
 - `/afx:help` - Show command reference

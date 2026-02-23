@@ -5,6 +5,27 @@ All notable changes to AFX will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-02-24
+
+### Added
+
+- **Global Architecture Decision Records (ADRs)** — First-class `docs/adr/` support for project-wide architectural decisions not tied to individual feature specs.
+  - New `/afx:init adr <title>` subcommand generates real ADR content (not placeholder templates) with auto-increment numbering (`ADR-NNNN-kebab-slug.md`).
+  - `install.sh` now creates `docs/adr/` directory in target projects.
+  - `.afx.yaml.template` includes new `paths.adr` configuration field.
+- **AFX Dogfooding** — AFX now manages its own development using the spec-driven workflow. Added `.afx.yaml` config and full feature spec at `docs/specs/global-adr/`.
+- Created `ADR-0001-global-adr-directory.md` — the self-referential first ADR documenting the decision to adopt `docs/adr/`.
+- Dedicated **Architecture Decision Records** section in `README.md` with lifecycle diagram, global vs feature-local distinction, and AI agent context.
+
+### Changed
+
+- Updated all documentation surfaces to reflect ADR support:
+  - `docs/agenticflowx/agenticflowx.md` — Document Types table, directory structure, config, research standards, CLI tables.
+  - `docs/agenticflowx/cheatsheet.md` — Phase 1 table, file layout.
+  - `CLAUDE.md` — Repository structure, command descriptions.
+  - `prompts/complete.md`, `prompts/workflow-commands.md`, `prompts/yaml-frontmatter.md` — CLAUDE.md snippets for target project installation.
+- `/afx:init` command now supports both `feature` and `adr` subcommands.
+
 ## [1.0.8] - 2026-02-22
 
 ### Fixed
