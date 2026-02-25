@@ -1,0 +1,4 @@
+version: 1
+display_name: AFX work
+short_description: Run the AFX work workflow in Codex.
+default_prompt: Run afx-work.

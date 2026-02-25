@@ -1,0 +1,4 @@
+version: 1
+display_name: AFX context
+short_description: Run the AFX context workflow in Codex.
+default_prompt: Run afx-context.

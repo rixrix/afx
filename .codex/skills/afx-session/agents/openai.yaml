@@ -1,0 +1,4 @@
+version: 1
+display_name: AFX session
+short_description: Run the AFX session workflow in Codex.
+default_prompt: Run afx-session.

@@ -125,10 +125,11 @@ Look for:
 
 #### 4. Check Spec State
 
-Read the spec README for the active feature:
+Read the active spec state from tasks and journal:
 
 ```bash
-cat docs/specs/{feature}/README.md
+cat docs/specs/{feature}/tasks.md
+cat docs/specs/{feature}/journal.md
 ```
 
 ### Output Format
@@ -209,7 +210,7 @@ Pick up the next available task(s) from a feature spec and generate agent assign
 ### Context
 
 - Spec path: $ARGUMENTS (required)
-- Reads: README.md, tasks.md, design.md from spec directory
+- Reads: spec.md, tasks.md, design.md from spec directory
 - Checks: GitHub issues via `gh issue view`
 
 ### Actions
@@ -231,7 +232,7 @@ Pick up the next available task(s) from a feature spec and generate agent assign
 
 A task is **ready** when:
 
-1. Status is "Pending" in README.md
+1. Task checkbox is unchecked in tasks.md
 2. All prerequisite phases are "Complete"
 3. GitHub issue is open
 4. **Previous task verified** (see Pre-Assignment Check below)
@@ -417,8 +418,8 @@ Unlike `/afx:work next` which finds the next ready task, `/afx:work resume` cont
 
 #### Mode 1: No Arguments (List Sessions)
 
-1. **Scan local specs**: List `docs/specs/*/README.md`
-2. **Parse README.md**: Extract phase status table
+1. **Scan local specs**: List `docs/specs/*/tasks.md`
+2. **Parse tasks.md**: Extract phase/task completion state
 3. **Find active phases**: Look for "Next" or "In Progress" status
 4. **Read tasks.md**: Find first unchecked task in active phase
 5. **Check GitHub** (optional): If `gh` available, get linked issue numbers
@@ -444,10 +445,10 @@ Next: /afx:work resume 1 # Or specify spec name
 When called with specific spec:
 
 1. **Resolve spec**: Map name/number to `docs/specs/{name}/`
-2. **Read README.md**: Get current phase status
+2. **Read tasks.md**: Get current phase status
 3. **Read tasks.md**: Find active phase and next unchecked task
 4. **Read design.md**: Get relevant section for context
-5. **Check GitHub** (optional): Get session log if issue linked in README
+5. **Check GitHub** (optional): Get session log if issue linked in journal
 6. **Generate continuation brief**: Output context for resuming work
 
 ### Output Format (Mode 2)
@@ -459,7 +460,7 @@ When called with specific spec:
 
 **Active Phase:** {phase number and name}
 **Next Task:** {task number and description}
-**Last Update:** {date from CHANGELOG.md}
+**Last Update:** {date from journal.md}
 ```
 
 #### 2. Continuation Point
@@ -500,7 +501,7 @@ Next: /afx:dev code # Continue implementation
 
 | Source            | Data Extracted                                        |
 | ----------------- | ----------------------------------------------------- |
-| `README.md`       | Phase status table (Complete, Next, Pending)          |
+| `spec.md`         | Spec metadata (status, owner, version, tags)          |
 | `tasks.md`        | Task checkboxes `- [x]` vs `- [ ]`, task descriptions |
 | `journal.md`      | Past session logs synced from GitHub via sync         |
 | `design.md`       | Implementation context, code samples                  |
@@ -512,7 +513,7 @@ Next: /afx:dev code # Continue implementation
 
 ```
 No specs found in docs/specs/
-Create a spec directory with README.md, tasks.md, design.md
+Create a spec directory with spec.md, design.md, tasks.md, journal.md
 ```
 
 **Spec not found:**
@@ -569,7 +570,7 @@ Ensure **Session Continuity** by syncing:
 #### Direction 1: GitHub → Local (Session Pull)
 
 1. **Fetch Issue Data**:
-   - Access the linked GitHub issue (found in `README.md` or argument).
+   - Access the linked GitHub issue (found in `journal.md` or argument).
    - Scan Issue Body AND Comments for "Session Log" tables.
 2. **Normalize Data**:
    - Extract rows: Date, Task, Action, Files Modified, Verify.
@@ -972,9 +973,9 @@ Add final closure entry to Work Sessions:
 | {date} | - | CLOSED #{issue} | {summary} | [OK] | [OK] |
 ```
 
-**Update `readme.md` (if phase status table exists):**
+**Update `tasks.md` (required):**
 
-Mark the completed phase as "Complete" in status table.
+Ensure all completed tasks for the closed issue are checked and consistent with journal entries.
 
 #### 7. Close GitHub Issue
 
@@ -1007,9 +1008,8 @@ Issue #{issue-number} closed
 
 | File                              | Action                    |
 | --------------------------------- | ------------------------- |
-| docs/specs/{feature}/changelog.md | Added completion entry    |
+| docs/specs/{feature}/tasks.md     | Checked completed tasks   |
 | docs/specs/{feature}/journal.md   | Added closure row         |
-| docs/specs/{feature}/readme.md    | Updated phase status      |
 | GitHub Issue #{issue-number}      | Closed with final comment |
 
 ### Synced

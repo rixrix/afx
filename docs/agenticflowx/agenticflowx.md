@@ -74,7 +74,7 @@ Unlike frameworks that generate code _from_ specs, AFX requires code to link _ba
 
 ### 5. Context Segregation (Global vs Local Brain)
 
-AFX explicitly separates system-wide project rules from feature-specific logic to prevent duplicate or conflicting prompt instructions. **Claude Code is the primary consumer** of this split architecture.
+AFX explicitly separates system-wide project rules from feature-specific logic to prevent duplicate or conflicting prompt instructions. **Claude Code and Codex are the primary consumers** of this split architecture.
 
 ```mermaid
 graph TD
@@ -353,7 +353,7 @@ tags: [topic1, topic2]
 | `RES`       | Research findings (exploration)                                          | `docs/specs/{feature}/research/`                                 |
 | `ADR`       | Architectural Decision Record (final decision)                           | `docs/adr/` (global) or `docs/specs/{feature}/research/` (local) |
 | `JOURNAL`   | **Append-only historical log**: Session logs and history                 | `docs/specs/{feature}/journal.md`                                |
-| `COMMAND`   | AFX slash command definition                                             | `.claude/commands/afx-*.md`                                      |
+| `COMMAND`   | AFX command definition (Claude slash + Codex skill source)               | `.claude/commands/afx-*.md`, `.codex/skills/afx-*`               |
 | `GUIDE`     | Developer guides and handbooks                                           | `docs/guides/*.md`                                               |
 | `FRAMEWORK` | Framework documentation (like this file)                                 | `docs/agenticflowx/*.md`                                         |
 

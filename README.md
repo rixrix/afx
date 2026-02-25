@@ -6,7 +6,7 @@
 
 > **Keep AI agents on track, even when you're not**
 
-AFX is a spec-driven development framework for Claude Code that prevents AI agents from going off-spec. It maintains bidirectional traceability between specifications and code, preserves context across sessions, and enforces quality gates before tasks close.
+AFX is a spec-driven development framework for Claude Code and Codex that prevents AI agents from going off-spec. It maintains bidirectional traceability between specifications and code, preserves context across sessions, and enforces quality gates before tasks close.
 
 ```mermaid
 graph LR
@@ -37,7 +37,7 @@ AI coding assistants are powerful but lose context easily:
 
 ## The Solution
 
-AFX gives Claude Code a memory and a rulebook:
+AFX gives Claude Code and Codex a memory and a rulebook:
 
 **1. Specs as Source of Truth & Traceability**
 
@@ -226,7 +226,7 @@ stateDiagram-v2
 
 AFX operates on a strict **Global Brain** vs **Local Brain** segregation paradigm to manage UI definitions and architectural constraints.
 
-**Claude Code (the AI agent) is the primary consumer** of this split architecture. By separating global design tokens from local feature layouts, we prevent AI context window bloat and conflicting agent instructions during development.
+**Claude Code and Codex (AI agents) are the primary consumers** of this split architecture. By separating global design tokens from local feature layouts, we prevent AI context window bloat and conflicting agent instructions during development.
 
 ```mermaid
 graph TD
@@ -476,6 +476,7 @@ graph LR
 - [Full Manual](docs/agenticflowx/agenticflowx.md) - Complete framework reference
 - [SDD Guide](docs/agenticflowx/guide.md) - Spec-Driven Development methodology
 - [Cheatsheet](docs/agenticflowx/cheatsheet.md) - Quick reference
+- [Codex Commands](docs/agenticflowx/codex.md) - `afx-xxx` skills and parity mapping
 
 ## Project Structure
 
@@ -484,6 +485,7 @@ graph LR
 ```
 afx/
 ├── .claude/commands/     # AFX slash commands for Claude Code
+├── .codex/skills/        # AFX skills source for Codex (afx-xxx)
 ├── docs/
 │   ├── adr/             # Global Architecture Decision Records
 │   ├── agenticflowx/    # Framework documentation
@@ -500,6 +502,7 @@ afx/
 ```
 your-project/
 ├── .claude/commands/     # AFX slash commands
+├── .codex/skills/        # AFX Codex skills (afx-xxx)
 ├── docs/
 │   ├── adr/              # Global Architecture Decision Records
 │   ├── agenticflowx/     # AFX reference documentation
@@ -519,7 +522,8 @@ your-project/
 │           ├── tasks.md
 │           └── journal.md
 ├── .afx.yaml             # Project configuration
-└── CLAUDE.md             # Claude Code instructions (with AFX section)
+├── CLAUDE.md             # Claude Code instructions (with AFX section)
+└── AGENTS.md             # Codex/agent instructions (with AFX section)
 ```
 
 ## Configuration
@@ -757,15 +761,19 @@ Or if you have AFX cloned locally:
 This installs:
 
 - Slash commands to `.claude/commands/`
+- Codex skills to `.codex/skills/`
 - Templates to `docs/agenticflowx/templates/`
 - Configuration file `.afx.yaml`
 - AFX documentation to `docs/agenticflowx/`
 - AFX snippets to `CLAUDE.md`
+- AFX snippets to `AGENTS.md`
 - Directory structure: `docs/specs/` and `docs/adr/`
+
+Dogfooding this repository with Codex uses the same versioned path: `.codex/skills/`.
 
 ## How to create your first specs
 
-A common difficulty for new users is translating a raw idea into structured AFX specifications (the "blank canvas" problem). You don't have to write these specifications manually—you can use Claude Code to scaffold them for you.
+A common difficulty for new users is translating a raw idea into structured AFX specifications (the "blank canvas" problem). You don't have to write these specifications manually - you can use Claude Code or Codex to scaffold them for you.
 
 ```mermaid
 graph TD
@@ -820,4 +828,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
-AFX was developed as part of real-world production projects and refined through extensive use with Claude Code.
+AFX was developed as part of real-world production projects and refined through extensive use with Claude Code and Codex.

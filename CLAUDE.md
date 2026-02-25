@@ -9,6 +9,7 @@ AFX (AgenticFlowX) is a **spec-driven development framework** for AI-assisted co
 This is a **documentation and tooling repository** - it contains:
 
 - Claude Code slash commands (`.claude/commands/`)
+- Codex skills (`.codex/skills/`)
 - Spec templates (`templates/`)
 - Framework documentation (`docs/`)
 - CLAUDE.md snippets for integration (`prompts/`)
@@ -18,6 +19,8 @@ This is a **documentation and tooling repository** - it contains:
 ```
 afx/
 ├── .claude/commands/     # AFX slash commands (/afx:*)
+├── .codex/skills/        # AFX Codex skills (afx-*)
+├── scripts/              # Utility scripts (sync, install support)
 ├── docs/
 │   ├── adr/             # Global Architecture Decision Records
 │   ├── agenticflowx/
@@ -36,8 +39,9 @@ afx/
 This is a documentation-only repo with no build or test commands. Changes are verified by:
 
 1. Testing commands in a real project (copy to `.claude/commands/`)
-2. Reviewing markdown rendering
-3. Verifying YAML frontmatter syntax
+2. Testing Codex skills in a real project (copy to `.codex/skills/`)
+3. Reviewing markdown rendering
+4. Verifying YAML frontmatter syntax
 
 ## Key Concepts
 
@@ -134,8 +138,9 @@ curl -sL https://raw.githubusercontent.com/rix/afx/main/install.sh | bash -s -- 
 **Options**:
 
 - `--update` - Update existing installation (preserves user config)
-- `--commands-only` - Only install slash commands
+- `--commands-only` - Only install command assets (`.claude` + `.codex`)
 - `--no-claude-md` - Skip CLAUDE.md snippet integration
+- `--no-agents-md` - Skip AGENTS.md snippet integration
 - `--no-docs` - Skip copying AFX documentation to docs/agenticflowx/
 - `--dry-run` - Preview changes without applying
 - `--force` - Overwrite all files (fresh install)

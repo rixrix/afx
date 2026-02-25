@@ -16,3 +16,6 @@ npm-debug.log
 .env
 .env.local
 tmp
+.codex/*
+!.codex/skills/
+!.codex/skills/**

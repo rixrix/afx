@@ -106,7 +106,7 @@ Next (ranked):
 1. Read `.afx.yaml` to get `paths.specs` (default: `docs/specs`)
 2. Scan spec directory for subdirectories
 3. For each spec found:
-   - Read `readme.md` frontmatter for: status, owner, version, tags
+   - Read `spec.md` frontmatter for: status, owner, version, tags
    - Read `tasks.md` to count total vs completed tasks
    - Calculate overall progress percentage
    - Get last modified timestamp from `journal.md`
@@ -135,7 +135,7 @@ api-gateway          Living    @carol   12/12 (100%) 3 days ago
 **Implementation:**
 
 1. Validate spec exists at `docs/specs/<name>/`
-2. Read and display `readme.md` content
+2. Read and display `spec.md` overview (frontmatter + top sections)
 3. Calculate and display metrics:
    - Phase completion table (from tasks.md)
    - Task summary (completed/total by phase)
@@ -239,7 +239,6 @@ Created: 3 days ago
 **Implementation:**
 
 1. Check required files exist:
-   - `docs/specs/<name>/readme.md`
    - `docs/specs/<name>/spec.md`
    - `docs/specs/<name>/design.md`
    - `docs/specs/<name>/tasks.md`
@@ -254,7 +253,7 @@ Created: 3 days ago
 ```
 Validation: user-authentication
 
-File Structure: ✓ All 5 files present
+File Structure: ✓ All 4 files present
 Frontmatter: ✓ Valid in all files
 Cross-references: ✓ All links valid
 
@@ -590,7 +589,7 @@ Recommendations:
 **Implementation:**
 
 1. **Check Current Status**
-   - Read readme.md frontmatter
+   - Read spec.md frontmatter
    - If already "Approved", exit with error: "Spec already approved. Use version bump to modify."
 
 2. **Pre-Approval Validation**
@@ -627,7 +626,7 @@ Recommendations:
      Note: 3 Major and 5 Minor issues remain. Address in future versions if needed.
      ```
 
-4. **Update readme.md Frontmatter**
+4. **Update spec.md Frontmatter**
 
    ```yaml
    ---
@@ -657,7 +656,7 @@ Recommendations:
    Review score: 72% compliant (0 Critical, 3 Major, 5 Minor issues)
 
    Validation Summary:
-   ✓ Structure: All 5 files present
+   ✓ Structure: All 4 files present
    ✓ Frontmatter: Valid
    ✓ Cross-references: All links valid
    ✓ Quality: 0 Critical issues
@@ -719,7 +718,7 @@ Recommendations:
    Signed: @alice
    ```
 
-3. **Update readme.md Frontmatter**
+3. **Update spec.md Frontmatter**
 
    ```yaml
    ---
@@ -805,7 +804,7 @@ Recommendations:
    Error: Spec already approved
 
    To modify an approved spec:
-     1. Increment version in readme.md
+     1. Increment version in spec.md
      2. Remove "<!-- APPROVED -->" comment from spec.md
      3. Make changes
      4. Run /afx:spec approve user-auth again

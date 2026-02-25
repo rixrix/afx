@@ -32,7 +32,7 @@ SORT file.name ASC
 
 ## Commands
 
-> Note: Commands are in `.claude/commands/` outside the Obsidian vault.
+> Note: Claude commands live in `.claude/commands/`; Codex skills live in `.codex/skills/`.
 
 | Command         | Purpose                            |
 | --------------- | ---------------------------------- |

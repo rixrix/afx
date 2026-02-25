@@ -1,0 +1,4 @@
+version: 1
+display_name: AFX help
+short_description: Run the AFX help workflow in Codex.
+default_prompt: Run afx-help.

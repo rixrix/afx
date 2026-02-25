@@ -7,8 +7,9 @@
 #
 # Options:
 #   --update          Update existing AFX installation (preserves user content)
-#   --commands-only   Only install/update slash commands
+#   --commands-only   Only install/update command assets (.claude + .codex)
 #   --no-claude-md    Skip CLAUDE.md snippet integration
+#   --no-agents-md    Skip AGENTS.md snippet integration
 #   --no-docs         Skip copying AFX documentation to docs/agenticflowx/
 #   --force           Overwrite all existing files (fresh install)
 #   --dry-run         Show what would be changed without making changes
@@ -25,6 +26,9 @@ fi
 # Boundary markers for CLAUDE.md
 AFX_START_MARKER="<!-- AFX:START - Managed by AFX. Do not edit manually. -->"
 AFX_END_MARKER="<!-- AFX:END -->"
+# Boundary markers for AGENTS.md
+AFX_AGENTS_START_MARKER="<!-- AFX-CODEX:START - Managed by AFX. Do not edit manually. -->"
+AFX_AGENTS_END_MARKER="<!-- AFX-CODEX:END -->"
 
 # Colors for output
 RED='\033[0;31m'
@@ -38,6 +42,7 @@ NC='\033[0m' # No Color
 UPDATE_MODE=false
 COMMANDS_ONLY=false
 NO_CLAUDE_MD=false
+NO_AGENTS_MD=false
 NO_DOCS=false
 FORCE=false
 DRY_RUN=false
@@ -56,6 +61,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --no-claude-md)
             NO_CLAUDE_MD=true
+            shift
+            ;;
+        --no-agents-md)
+            NO_AGENTS_MD=true
             shift
             ;;
         --no-docs)
@@ -77,8 +86,9 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Options:"
             echo "  --update          Update existing AFX installation"
-            echo "  --commands-only   Only install/update slash commands"
+            echo "  --commands-only   Only install/update command assets (.claude + .codex)"
             echo "  --no-claude-md    Skip CLAUDE.md snippet integration"
+            echo "  --no-agents-md    Skip AGENTS.md snippet integration"
             echo "  --no-docs         Skip copying AFX documentation to docs/agenticflowx/"
             echo "  --force           Overwrite all files (fresh install)"
             echo "  --dry-run         Preview changes without applying"
@@ -191,10 +201,46 @@ install_file() {
     fi
 }
 
+# Helper: Install or update a directory by replacing destination contents
+install_directory() {
+    local src="$1"
+    local dest="$2"
+    local desc="$3"
+    local always_update="${4:-false}"
+
+    if [ "$DRY_RUN" = "true" ]; then
+        if [ -e "$dest" ]; then
+            if [ "$UPDATE_MODE" = "true" ] || [ "$FORCE" = "true" ] || [ "$always_update" = "true" ]; then
+                UPDATED+=("$desc (would update)")
+            else
+                SKIPPED+=("$desc (exists)")
+            fi
+        else
+            INSTALLED+=("$desc (would create)")
+        fi
+        return 0
+    fi
+
+    if [ -e "$dest" ]; then
+        if [ "$UPDATE_MODE" = "true" ] || [ "$FORCE" = "true" ] || [ "$always_update" = "true" ]; then
+            rm -rf "$dest"
+            mkdir -p "$(dirname "$dest")"
+            cp -R "$src" "$dest"
+            UPDATED+=("$desc")
+        else
+            SKIPPED+=("$desc (exists)")
+        fi
+    else
+        mkdir -p "$(dirname "$dest")"
+        cp -R "$src" "$dest"
+        INSTALLED+=("$desc")
+    fi
+}
+
 # ============================================================================
-# 1. Install/Update slash commands
+# 1. Install/Update Claude slash commands
 # ============================================================================
-echo -e "${BLUE}[1/6] Installing slash commands...${NC}"
+echo -e "${BLUE}[1/7] Installing Claude slash commands...${NC}"
 COMMANDS_DIR="$TARGET_DIR/.claude/commands"
 
 if [ "$DRY_RUN" != "true" ]; then
@@ -209,6 +255,25 @@ for cmd in "$AFX_DIR"/.claude/commands/afx-*.md; do
     fi
 done
 
+# ============================================================================
+# 2. Install/Update Codex skills
+# ============================================================================
+echo -e "${BLUE}[2/7] Installing Codex skills...${NC}"
+CODEX_SKILLS_DIR="$TARGET_DIR/.codex/skills"
+
+if [ "$DRY_RUN" != "true" ]; then
+    mkdir -p "$CODEX_SKILLS_DIR"
+fi
+
+if [ -d "$AFX_DIR/.codex/skills" ]; then
+    for skill_dir in "$AFX_DIR"/.codex/skills/afx-*; do
+        if [ -d "$skill_dir" ]; then
+            skill_name=$(basename "$skill_dir")
+            install_directory "$skill_dir" "$CODEX_SKILLS_DIR/$skill_name" "Codex skill: $skill_name" "$UPDATE_MODE"
+        fi
+    done
+fi
+
 if [ "$COMMANDS_ONLY" = "true" ]; then
     echo ""
     echo -e "${GREEN}Commands processed!${NC}"
@@ -220,9 +285,9 @@ if [ "$COMMANDS_ONLY" = "true" ]; then
 fi
 
 # ============================================================================
-# 2. Install/Update templates
+# 3. Install/Update templates
 # ============================================================================
-echo -e "${BLUE}[2/6] Installing templates...${NC}"
+echo -e "${BLUE}[3/7] Installing templates...${NC}"
 TEMPLATES_DIR="$TARGET_DIR/docs/agenticflowx/templates"
 
 if [ -d "$AFX_DIR/templates" ]; then
@@ -235,9 +300,9 @@ if [ -d "$AFX_DIR/templates" ]; then
 fi
 
 # ============================================================================
-# 3. Create/Update .afx.yaml
+# 4. Create/Update .afx.yaml
 # ============================================================================
-echo -e "${BLUE}[3/6] Managing configuration...${NC}"
+echo -e "${BLUE}[4/7] Managing configuration...${NC}"
 AFX_CONFIG="$TARGET_DIR/.afx.yaml"
 
 if [ -f "$AFX_CONFIG" ]; then
@@ -252,10 +317,10 @@ else
 fi
 
 # ============================================================================
-# 4. Update CLAUDE.md with boundary markers
+# 5. Update CLAUDE.md with boundary markers
 # ============================================================================
 if [ "$NO_CLAUDE_MD" != "true" ]; then
-    echo -e "${BLUE}[4/6] Updating CLAUDE.md...${NC}"
+    echo -e "${BLUE}[5/7] Updating CLAUDE.md...${NC}"
     CLAUDE_MD="$TARGET_DIR/CLAUDE.md"
     SNIPPET_FILE="$AFX_DIR/prompts/complete.md"
 
@@ -291,17 +356,17 @@ ${AFX_END_MARKER}"
                         $0 == start { exit }
                         { print }
                     ' "$CLAUDE_MD" > "$CLAUDE_MD.tmp"
-                    
+
                     # 2. Print the new section
                     echo "$AFX_SECTION" >> "$CLAUDE_MD.tmp"
-                    
+
                     # 3. Print everything after the end marker
                     awk -v end="$AFX_END_MARKER" '
                         BEGIN { skip=1 }
                         $0 == end { skip=0; next }
                         !skip { print }
                     ' "$CLAUDE_MD" >> "$CLAUDE_MD.tmp"
-                    
+
                     mv "$CLAUDE_MD.tmp" "$CLAUDE_MD"
                     UPDATED+=("CLAUDE.md AFX section")
                 elif grep -q "## Documentation References\|## AgenticFlow" "$CLAUDE_MD"; then
@@ -337,14 +402,80 @@ HEADER
         fi
     fi
 else
-    echo -e "${YELLOW}[4/6] Skipping CLAUDE.md (--no-claude-md)${NC}"
+    echo -e "${YELLOW}[5/7] Skipping CLAUDE.md (--no-claude-md)${NC}"
 fi
 
 # ============================================================================
-# 5. Install AFX documentation
+# 6. Update AGENTS.md with boundary markers
+# ============================================================================
+if [ "$NO_AGENTS_MD" != "true" ]; then
+    echo -e "${BLUE}[6/7] Updating AGENTS.md...${NC}"
+    AGENTS_MD="$TARGET_DIR/AGENTS.md"
+    AGENTS_SNIPPET_FILE="$AFX_DIR/prompts/agents.md"
+
+    if [ -f "$AGENTS_SNIPPET_FILE" ]; then
+        AGENTS_SNIPPET_CONTENT=$(sed -n '/^---$/,$p' "$AGENTS_SNIPPET_FILE" | tail -n +2)
+
+        AFX_AGENTS_SECTION="${AFX_AGENTS_START_MARKER}
+<!-- AFX Version: ${AFX_VERSION} -->
+
+${AGENTS_SNIPPET_CONTENT}
+${AFX_AGENTS_END_MARKER}"
+
+        if [ "$DRY_RUN" = "true" ]; then
+            if [ -f "$AGENTS_MD" ]; then
+                if grep -q "$AFX_AGENTS_START_MARKER" "$AGENTS_MD" 2>/dev/null; then
+                    UPDATED+=("AGENTS.md AFX Codex section (would update)")
+                else
+                    INSTALLED+=("AGENTS.md AFX Codex section (would append)")
+                fi
+            else
+                INSTALLED+=("AGENTS.md (would create)")
+            fi
+        else
+            if [ -f "$AGENTS_MD" ]; then
+                if grep -q "$AFX_AGENTS_START_MARKER" "$AGENTS_MD"; then
+                    awk -v start="$AFX_AGENTS_START_MARKER" '
+                        $0 == start { exit }
+                        { print }
+                    ' "$AGENTS_MD" > "$AGENTS_MD.tmp"
+
+                    echo "$AFX_AGENTS_SECTION" >> "$AGENTS_MD.tmp"
+
+                    awk -v end="$AFX_AGENTS_END_MARKER" '
+                        BEGIN { skip=1 }
+                        $0 == end { skip=0; next }
+                        !skip { print }
+                    ' "$AGENTS_MD" >> "$AGENTS_MD.tmp"
+
+                    mv "$AGENTS_MD.tmp" "$AGENTS_MD"
+                    UPDATED+=("AGENTS.md AFX Codex section")
+                else
+                    echo "" >> "$AGENTS_MD"
+                    echo "$AFX_AGENTS_SECTION" >> "$AGENTS_MD"
+                    INSTALLED+=("AGENTS.md AFX Codex section")
+                fi
+            else
+                cat > "$AGENTS_MD" << 'HEADER'
+# AGENTS.md
+
+Project instructions for Codex and compatible coding agents.
+
+HEADER
+                echo "$AFX_AGENTS_SECTION" >> "$AGENTS_MD"
+                INSTALLED+=("AGENTS.md (created)")
+            fi
+        fi
+    fi
+else
+    echo -e "${YELLOW}[6/7] Skipping AGENTS.md (--no-agents-md)${NC}"
+fi
+
+# ============================================================================
+# 7. Install AFX documentation
 # ============================================================================
 if [ "$NO_DOCS" != "true" ]; then
-    echo -e "${BLUE}[5/6] Installing AFX documentation...${NC}"
+    echo -e "${BLUE}[7/7] Installing AFX documentation...${NC}"
     AFX_DOCS_DIR="$TARGET_DIR/docs/agenticflowx"
 
     if [ "$DRY_RUN" != "true" ]; then
@@ -352,19 +483,18 @@ if [ "$NO_DOCS" != "true" ]; then
     fi
 
     # Copy AFX documentation files
-    for doc in "agenticflowx.md" "guide.md" "cheatsheet.md"; do
+    for doc in "agenticflowx.md" "guide.md" "cheatsheet.md" "codex.md"; do
         if [ -f "$AFX_DIR/docs/agenticflowx/$doc" ]; then
             install_file "$AFX_DIR/docs/agenticflowx/$doc" "$AFX_DOCS_DIR/$doc" "AFX Doc: $doc" "$UPDATE_MODE"
         fi
     done
 else
-    echo -e "${YELLOW}[5/6] Skipping AFX documentation (--no-docs)${NC}"
+    echo -e "${YELLOW}[7/7] Skipping AFX documentation (--no-docs)${NC}"
 fi
-
 # ============================================================================
-# 6. Create directory structure
+# Create directory structure
 # ============================================================================
-echo -e "${BLUE}[6/6] Creating directory structure...${NC}"
+echo -e "${BLUE}[*] Creating directory structure...${NC}"
 if [ "$DRY_RUN" != "true" ]; then
     mkdir -p "$TARGET_DIR/docs/specs"
     mkdir -p "$TARGET_DIR/docs/adr"
@@ -417,16 +547,17 @@ fi
 echo ""
 if [ "$UPDATE_MODE" = "true" ]; then
     echo -e "${BLUE}Update notes:${NC}"
-    echo "  - Commands and templates were updated"
+    echo "  - Claude commands, Codex skills, and templates were updated"
     echo "  - AFX docs in docs/agenticflowx/ were updated"
     echo "  - .afx.yaml was preserved (your config)"
     echo "  - CLAUDE.md AFX section was replaced (your content preserved)"
+    echo "  - AGENTS.md AFX Codex section was replaced (your content preserved)"
 else
     echo -e "${BLUE}Next steps:${NC}"
     echo "  1. Edit .afx.yaml to configure your project"
-    echo "  2. Run /afx:init feature <name> to create your first spec"
+    echo "  2. Run /afx:init feature <name> (Claude) or ask Codex to run afx-init"
     echo "  3. See docs/agenticflowx/ for AFX reference documentation"
-    echo "  4. Run /afx:help for command reference"
+    echo "  4. Run /afx:help (Claude) or afx-help (Codex) for command reference"
 fi
 echo ""
 echo -e "${CYAN}To update AFX later:${NC}"

@@ -1,0 +1,4 @@
+version: 1
+display_name: AFX discover
+short_description: Run the AFX discover workflow in Codex.
+default_prompt: Run afx-discover.

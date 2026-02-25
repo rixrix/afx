@@ -88,7 +88,7 @@ echo "| --- | --- |"
 # Identify feature folders
 find docs/specs -maxdepth 1 -type d | grep -v "docs/specs$" | while read -r DIR; do
   FEATURE=$(basename "$DIR")
-  if [ "$FEATURE" != "_templates" ] && [ "$FEATURE" != "readme.md" ]; then
+  if [ "$FEATURE" != "_templates" ]; then
     REQUIRED=("spec.md" "design.md" "tasks.md" "journal.md")
     MISSING_FILES=""
     for FILE in "${REQUIRED[@]}"; do

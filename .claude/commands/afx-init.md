@@ -495,38 +495,22 @@ Example: /afx:init adr "database choice"
 
 ## Generated File Templates
 
-### readme.md
+### spec.md
 
 ```markdown
----
-afx: true
-type: README
-status: Living
-tags: [{ feature }, dashboard]
----
+# Requirements: {feature}
 
-# {Feature Name}
+## Functional Requirements
 
-> Brief description of the feature
+| ID | Requirement | Priority |
+| -- | ----------- | -------- |
+| FR-1 | ... | P1 |
 
-**Status**: Draft
-**Created**: {date}
+## Non-Functional Requirements
 
-## Phase Status
-
-| Phase | Description         | Status  |
-| ----- | ------------------- | ------- |
-| 0     | Infrastructure      | Pending |
-| 1     | Core Implementation | Pending |
-| 2     | Testing             | Pending |
-
-## Links
-
-- [Spec](./spec.md) - Requirements
-- [Design](./design.md) - Technical architecture
-- [Tasks](./tasks.md) - Implementation tasks
-- [Changelog](./changelog.md) - Version history
-- [Session Log](./journal.md) - Discussions
+| ID | Requirement | Priority |
+| -- | ----------- | -------- |
+| NFR-1 | ... | P1 |
 ```
 
 ### journal.md
