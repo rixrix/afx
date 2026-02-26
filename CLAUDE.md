@@ -10,6 +10,8 @@ This is a **documentation and tooling repository** - it contains:
 
 - Claude Code slash commands (`.claude/commands/`)
 - Codex skills (`.codex/skills/`)
+- Gemini CLI commands (`.gemini/commands/`)
+- GitHub Copilot prompts (`.github/prompts/`)
 - Spec templates (`templates/`)
 - Framework documentation (`docs/`)
 - CLAUDE.md snippets for integration (`prompts/`)
@@ -20,6 +22,8 @@ This is a **documentation and tooling repository** - it contains:
 afx/
 ├── .claude/commands/     # AFX slash commands (/afx:*)
 ├── .codex/skills/        # AFX Codex skills (afx-*)
+├── .gemini/commands/     # AFX Gemini CLI commands (/afx:*)
+├── .github/prompts/      # AFX GitHub Copilot prompts
 ├── scripts/              # Utility scripts (sync, install support)
 ├── docs/
 │   ├── adr/             # Global Architecture Decision Records
@@ -40,8 +44,9 @@ This is a documentation-only repo with no build or test commands. Changes are ve
 
 1. Testing commands in a real project (copy to `.claude/commands/`)
 2. Testing Codex skills in a real project (copy to `.codex/skills/`)
-3. Reviewing markdown rendering
-4. Verifying YAML frontmatter syntax
+3. Testing Copilot prompts in a real project (copy to `.github/prompts/`)
+4. Reviewing markdown rendering
+5. Verifying YAML frontmatter syntax
 
 ## Key Concepts
 
@@ -147,9 +152,11 @@ curl -sL https://raw.githubusercontent.com/rix/afx/main/install.sh | bash -s -- 
 **Options**:
 
 - `--update` - Update existing installation (preserves user config)
-- `--commands-only` - Only install command assets (`.claude` + `.codex`)
+- `--commands-only` - Only install command assets (`.claude` + `.codex` + `.gemini` + `.github/prompts`)
 - `--no-claude-md` - Skip CLAUDE.md snippet integration
 - `--no-agents-md` - Skip AGENTS.md snippet integration
+- `--no-gemini-md` - Skip GEMINI.md snippet integration
+- `--no-copilot-md` - Skip copilot-instructions.md snippet integration
 - `--no-docs` - Skip copying AFX documentation to docs/agenticflowx/
 - `--dry-run` - Preview changes without applying
 - `--force` - Overwrite all files (fresh install)

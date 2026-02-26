@@ -1,12 +1,19 @@
 <p align="center">
   <img src="assets/agenticflow_logo_light.svg" alt="AgenticFlowX Logo" width="600"/>
+  <br/>
+  <strong>Works with</strong>
+  <br/><br/>
+  <a href="https://docs.anthropic.com/en/docs/claude-code"><img src="https://img.shields.io/badge/Claude_Code-D97757?style=flat&logo=anthropic&logoColor=white" alt="Claude Code"/></a>
+  <a href="https://platform.openai.com/docs/guides/codex"><img src="https://img.shields.io/badge/Codex-412991?style=flat&logo=openai&logoColor=white" alt="Codex"/></a>
+  <a href="https://cloud.google.com/products/gemini/code-assist"><img src="https://img.shields.io/badge/Gemini_CLI-4285F4?style=flat&logo=google-gemini&logoColor=white" alt="Gemini CLI"/></a>
+  <a href="https://docs.github.com/en/copilot"><img src="https://img.shields.io/badge/GitHub_Copilot-000000?style=flat&logo=github-copilot&logoColor=white" alt="GitHub Copilot"/></a>
 </p>
 
 # AFX (AgenticFlowX)
 
 > **Keep AI agents on track, even when you're not**
 
-AFX is a spec-driven development framework for **Claude Code, Codex, and Gemini Code Assist** that prevents AI agents from going off-spec. It maintains bidirectional traceability between specifications and code, preserves context across sessions, and enforces quality gates before tasks close.
+AFX is a spec-driven development framework for **Claude Code, Codex, Gemini Code Assist, and GitHub Copilot** that prevents AI agents from going off-spec. It maintains bidirectional traceability between specifications and code, preserves context across sessions, and enforces quality gates before tasks close.
 
 ```mermaid
 graph LR
@@ -37,7 +44,7 @@ AI coding assistants are powerful but lose context easily:
 
 ## The Solution
 
-AFX gives Claude Code and Codex a memory and a rulebook:
+AFX gives your AI coding agents a memory and a rulebook:
 
 **1. Specs as Source of Truth & Traceability**
 
@@ -226,13 +233,13 @@ stateDiagram-v2
 
 AFX operates on a strict **Global Brain** vs **Local Brain** segregation paradigm to manage UI definitions and architectural constraints.
 
-**Claude Code, Codex, and Gemini (AI agents) are the primary consumers** of this split architecture. By separating global design tokens from local feature layouts, we prevent AI context window bloat and conflicting agent instructions during development.
+**Claude Code, Codex, Gemini, and GitHub Copilot (AI agents) are the primary consumers** of this split architecture. By separating global design tokens from local feature layouts, we prevent AI context window bloat and conflicting agent instructions during development.
 
 ```mermaid
 graph TD
     A[CLAUDE.md<br/>Global Brain] -->|System-wide Tokens<br/>Tailwind, Shadcn, Colors| C[Claude Code Session]
     B[docs/specs/*/design.md<br/>Feature Brain] -->|Specific Layouts<br/>Grid, Forms, Composition| C
-    A --> D[Codex / Gemini Session]
+    A --> D[Codex / Gemini / Copilot Session]
     B --> D
 
     style A fill:#e1f5ff
@@ -488,6 +495,33 @@ graph LR
 - [Cheatsheet](docs/agenticflowx/cheatsheet.md) - Quick reference
 - [Multi-Agent Commands](docs/agenticflowx/multi-agent.md) - `afx-xxx` skills and parity mapping
 
+## How It Works Across Agents
+
+AFX maintains a single source of truth for all command definitions, with platform-specific wrappers that delegate to the canonical specs.
+
+```mermaid
+graph TD
+    A[".claude/commands/afx-*.md<br/>(Source of Truth)"] --> B[".codex/skills/afx-*<br/>(Codex Skills)"]
+    A --> C[".gemini/commands/afx-*.md<br/>(Gemini Commands)"]
+    A --> D[".github/prompts/afx-*.prompt.md<br/>(Copilot Prompts)"]
+
+    style A fill:#fff3cd
+    style B fill:#d1e7dd
+    style C fill:#cfe2ff
+    style D fill:#f8d7da
+```
+
+| Platform           | Command Format        | Files                             |
+| ------------------ | --------------------- | --------------------------------- |
+| **Claude Code**    | `/afx:work next auth` | `.claude/commands/afx-*.md`       |
+| **Codex**          | `afx-work next auth`  | `.codex/skills/afx-*`             |
+| **Gemini CLI**     | `/afx:work next auth` | `.gemini/commands/afx-*.md`       |
+| **GitHub Copilot** | `afx-work next auth`  | `.github/prompts/afx-*.prompt.md` |
+
+**Why `.claude/commands/` is canonical**: Claude command files contain the full behavioral specification — subcommands, validation rules, output formats, and traceability requirements. Other platforms read and delegate to these files rather than duplicating the logic, ensuring all agents behave identically regardless of which one you use.
+
+See [Multi-Agent Commands](docs/agenticflowx/multi-agent.md) for the full parity mapping.
+
 ## Project Structure
 
 **AFX Repository:**
@@ -495,13 +529,15 @@ graph LR
 ```
 afx/
 ├── .claude/commands/     # AFX slash commands for Claude Code
-├── .codex/skills/        # AFX skills source for Codex (afx-xxx)
+├── .codex/skills/        # AFX skills for Codex
+├── .gemini/commands/     # AFX commands for Gemini CLI
+├── .github/prompts/      # AFX prompts for GitHub Copilot
 ├── docs/
 │   ├── adr/             # Global Architecture Decision Records
 │   ├── agenticflowx/    # Framework documentation
 │   └── specs/           # Feature specifications
 ├── templates/            # Spec templates (spec, design, tasks, journal, adr)
-├── prompts/              # CLAUDE.md integration snippets
+├── prompts/              # Integration snippets (CLAUDE.md, AGENTS.md, GEMINI.md, copilot-instructions.md)
 ├── examples/             # Example project setup
 ├── install.sh            # One-line installer script
 └── .afx.yaml.template    # Configuration template
@@ -512,7 +548,11 @@ afx/
 ```
 your-project/
 ├── .claude/commands/     # AFX slash commands
-├── .codex/skills/        # AFX Codex skills (afx-xxx)
+├── .codex/skills/        # AFX Codex skills
+├── .gemini/commands/     # AFX Gemini CLI commands
+├── .github/
+│   ├── prompts/          # AFX Copilot prompts
+│   └── copilot-instructions.md  # Copilot project instructions (with AFX section)
 ├── docs/
 │   ├── adr/              # Global Architecture Decision Records
 │   ├── agenticflowx/     # AFX reference documentation
@@ -533,7 +573,8 @@ your-project/
 │           └── journal.md
 ├── .afx.yaml             # Project configuration
 ├── CLAUDE.md             # Claude Code instructions (with AFX section)
-└── AGENTS.md             # Codex/agent instructions (with AFX section)
+├── AGENTS.md             # Codex/agent instructions (with AFX section)
+└── GEMINI.md             # Gemini CLI instructions (with AFX section)
 ```
 
 ## Configuration
@@ -770,20 +811,21 @@ Or if you have AFX cloned locally:
 
 This installs:
 
-- Slash commands to `.claude/commands/`
+- Claude Code slash commands to `.claude/commands/`
 - Codex skills to `.codex/skills/`
+- Gemini CLI commands to `.gemini/commands/`
+- GitHub Copilot prompts to `.github/prompts/`
 - Templates to `docs/agenticflowx/templates/`
 - Configuration file `.afx.yaml`
 - AFX documentation to `docs/agenticflowx/`
-- AFX snippets to `CLAUDE.md`
-- AFX snippets to `AGENTS.md`
+- AFX snippets to `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, and `.github/copilot-instructions.md`
 - Directory structure: `docs/specs/` and `docs/adr/`
 
-Dogfooding this repository with Codex uses the same versioned path: `.codex/skills/`.
+Dogfooding this repository with Codex, Gemini CLI, and GitHub Copilot uses the same versioned paths.
 
 ## How to create your first specs
 
-A common difficulty for new users is translating a raw idea into structured AFX specifications (the "blank canvas" problem). You don't have to write these specifications manually - you can use Claude Code or Codex to scaffold them for you.
+A common difficulty for new users is translating a raw idea into structured AFX specifications (the "blank canvas" problem). You don't have to write these specifications manually - you can use Claude Code, Codex, Gemini CLI, or GitHub Copilot to scaffold them for you.
 
 ```mermaid
 graph TD
@@ -838,4 +880,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
-AFX was developed as part of real-world production projects and refined through extensive use with Claude Code and Codex.
+AFX was developed as part of real-world production projects and refined through extensive use with Claude Code, Codex, Gemini CLI, and GitHub Copilot.

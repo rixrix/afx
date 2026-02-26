@@ -20,9 +20,16 @@ Use `/afx:xxx` slash commands to run AFX workflows:
 
 - `/afx:next`, `/afx:discover`, `/afx:work`, `/afx:dev`, `/afx:check`, `/afx:task`, `/afx:session`, `/afx:init`, `/afx:context`, `/afx:spec`, `/afx:report`, `/afx:help`, `/afx:update`.
 
+### GitHub Copilot Prompts
+
+Use `afx-xxx` prompt files in `.github/prompts/`:
+
+- `afx-next`, `afx-discover`, `afx-work`, `afx-dev`, `afx-check`, `afx-task`, `afx-session`, `afx-init`, `afx-context`, `afx-spec`, `afx-report`, `afx-help`, `afx-update`.
+
 ### Source of Truth
 
 Commands and skills delegate to canonical AFX command definitions in:
 
 - `.claude/commands/afx-*.md`
-- `.gemini/commands/afx-*.md` (Gemini-specific proxies)
+- `.gemini/commands/afx-*.md` (Gemini CLI)
+- `.github/prompts/afx-*.prompt.md` (GitHub Copilot)

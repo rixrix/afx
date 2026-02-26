@@ -11,6 +11,7 @@
 #   --no-claude-md    Skip CLAUDE.md snippet integration
 #   --no-agents-md    Skip AGENTS.md snippet integration
 #   --no-gemini-md    Skip GEMINI.md snippet integration
+#   --no-copilot-md   Skip copilot-instructions.md snippet integration
 #   --no-docs         Skip copying AFX documentation to docs/agenticflowx/
 #   --force           Overwrite all existing files (fresh install)
 #   --dry-run         Show what would be changed without making changes
@@ -33,6 +34,9 @@ AFX_AGENTS_END_MARKER="<!-- AFX-CODEX:END -->"
 # Boundary markers for GEMINI.md
 AFX_GEMINI_START_MARKER="<!-- AFX-GEMINI:START - Managed by AFX. Do not edit manually. -->"
 AFX_GEMINI_END_MARKER="<!-- AFX-GEMINI:END -->"
+# Boundary markers for copilot-instructions.md
+AFX_COPILOT_START_MARKER="<!-- AFX-COPILOT:START - Managed by AFX. Do not edit manually. -->"
+AFX_COPILOT_END_MARKER="<!-- AFX-COPILOT:END -->"
 
 # Colors for output
 RED='\033[0;31m'
@@ -48,6 +52,7 @@ COMMANDS_ONLY=false
 NO_CLAUDE_MD=false
 NO_AGENTS_MD=false
 NO_GEMINI_MD=false
+NO_COPILOT_MD=false
 NO_DOCS=false
 FORCE=false
 DRY_RUN=false
@@ -76,6 +81,10 @@ while [[ $# -gt 0 ]]; do
             NO_GEMINI_MD=true
             shift
             ;;
+        --no-copilot-md)
+            NO_COPILOT_MD=true
+            shift
+            ;;
         --no-docs)
             NO_DOCS=true
             shift
@@ -99,6 +108,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --no-claude-md    Skip CLAUDE.md snippet integration"
             echo "  --no-agents-md    Skip AGENTS.md snippet integration"
             echo "  --no-gemini-md    Skip GEMINI.md snippet integration"
+            echo "  --no-copilot-md   Skip copilot-instructions.md snippet integration"
             echo "  --no-docs         Skip copying AFX documentation to docs/agenticflowx/"
             echo "  --force           Overwrite all files (fresh install)"
             echo "  --dry-run         Preview changes without applying"
@@ -250,7 +260,7 @@ install_directory() {
 # ============================================================================
 # 1. Install/Update Claude slash commands
 # ============================================================================
-echo -e "${BLUE}[1/9] Installing Claude slash commands...${NC}"
+echo -e "${BLUE}[1/11] Installing Claude slash commands...${NC}"
 COMMANDS_DIR="$TARGET_DIR/.claude/commands"
 
 if [ "$DRY_RUN" != "true" ]; then
@@ -268,7 +278,7 @@ done
 # ============================================================================
 # 2. Install/Update Codex skills
 # ============================================================================
-echo -e "${BLUE}[2/9] Installing Codex skills...${NC}"
+echo -e "${BLUE}[2/11] Installing Codex skills...${NC}"
 CODEX_SKILLS_DIR="$TARGET_DIR/.codex/skills"
 
 if [ "$DRY_RUN" != "true" ]; then
@@ -284,20 +294,10 @@ if [ -d "$AFX_DIR/.codex/skills" ]; then
     done
 fi
 
-if [ "$COMMANDS_ONLY" = "true" ]; then
-    echo ""
-    echo -e "${GREEN}Commands processed!${NC}"
-    echo ""
-    [ ${#INSTALLED[@]} -gt 0 ] && echo "Installed: ${#INSTALLED[@]}" && printf '  + %s\n' "${INSTALLED[@]}"
-    [ ${#UPDATED[@]} -gt 0 ] && echo "Updated: ${#UPDATED[@]}" && printf '  ~ %s\n' "${UPDATED[@]}"
-    [ ${#SKIPPED[@]} -gt 0 ] && echo "Skipped: ${#SKIPPED[@]}" && printf '  - %s\n' "${SKIPPED[@]}"
-    exit 0
-fi
-
 # ============================================================================
 # 3. Install/Update Gemini CLI commands
 # ============================================================================
-echo -e "${BLUE}[3/9] Installing Gemini CLI commands...${NC}"
+echo -e "${BLUE}[3/11] Installing Gemini CLI commands...${NC}"
 GEMINI_COMMANDS_DIR="$TARGET_DIR/.gemini/commands"
 
 if [ "$DRY_RUN" != "true" ]; then
@@ -314,9 +314,42 @@ if [ -d "$AFX_DIR/.gemini/commands" ]; then
 fi
 
 # ============================================================================
-# 4. Install/Update templates
+# 4. Install/Update GitHub Copilot prompts
 # ============================================================================
-echo -e "${BLUE}[4/9] Installing templates...${NC}"
+echo -e "${BLUE}[4/11] Installing GitHub Copilot prompts...${NC}"
+COPILOT_PROMPTS_DIR="$TARGET_DIR/.github/prompts"
+
+if [ "$DRY_RUN" != "true" ]; then
+    mkdir -p "$COPILOT_PROMPTS_DIR"
+fi
+
+if [ -d "$AFX_DIR/.github/prompts" ]; then
+    for prompt in "$AFX_DIR"/.github/prompts/afx-*.prompt.md; do
+        if [ -f "$prompt" ]; then
+            filename=$(basename "$prompt")
+            install_file "$prompt" "$COPILOT_PROMPTS_DIR/$filename" "Copilot prompt: $filename" "$UPDATE_MODE"
+        fi
+    done
+    # Also install the README
+    if [ -f "$AFX_DIR/.github/prompts/README.md" ]; then
+        install_file "$AFX_DIR/.github/prompts/README.md" "$COPILOT_PROMPTS_DIR/README.md" "Copilot prompts README" "$UPDATE_MODE"
+    fi
+fi
+
+if [ "$COMMANDS_ONLY" = "true" ]; then
+    echo ""
+    echo -e "${GREEN}Commands processed!${NC}"
+    echo ""
+    [ ${#INSTALLED[@]} -gt 0 ] && echo "Installed: ${#INSTALLED[@]}" && printf '  + %s\n' "${INSTALLED[@]}"
+    [ ${#UPDATED[@]} -gt 0 ] && echo "Updated: ${#UPDATED[@]}" && printf '  ~ %s\n' "${UPDATED[@]}"
+    [ ${#SKIPPED[@]} -gt 0 ] && echo "Skipped: ${#SKIPPED[@]}" && printf '  - %s\n' "${SKIPPED[@]}"
+    exit 0
+fi
+
+# ============================================================================
+# 5. Install/Update templates
+# ============================================================================
+echo -e "${BLUE}[5/11] Installing templates...${NC}"
 TEMPLATES_DIR="$TARGET_DIR/docs/agenticflowx/templates"
 
 if [ -d "$AFX_DIR/templates" ]; then
@@ -329,9 +362,9 @@ if [ -d "$AFX_DIR/templates" ]; then
 fi
 
 # ============================================================================
-# 5. Create/Update .afx.yaml
+# 6. Create/Update .afx.yaml
 # ============================================================================
-echo -e "${BLUE}[5/9] Managing configuration...${NC}"
+echo -e "${BLUE}[6/11] Managing configuration...${NC}"
 AFX_CONFIG="$TARGET_DIR/.afx.yaml"
 
 if [ -f "$AFX_CONFIG" ]; then
@@ -346,10 +379,10 @@ else
 fi
 
 # ============================================================================
-# 6. Update CLAUDE.md with boundary markers
+# 7. Update CLAUDE.md with boundary markers
 # ============================================================================
 if [ "$NO_CLAUDE_MD" != "true" ]; then
-    echo -e "${BLUE}[6/9] Updating CLAUDE.md...${NC}"
+    echo -e "${BLUE}[7/11] Updating CLAUDE.md...${NC}"
     CLAUDE_MD="$TARGET_DIR/CLAUDE.md"
     SNIPPET_FILE="$AFX_DIR/prompts/complete.md"
 
@@ -431,14 +464,14 @@ HEADER
         fi
     fi
 else
-    echo -e "${YELLOW}[6/9] Skipping CLAUDE.md (--no-claude-md)${NC}"
+    echo -e "${YELLOW}[7/11] Skipping CLAUDE.md (--no-claude-md)${NC}"
 fi
 
 # ============================================================================
-# 7. Update AGENTS.md with boundary markers
+# 8. Update AGENTS.md with boundary markers
 # ============================================================================
 if [ "$NO_AGENTS_MD" != "true" ]; then
-    echo -e "${BLUE}[7/9] Updating AGENTS.md...${NC}"
+    echo -e "${BLUE}[8/11] Updating AGENTS.md...${NC}"
     AGENTS_MD="$TARGET_DIR/AGENTS.md"
     AGENTS_SNIPPET_FILE="$AFX_DIR/prompts/agents.md"
 
@@ -497,14 +530,14 @@ HEADER
         fi
     fi
 else
-    echo -e "${YELLOW}[7/9] Skipping AGENTS.md (--no-agents-md)${NC}"
+    echo -e "${YELLOW}[8/11] Skipping AGENTS.md (--no-agents-md)${NC}"
 fi
 
 # ============================================================================
-# 8. Update GEMINI.md with boundary markers
+# 9. Update GEMINI.md with boundary markers
 # ============================================================================
 if [ "$NO_GEMINI_MD" != "true" ]; then
-    echo -e "${BLUE}[8/9] Updating GEMINI.md...${NC}"
+    echo -e "${BLUE}[9/11] Updating GEMINI.md...${NC}"
     GEMINI_MD="$TARGET_DIR/GEMINI.md"
     GEMINI_SNIPPET_FILE="$AFX_DIR/prompts/gemini.md"
 
@@ -563,14 +596,79 @@ HEADER
         fi
     fi
 else
-    echo -e "${YELLOW}[8/9] Skipping GEMINI.md (--no-gemini-md)${NC}"
+    echo -e "${YELLOW}[9/11] Skipping GEMINI.md (--no-gemini-md)${NC}"
 fi
 
 # ============================================================================
-# 9. Install AFX documentation
+# 10. Update copilot-instructions.md with boundary markers
+# ============================================================================
+if [ "$NO_COPILOT_MD" != "true" ]; then
+    echo -e "${BLUE}[10/11] Updating copilot-instructions.md...${NC}"
+    COPILOT_MD="$TARGET_DIR/.github/copilot-instructions.md"
+    COPILOT_SNIPPET_FILE="$AFX_DIR/prompts/copilot.md"
+
+    if [ -f "$COPILOT_SNIPPET_FILE" ]; then
+        COPILOT_SNIPPET_CONTENT=$(sed -n '/^---$/,$p' "$COPILOT_SNIPPET_FILE" | tail -n +2)
+
+        AFX_COPILOT_SECTION="${AFX_COPILOT_START_MARKER}
+<!-- AFX Version: ${AFX_VERSION} -->
+
+${COPILOT_SNIPPET_CONTENT}
+${AFX_COPILOT_END_MARKER}"
+
+        if [ "$DRY_RUN" = "true" ]; then
+            if [ -f "$COPILOT_MD" ]; then
+                if grep -q "$AFX_COPILOT_START_MARKER" "$COPILOT_MD" 2>/dev/null; then
+                    UPDATED+=("copilot-instructions.md AFX Copilot section (would update)")
+                else
+                    INSTALLED+=("copilot-instructions.md AFX Copilot section (would append)")
+                fi
+            else
+                INSTALLED+=("copilot-instructions.md (would create)")
+            fi
+        else
+            # Ensure .github directory exists
+            if [ ! -d "$TARGET_DIR/.github" ]; then
+                mkdir -p "$TARGET_DIR/.github"
+            fi
+
+            if [ -f "$COPILOT_MD" ]; then
+                if grep -q "$AFX_COPILOT_START_MARKER" "$COPILOT_MD"; then
+                    awk -v start="$AFX_COPILOT_START_MARKER" '
+                        $0 == start { exit }
+                        { print }
+                    ' "$COPILOT_MD" > "$COPILOT_MD.tmp"
+
+                    echo "$AFX_COPILOT_SECTION" >> "$COPILOT_MD.tmp"
+
+                    awk -v end="$AFX_COPILOT_END_MARKER" '
+                        BEGIN { skip=1 }
+                        $0 == end { skip=0; next }
+                        !skip { print }
+                    ' "$COPILOT_MD" >> "$COPILOT_MD.tmp"
+
+                    mv "$COPILOT_MD.tmp" "$COPILOT_MD"
+                    UPDATED+=("copilot-instructions.md AFX Copilot section")
+                else
+                    echo "" >> "$COPILOT_MD"
+                    echo "$AFX_COPILOT_SECTION" >> "$COPILOT_MD"
+                    INSTALLED+=("copilot-instructions.md AFX Copilot section")
+                fi
+            else
+                echo "$AFX_COPILOT_SECTION" > "$COPILOT_MD"
+                INSTALLED+=("copilot-instructions.md (created)")
+            fi
+        fi
+    fi
+else
+    echo -e "${YELLOW}[10/11] Skipping copilot-instructions.md (--no-copilot-md)${NC}"
+fi
+
+# ============================================================================
+# 11. Install AFX documentation
 # ============================================================================
 if [ "$NO_DOCS" != "true" ]; then
-    echo -e "${BLUE}[9/9] Installing AFX documentation...${NC}"
+    echo -e "${BLUE}[11/11] Installing AFX documentation...${NC}"
     AFX_DOCS_DIR="$TARGET_DIR/docs/agenticflowx"
 
     if [ "$DRY_RUN" != "true" ]; then
@@ -584,7 +682,7 @@ if [ "$NO_DOCS" != "true" ]; then
         fi
     done
 else
-    echo -e "${YELLOW}[9/9] Skipping AFX documentation (--no-docs)${NC}"
+    echo -e "${YELLOW}[11/11] Skipping AFX documentation (--no-docs)${NC}"
 fi
 # ============================================================================
 # Create directory structure
@@ -642,12 +740,13 @@ fi
 echo ""
 if [ "$UPDATE_MODE" = "true" ]; then
     echo -e "${BLUE}Update notes:${NC}"
-    echo "  - Claude commands, Codex skills, Gemini commands, and templates were updated"
+    echo "  - Claude commands, Codex skills, Gemini commands, Copilot prompts, and templates were updated"
     echo "  - AFX docs in docs/agenticflowx/ were updated"
     echo "  - .afx.yaml was preserved (your config)"
     echo "  - CLAUDE.md AFX section was replaced (your content preserved)"
     echo "  - AGENTS.md AFX Codex section was replaced (your content preserved)"
     echo "  - GEMINI.md AFX Gemini section was replaced (your content preserved)"
+    echo "  - copilot-instructions.md AFX Copilot section was replaced (your content preserved)"
 else
     echo -e "${BLUE}Next steps:${NC}"
     echo "  1. Edit .afx.yaml to configure your project"
