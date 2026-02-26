@@ -5,6 +5,16 @@ All notable changes to AFX will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-02-26
+
+### Chore
+
+- Corrected co-author bot emails for Codex and Copilot to use verified GitHub bot noreply addresses.
+  - Codex: `openai-codex[bot] <215057067+openai-codex[bot]@users.noreply.github.com>`
+  - Copilot: `copilot[bot] <167198135+copilot[bot]@users.noreply.github.com>`
+- Updated `CLAUDE.md` Git Attribution section to list all four agent co-author trailers.
+- Fixed `prompts/copilot.md` snippet with correct bot email.
+
 ## [1.5.0] - 2026-02-26
 
 ### Added
