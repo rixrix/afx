@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX discover commands for capabilities, infrastructure, scripts, and tools.
+description: Discover what exists in your project - infrastructure scripts, automation tools, deployment workflows, and development capabilities.
 ---
 
 # AFX discover

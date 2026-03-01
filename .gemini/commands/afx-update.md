@@ -7,7 +7,7 @@ tags: [afx, command, maintenance]
 
 # /afx:update
 
-Keep AFX assets current.
+Check for upstream AFX updates and apply them safely.
 
 ## Source of Truth
 

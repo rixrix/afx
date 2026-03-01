@@ -7,7 +7,7 @@ tags: [afx, command, task, management]
 
 # /afx:task
 
-Task management and verification for AgenticFlowX.
+Verify and summarize task implementation status.
 
 ## Source of Truth
 

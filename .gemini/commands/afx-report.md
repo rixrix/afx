@@ -7,7 +7,7 @@ tags: [afx, command, report, metrics]
 
 # /afx:report
 
-Project metrics and reporting for AgenticFlowX.
+Traceability metrics and project health reporting for AgenticFlowX.
 
 ## Source of Truth
 

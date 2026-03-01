@@ -7,6 +7,10 @@ version: 1.0
 tags: [framework, specification, afx]
 ---
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rixrix/afx/main/assets/agenticflow_logo_light.svg" alt="AgenticFlowX Logo" width="600"/>
+</p>
+
 # AgenticFlowX (AFX)
 
 > **Agentic workflow—from spec to ship.**

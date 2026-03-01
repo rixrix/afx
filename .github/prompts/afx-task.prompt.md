@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX task commands for audit, summary, listing, and progress checks.
+description: Verify and summarize task implementation status.
 ---
 
 # AFX task

@@ -7,7 +7,7 @@ tags: [afx, command, session, context]
 
 # /afx:session
 
-Session management and context preservation for AgenticFlowX.
+Session discussion capture and recall for multi-agent workflows.
 
 ## Source of Truth
 

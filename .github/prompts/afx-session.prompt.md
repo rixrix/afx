@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX session commands for notes, recaps, and journal continuity.
+description: Session discussion capture and recall for multi-agent workflows.
 ---
 
 # AFX session

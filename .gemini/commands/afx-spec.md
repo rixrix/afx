@@ -7,7 +7,7 @@ tags: [afx, command, spec, management]
 
 # /afx:spec
 
-Specification management and review for AgenticFlowX.
+Specification management, navigation, review, and approval for spec-centric workflows.
 
 ## Source of Truth
 

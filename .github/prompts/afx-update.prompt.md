@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX update commands for version checks and framework upgrades.
+description: Check for upstream AFX updates and apply them safely.
 ---
 
 # AFX update

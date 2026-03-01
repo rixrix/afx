@@ -1,6 +1,6 @@
 ---
 name: afx-next
-description: Execute the AFX next command workflow in Codex. Trigger when the user asks for afx-next, /afx:next, or the corresponding next subcommands.
+description: The "Golden Thread" command. Intelligently analyzes your current context (git state, active tasks, session history) and tells you exactly what to do next.
 ---
 
 # AFX next

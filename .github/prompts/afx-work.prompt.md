@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX work commands for status, next tasks, resume, sync, and planning.
+description: Workflow state management for AgenticFlowX sessions.
 ---
 
 # AFX work

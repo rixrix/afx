@@ -1,6 +1,6 @@
 ---
 name: afx-discover
-description: Execute the AFX discover command workflow in Codex. Trigger when the user asks for afx-discover, /afx:discover, or the corresponding discover subcommands.
+description: Discover what exists in your project - infrastructure scripts, automation tools, deployment workflows, and development capabilities.
 ---
 
 # AFX discover

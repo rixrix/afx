@@ -7,7 +7,7 @@ tags: [afx, command, development, traceability]
 
 # /afx:dev
 
-Traced development for AgenticFlowX.
+Development actions with AFX traceability.
 
 ## Source of Truth
 

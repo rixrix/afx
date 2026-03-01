@@ -1,6 +1,6 @@
 ---
 name: afx-work
-description: Execute the AFX work command workflow in Codex. Trigger when the user asks for afx-work, /afx:work, or the corresponding work subcommands.
+description: Workflow state management for AgenticFlowX sessions.
 ---
 
 # AFX work

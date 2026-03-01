@@ -7,7 +7,7 @@ tags: [afx, command, context, guidance]
 
 # /afx:next
 
-The "Golden Thread" command. Intelligently analyzes your current context and tells you exactly what to do next.
+The "Golden Thread" command. intelligently analyzes your current context (git state, active tasks, session history) and tells you exactly what to do next.
 
 ## Source of Truth
 

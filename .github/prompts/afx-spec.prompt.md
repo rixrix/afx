@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX spec commands for drafting and refining specs, design, and tasks.
+description: Specification management, navigation, review, and approval for spec-centric workflows.
 ---
 
 # AFX spec

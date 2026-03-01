@@ -7,7 +7,7 @@ tags: [afx, command, discovery, tooling]
 
 # /afx:discover
 
-Project intelligence for AgenticFlowX.
+Discover what exists in your project: infrastructure scripts, automation tools, deployment workflows, and development capabilities.
 
 ## Source of Truth
 

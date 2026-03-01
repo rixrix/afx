@@ -1,6 +1,6 @@
 ---
 name: afx-check
-description: Execute the AFX check command workflow in Codex. Trigger when the user asks for afx-check, /afx:check, or the corresponding check subcommands.
+description: Quality verification and compliance checking for AgenticFlowX.
 ---
 
 # AFX check

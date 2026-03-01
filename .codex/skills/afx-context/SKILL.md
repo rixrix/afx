@@ -1,6 +1,6 @@
 ---
 name: afx-context
-description: Execute the AFX context command workflow in Codex. Trigger when the user asks for afx-context, /afx:context, or the corresponding context subcommands.
+description: Session Context protocol for seamless context transfer between AI sessions.
 ---
 
 # AFX context

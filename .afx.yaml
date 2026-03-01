@@ -1,5 +1,5 @@
 # AFX dogfooding — using AFX to develop AFX
-version: "1.0"
+version: "feature/pack"
 
 paths:
   specs: "docs/specs"
@@ -37,3 +37,5 @@ ai_attribution:
 # No source code — these don't apply for a docs/tooling repo
 require_see_links: []
 scan_for_orphans: []
+
+packs:
