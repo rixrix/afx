@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX check commands for path, lint, links, and gate validation.
+description: Quality verification and compliance checking for AgenticFlowX.
 ---
 
 # AFX check

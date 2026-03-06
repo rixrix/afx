@@ -1,6 +1,6 @@
 ---
 name: afx-session
-description: Execute the AFX session command workflow in Codex. Trigger when the user asks for afx-session, /afx:session, or the corresponding session subcommands.
+description: Session discussion capture and recall for multi-agent workflows.
 ---
 
 # AFX session

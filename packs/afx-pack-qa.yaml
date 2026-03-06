@@ -1,0 +1,47 @@
+# @see docs/specs/afx-packs/spec.md#FR-1
+# @see docs/specs/afx-packs/spec.md#FR-2
+# @see docs/specs/afx-packs/spec.md#FR-3
+# @see docs/specs/afx-packs/design.md#11-pack-manifests
+
+name: afx-pack-qa
+description: QA Engineer role pack — testing, review, and quality assurance
+category: role
+
+platforms:
+  claude: true
+  codex: true
+  antigravity: true
+  copilot: partial # Only AFX-built skills — no external SKILL.md conversion
+
+includes:
+  # External skills from Antigravity (pristine — SKILL.md format → Claude + Codex + Antigravity)
+  - repo: anthropics/antigravity-awesome-skills
+    path: skills/
+    items:
+      - test-driven-development
+      - tdd-workflow
+      - playwright-skill
+      - e2e-testing-patterns
+      - unit-testing-test-generate
+      - systematic-debugging
+      - performance-testing-review
+
+  # External skills from OpenAI (pristine — SKILL.md + openai.yaml → Codex only)
+  - repo: openai/skills
+    path: skills/.curated/
+    items:
+      - playwright
+
+  # Claude Code plugins (pristine — .claude-plugin/ format → Claude only)
+  - repo: anthropics/claude-code
+    path: plugins/
+    items:
+      - code-review
+      - pr-review-toolkit
+
+  # AFX-built skills (guardrails baked in, hosted in AFX repo)
+  - repo: rixrix/afx
+    path: skills/
+    items:
+      - afx-qa-methodology # QA workflow with @see tracing + two-stage verify
+      - afx-spec-test-planning # Test plans linked to spec tasks

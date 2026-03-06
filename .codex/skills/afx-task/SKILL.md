@@ -1,6 +1,6 @@
 ---
 name: afx-task
-description: Execute the AFX task command workflow in Codex. Trigger when the user asks for afx-task, /afx:task, or the corresponding task subcommands.
+description: Verify and summarize task implementation status.
 ---
 
 # AFX task

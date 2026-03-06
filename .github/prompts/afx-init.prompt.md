@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX init commands for setting up features and ADR artifacts.
+description: Feature spec scaffolding for AgenticFlowX projects.
 ---
 
 # AFX init

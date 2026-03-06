@@ -1,6 +1,6 @@
 ---
 name: afx-update
-description: Execute the AFX update command workflow in Codex. Trigger when the user asks for afx-update, /afx:update, or update check/apply operations.
+description: Check for upstream AFX updates and apply them safely.
 ---
 
 # AFX update

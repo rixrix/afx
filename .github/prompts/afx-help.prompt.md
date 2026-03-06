@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX command reference and workflow guidance.
+description: AFX (AgenticFlowX) command reference.
 ---
 
 # AFX help

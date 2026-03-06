@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX dev commands for implementation, debugging, refactoring, and review.
+description: Development actions with AFX traceability.
 ---
 
 # AFX dev

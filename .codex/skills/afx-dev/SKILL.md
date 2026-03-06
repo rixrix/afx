@@ -1,6 +1,6 @@
 ---
 name: afx-dev
-description: Execute the AFX dev command workflow in Codex. Trigger when the user asks for afx-dev, /afx:dev, or the corresponding dev subcommands.
+description: Development actions with AFX traceability.
 ---
 
 # AFX dev

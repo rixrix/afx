@@ -1,0 +1,22 @@
+description = "Feature spec scaffolding and ADR creation for AgenticFlowX projects."
+prompt = """
+You are executing the AFX /afx:init command. This scaffolds new feature specs and creates Architecture Decision Records.
+
+## Canonical Command Logic
+
+Follow the full command logic defined in the canonical source:
+
+@{.claude/commands/afx-init.md}
+
+## Gemini-Specific Tool Guidance
+
+During the "Smart Init Protocol":
+
+1. **Context Scan**: Leverage `codebase_investigator` to search the codebase for existing patterns, collisions, and dependencies before scaffolding new features.
+2. **Scaffolding**: Use `write_file` to create the feature directory structure and files as defined in the canonical command's execution script.
+3. **ADR Creation**: When using `/afx:init adr <title>`, ensure you generate real, meaningful content for each section as instructed in the canonical spec.
+
+## Arguments
+
+{{args}}
+"""

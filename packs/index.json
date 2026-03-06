@@ -1,0 +1,23 @@
+{
+  "packs": {
+    "afx-pack-qa": {
+      "description": "QA Engineer role pack — testing, review, and quality assurance",
+      "category": "role",
+      "providers": ["claude", "codex", "antigravity", "copilot"]
+    },
+    "afx-pack-security": {
+      "description": "Security review and audit pack — OWASP, dependency scanning, code hardening",
+      "category": "role",
+      "providers": ["claude", "codex", "antigravity", "copilot"]
+    }
+  },
+  "upstream": {
+    "anthropics/claude-plugins-official": {
+      "featured": ["playwright-e2e", "security-scanner", "code-architect"]
+    },
+    "openai/skills": {},
+    "anthropics/antigravity-awesome-skills": {
+      "featured": ["code-architect"]
+    }
+  }
+}

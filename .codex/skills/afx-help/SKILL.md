@@ -1,6 +1,6 @@
 ---
 name: afx-help
-description: Execute the AFX help command workflow in Codex. Trigger when the user asks for afx-help, /afx:help, or the corresponding help subcommands.
+description: AFX (AgenticFlowX) command reference.
 ---
 
 # AFX help

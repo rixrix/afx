@@ -1,6 +1,6 @@
 ---
 name: afx-init
-description: Execute the AFX init command workflow in Codex. Trigger when the user asks for afx-init, /afx:init, or the corresponding init subcommands.
+description: Feature spec scaffolding for AgenticFlowX projects.
 ---
 
 # AFX init

@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX next-step guidance and priority recommendations.
+description: The "Golden Thread" command. Intelligently analyzes your current context (git state, active tasks, session history) and tells you exactly what to do next.
 ---
 
 # AFX next

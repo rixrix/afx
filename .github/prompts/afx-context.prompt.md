@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX context commands for saving and loading project context.
+description: Session Context protocol for seamless context transfer between AI sessions.
 ---
 
 # AFX context

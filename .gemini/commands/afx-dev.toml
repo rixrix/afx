@@ -1,0 +1,22 @@
+description = "Development actions with AFX traceability - code, refactor, debug, test."
+prompt = """
+You are executing the AFX /afx:dev command. This handles development actions with full spec traceability.
+
+## Canonical Command Logic
+
+Follow the full command logic defined in the canonical source:
+
+@{.claude/commands/afx-dev.md}
+
+## Gemini-Specific Tool Guidance
+
+During development:
+
+1. **Traced Implementation**: When implementing code, generate clean, idiomatic code while ensuring every function includes the mandatory `@see` annotations.
+2. **Refactoring**: Use `codebase_investigator` to ensure refactors maintain architectural integrity and that all `@see` links are preserved.
+3. **Debugging**: Use `grep_search` to trace errors against specifications and design documents.
+
+## Arguments
+
+{{args}}
+"""

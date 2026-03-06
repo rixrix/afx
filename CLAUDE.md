@@ -20,10 +20,13 @@ This is a **documentation and tooling repository** - it contains:
 
 ```
 afx/
+├── .agent/skills/        # AFX Antigravity skills (afx-*)
 ├── .claude/commands/     # AFX slash commands (/afx:*)
 ├── .codex/skills/        # AFX Codex skills (afx-*)
 ├── .gemini/commands/     # AFX Gemini CLI commands (/afx:*)
 ├── .github/prompts/      # AFX GitHub Copilot prompts
+├── packs/                # Pack manifests + index (afx-pack-*.yaml)
+├── skills/               # AFX-built skills (guardrails baked in)
 ├── scripts/              # Utility scripts (sync, install support)
 ├── docs/
 │   ├── adr/             # Global Architecture Decision Records
@@ -44,9 +47,10 @@ This is a documentation-only repo with no build or test commands. Changes are ve
 
 1. Testing commands in a real project (copy to `.claude/commands/`)
 2. Testing Codex skills in a real project (copy to `.codex/skills/`)
-3. Testing Copilot prompts in a real project (copy to `.github/prompts/`)
-4. Reviewing markdown rendering
-5. Verifying YAML frontmatter syntax
+3. Testing Antigravity skills in a real project (copy to `.agent/skills/`)
+4. Testing Copilot prompts in a real project (copy to `.github/prompts/`)
+5. Reviewing markdown rendering
+6. Verifying YAML frontmatter syntax
 
 ## Key Concepts
 

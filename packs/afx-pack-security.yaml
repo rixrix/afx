@@ -1,0 +1,36 @@
+# @see docs/specs/afx-packs/spec.md#FR-1
+# @see docs/specs/afx-packs/spec.md#FR-2
+# @see docs/specs/afx-packs/spec.md#FR-3
+# @see docs/specs/afx-packs/design.md#11-pack-manifests
+
+name: afx-pack-security
+description: Security review and audit pack — OWASP, dependency scanning, code hardening
+category: role
+
+platforms:
+  claude: true
+  codex: true
+  antigravity: true
+  copilot: partial # Only AFX-built skills — no external SKILL.md conversion
+
+includes:
+  # External skills from Antigravity (pristine — SKILL.md format → Claude + Codex + Antigravity)
+  - repo: anthropics/antigravity-awesome-skills
+    path: skills/
+    items:
+      - security-review
+      - dependency-vulnerability-check
+      - code-hardening
+
+  # Claude Code plugins (pristine — .claude-plugin/ format → Claude only)
+  - repo: anthropics/claude-code
+    path: plugins/
+    items:
+      - security-scanner
+
+  # AFX-built skills (guardrails baked in, hosted in AFX repo)
+  - repo: rixrix/afx
+    path: skills/
+    items:
+      - afx-owasp-top-10 # OWASP top 10 checklist with @see tracing
+      - afx-security-audit # Security audit workflow

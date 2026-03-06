@@ -1,6 +1,6 @@
 ---
 name: afx-report
-description: Execute the AFX report command workflow in Codex. Trigger when the user asks for afx-report, /afx:report, or the corresponding report subcommands.
+description: Traceability metrics and project health reporting for AgenticFlowX.
 ---
 
 # AFX report

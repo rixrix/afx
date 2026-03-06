@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX report commands for health, coverage, and orphan analysis.
+description: Traceability metrics and project health reporting for AgenticFlowX.
 ---
 
 # AFX report

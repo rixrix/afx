@@ -1,6 +1,6 @@
 ---
 name: afx-spec
-description: Execute the AFX spec command workflow in Codex. Trigger when the user asks for afx-spec, /afx:spec, or the corresponding spec subcommands.
+description: Specification management, navigation, review, and approval for spec-centric workflows.
 ---
 
 # AFX spec
