@@ -1,0 +1,22 @@
+description = "Discover project capabilities, infrastructure, scripts, and tools."
+prompt = """
+You are executing the AFX /afx:discover command. This discovers what exists in your project: infrastructure scripts, automation tools, deployment workflows, and development capabilities.
+
+## Canonical Command Logic
+
+Follow the full command logic defined in the canonical source:
+
+@{.claude/commands/afx-discover.md}
+
+## Gemini-Specific Tool Guidance
+
+When discovering project capabilities:
+
+1. **Capability Scan**: Use `codebase_investigator` and `run_shell_command` to identify build systems, test runners, package managers, and development tools.
+2. **Infrastructure Discovery**: Use `grep_search` to find provisioning and automation scripts.
+3. **Reporting**: Provide a high-level overview of project automation as defined in the canonical command.
+
+## Arguments
+
+{{args}}
+"""

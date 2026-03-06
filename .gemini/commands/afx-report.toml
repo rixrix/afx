@@ -1,0 +1,22 @@
+description = "Traceability metrics and project health reporting for AgenticFlowX."
+prompt = """
+You are executing the AFX /afx:report command. This generates traceability metrics and project health reports.
+
+## Canonical Command Logic
+
+Follow the full command logic defined in the canonical source:
+
+@{.claude/commands/afx-report.md}
+
+## Gemini-Specific Tool Guidance
+
+When generating reports:
+
+1. **Traceability Analysis**: Use `grep_search` to map `@see` links from code back to specifications.
+2. **Health Metrics**: Use `grep_search` to calculate spec quality and task completion rates.
+3. **Coverage**: Use `grep_search` and `codebase_investigator` to identify which specs have implementation versus those that are documentation-only.
+
+## Arguments
+
+{{args}}
+"""

@@ -1457,7 +1457,7 @@ step_gemini_commands() {
     [[ "$DRY_RUN" != "true" ]] && mkdir -p "$dir"
 
     if [ -d "$AFX_DIR/.gemini/commands" ]; then
-        for cmd in "$AFX_DIR"/.gemini/commands/afx-*.md; do
+        for cmd in "$AFX_DIR"/.gemini/commands/afx-*.toml; do
             if [ -f "$cmd" ]; then
                 local filename=$(basename "$cmd")
                 install_file "$cmd" "$dir/$filename" "Gemini command: $filename" "$UPDATE_MODE"
@@ -1740,7 +1740,7 @@ step_reset() {
         ".claude/commands/afx-*.md" \
         ".codex/skills/afx-*" \
         ".agent/skills/afx-*" \
-        ".gemini/commands/afx-*.md" \
+        ".gemini/commands/afx-*.toml" \
         ".github/prompts/afx-*.prompt.md"; do
         local c=$(count_glob "$TARGET_DIR/$check")
         if [[ "$c" -gt 0 ]]; then
@@ -1767,7 +1767,7 @@ step_reset() {
             remove_glob "$TARGET_DIR/.claude/commands/afx-*.md" ".claude/commands/afx-*.md" "file"
             remove_glob "$TARGET_DIR/.codex/skills/afx-*" ".codex/skills/afx-*" "dir"
             remove_glob "$TARGET_DIR/.agent/skills/afx-*" ".agent/skills/afx-*" "dir"
-            remove_glob "$TARGET_DIR/.gemini/commands/afx-*.md" ".gemini/commands/afx-*.md" "file"
+            remove_glob "$TARGET_DIR/.gemini/commands/afx-*.toml" ".gemini/commands/afx-*.toml" "file"
             remove_glob "$TARGET_DIR/.github/prompts/afx-*.prompt.md" ".github/prompts/afx-*.prompt.md" "file"
             remove_glob "$TARGET_DIR/.github/prompts/README.md" ".github/prompts/README.md" "file"
             # Pack-installed items

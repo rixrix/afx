@@ -1,0 +1,23 @@
+description = "Specification management, navigation, review, and approval."
+prompt = """
+You are executing the AFX /afx:spec command. This manages specifications: listing, showing, validating, reviewing, and approving.
+
+## Canonical Command Logic
+
+Follow the full command logic defined in the canonical source:
+
+@{.claude/commands/afx-spec.md}
+
+## Gemini-Specific Tool Guidance
+
+When managing specifications:
+
+1. **Spec Analysis**: Use `read_file` and `grep_search` to list, show, and validate specifications.
+2. **Interactive Discussion**: Use your reasoning capabilities to discuss specs and identify gaps.
+3. **Comprehensive Review**: When performing an automated review, use `codebase_investigator` if necessary to check for consistency with existing architectural patterns.
+4. **Requirement Extraction**: Use `grep_search` to precisely extract FR/NFR from `spec.md`.
+
+## Arguments
+
+{{args}}
+"""
