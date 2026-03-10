@@ -4,7 +4,7 @@ type: SPEC
 status: Approved
 owner: "@rix"
 version: 1.0
-approved_at: "2026-02-25T04:39:00Z"
+approved_at: "2026-02-25T04:39:00.000Z"
 tags: [afx-update, framework, commands]
 ---
 

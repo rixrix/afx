@@ -65,7 +65,7 @@ Run this inline script to check health:
 
 ```bash
 echo "## Traceability Health Report"
-echo "**Generated**: $(date +%Y-%m-%d)"
+echo "**Generated**: $(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
 echo ""
 
 TOTAL_DOCS=$(find docs -name "*.md" | grep -v "templates" | wc -l)

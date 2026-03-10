@@ -121,9 +121,15 @@ type: SPEC # SPEC | DESIGN | TASKS | JOURNAL | COMMAND
 status: Draft # Draft | Approved | Living
 owner: "@handle"
 version: 1.0
+created: YYYY-MM-DDTHH:MM:SS.mmmZ # ISO 8601 with milliseconds
+last_verified: YYYY-MM-DDTHH:MM:SS.mmmZ # Last review timestamp
 tags: [feature, topic]
+spec: spec.md # Relative link (DESIGN, TASKS only)
+design: design.md # Relative link (TASKS only)
 ---
 ```
+
+> **Rule:** YAML frontmatter is the **single source of truth** for status, version, date, owner, and cross-references. Do NOT duplicate these as `**Status:**`, `**Version:**`, `**Date:**`, or `**Author:**` lines in the markdown body.
 
 ## Git Commit Attribution
 

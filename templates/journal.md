@@ -49,7 +49,7 @@ tags: [{ feature }, journal]
 
 **Notes**:
 
-- **[XX-D001.N1]** **[YYYY-MM-DD HH:MM]** Note content `[tags]`
+- **[XX-D001.N1]** **[YYYY-MM-DDTHH:MM:SS.mmmZ]** Note content `[tags]`
 
 **Related Files**: file1.ts, file2.ts
 **Participants**: @{owner}

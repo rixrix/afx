@@ -3,7 +3,7 @@ afx: true
 type: ADR
 status: Proposed # Proposed | Accepted | Rejected | Deprecated | Superseded
 version: 1.0
-created: YYYY-MM-DD
+created: YYYY-MM-DDTHH:MM:SS.mmmZ
 owner: '@handle'
 tags: [adr, architecture]
 ---

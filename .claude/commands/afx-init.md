@@ -115,7 +115,7 @@ SPEC_DIR="docs/specs/$FEATURE"
 if [ -d "$SPEC_DIR" ]; then echo "Error: $FEATURE exists"; exit 1; fi
 
 mkdir -p "$SPEC_DIR/research"
-DATE=$(date +%Y-%m-%d)
+DATE=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
 PREFIX=$(echo "$FEATURE" | awk -F- '{print toupper(substr($1,0,1) substr($2,0,1))}')
 [ ${#PREFIX} -lt 2 ] && PREFIX=$(echo "$FEATURE" | awk '{print toupper(substr($0,0,2))}')
 

@@ -6,19 +6,14 @@ status: Approved
 owner: "@rix"
 priority: High
 version: 1.0
-approved_at: "2026-02-28T04:35:00Z"
-created: "2026-02-28"
-last_verified: "2026-02-28"
+approved_at: "2026-02-28T04:35:00.000Z"
+created: "2026-02-28T00:00:00.000Z"
+last_verified: "2026-02-28T00:00:00.000Z"
 tags: [packs, install, skills, ecosystem]
 
 ---
 
 # AFX Pack System - Product Specification
-
-**Version:** 1.0
-**Date:** 2026-02-28
-**Status:** Approved
-**Author:** Richard Sentino
 
 ## References
 

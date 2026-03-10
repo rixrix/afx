@@ -317,8 +317,8 @@ status: Draft # Draft | Approved | Living
 owner: "@handle" # GitHub handle (quoted)
 priority: High # High | Medium | Low (SPEC only)
 version: 1.0 # Semantic versioning
-created: YYYY-MM-DDTHH:MM:SSZ # ISO 8601 creation timestamp
-last_verified: YYYY-MM-DD # Last review date
+created: YYYY-MM-DDTHH:MM:SS.mmmZ # ISO 8601 creation timestamp (millisecond precision)
+last_verified: YYYY-MM-DDTHH:MM:SS.mmmZ # Last review timestamp (millisecond precision)
 tags: [feature, topic] # Content tags (Obsidian convention)
 ---
 ```
@@ -343,7 +343,7 @@ id: 0001 # Optional numbered ID
 type: RES # RES | ADR
 status: Approved # Draft | Approved | Deprecated
 owner: "@handle"
-date: YYYY-MM-DD # Decision/creation date
+date: YYYY-MM-DDTHH:MM:SS.mmmZ # Decision/creation timestamp (millisecond precision)
 tags: [topic1, topic2]
 ---
 ```
@@ -690,7 +690,7 @@ Before an agent session ends (timeout, window close), use `/afx:context save` to
 
 - Uncommitted changes + Active Task status + Key Decisions
 - Writes a "Prompt Bundle" to the session log
-  - New agent reads `docs/specs/afx-context.md`, reconstructs the context, and picks up seamlessly.
+  - New agent reads `.afx/context.md`, reconstructs the context, and picks up seamlessly.
 
 > **Why?** Prevents "context death" where the next agent has to re-read everything from scratch.
 

@@ -11,7 +11,7 @@ tags: [afx, command, context, session]
 
 **Read `.afx.yaml`** at project root to resolve paths:
 
-- `paths.specs` - Where `afx-context.md` and feature specs live (default: `docs/specs`)
+- `paths.specs` - Where feature specs live (default: `docs/specs`)
 - `paths.adr` - Where global ADR files live (default: `docs/adr`)
 
 If `.afx.yaml` doesn't exist, use defaults.
@@ -20,7 +20,7 @@ If `.afx.yaml` doesn't exist, use defaults.
 
 ```bash
 /afx:context save [feature]       # Generate context (auto-detects all features if omitted)
-/afx:context load                 # Load context from docs/specs/afx-context.md
+/afx:context load                 # Load context from .afx/context.md
 /afx:context history [feature]    # Show spec evolution timeline
 /afx:context impact <change>      # Analyze cross-feature impact
 ```
@@ -48,7 +48,7 @@ Formalize context transfer between AI agent sessions. When an agent times out, d
 
 ## Storage
 
-**Single file**: `docs/specs/afx-context.md`
+**Single file**: `.afx/context.md`
 
 - One centralized location — no scanning across spec folders
 - `load` reads this file directly
@@ -71,7 +71,7 @@ Generate a detailed context bundle for the next agent session (or for human reca
 
 ### Process
 
-1. If `.afx.yaml` not found, use `docs/specs/afx-context.md` as default. If it exists and is NOT cleared, warn: "Existing context found. Overwrite?" Wait for confirmation before proceeding.
+1. If `.afx.yaml` not found, use `.afx/context.md` as default. If it exists and is NOT cleared, warn: "Existing context found. Overwrite?" Wait for confirmation before proceeding.
 2. **Detect features**: From git diff + session context (or argument). Identify ALL features touched this session.
 3. **Detect global ADRs**: Scan `docs/adr/*.md` for any Proposed ADRs or those modified in the current session.
 4. **Read session state** (per feature):
@@ -81,7 +81,7 @@ Generate a detailed context bundle for the next agent session (or for human reca
    - Blockers (any BLOCKED entries in Work Sessions)
 4. **Read uncommitted files**: `git diff --stat` + `git status`
 5. **Generate bundle**: Detailed markdown using the template below
-6. **Persist**: Write to `docs/specs/afx-context.md` (overwrite)
+6. **Persist**: Write to `.afx/context.md` (overwrite)
 
 ### Template
 
@@ -92,7 +92,7 @@ Generate a detailed context bundle for the next agent session (or for human reca
 afx: true
 type: CONTEXT
 status: Active
-saved: { YYYY-MM-DD }
+saved: { YYYY-MM-DDTHH:MM:SS.mmmZ }
 branch: { branch-name }
 features: [{ feature1 }, { feature2 }]
 ---
@@ -231,13 +231,13 @@ Load context from a previous context. Fast — reads a single file.
 ### Usage
 
 ```bash
-/afx:context load                 # Load from docs/specs/afx-context.md
+/afx:context load                 # Load from .afx/context.md
 ```
 
 ### Process
 
-1. **Read** `docs/specs/afx-context.md`
-2. **Check empty**: If `afx-context.md` has `status: Cleared` or is missing, inform user "No active context found" and suggest `/afx:context save`
+1. **Read** `.afx/context.md`
+2. **Check empty**: If `.afx/context.md` has `status: Cleared` or is missing, inform user "No active context found" and suggest `/afx:context save`
 3. **Output full content**: Display the context bundle as-is. **DO NOT compress, summarize, or omit details** — the save step already structured it for consumption
 4. **Archive**: Provide a one-liner archive entry for the user to optionally paste into their `journal.md` under `## Contexts`:
 
@@ -255,7 +255,7 @@ The full context bundle content, followed by:
 ```markdown
 ---
 
-✅ **Context loaded from** `docs/specs/afx-context.md`
+✅ **Context loaded from** `.afx/context.md`
 
 Next (ranked):
 

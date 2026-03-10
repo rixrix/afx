@@ -336,7 +336,7 @@ Cannot assign Task 2.2 until verification passes.
 ```markdown
 <!-- In docs/specs/{feature}/journal.md → ## Work Sessions -->
 
-| {YYYY-MM-DD} | {X.Y} | {action taken} | {files modified} | [WAIT] | - |
+| {YYYY-MM-DDTHH:MM:SS.mmmZ} | {X.Y} | {action taken} | {files modified} | [WAIT] | - |
 ```
 
 Note: Two verification columns - Agent ([OK]/[WAIT]/[FAIL]) and Human (-/[WAIT]/[OK])

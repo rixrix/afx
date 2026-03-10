@@ -4,18 +4,14 @@ type: TASKS
 status: Living
 owner: "@rix"
 version: 1.0
-created: "2026-02-28"
-last_verified: "2026-02-28"
+created: "2026-02-28T00:00:00.000Z"
+last_verified: "2026-02-28T00:00:00.000Z"
 tags: [packs, install, skills, ecosystem]
+spec: spec.md
+design: design.md
 ---
 
 # AFX Pack System - Implementation Tasks
-
-**Version:** 1.0
-**Date:** 2026-02-28
-**Status:** Ready for Implementation
-**Spec:** [spec.md](./spec.md)
-**Design:** [design.md](./design.md)
 
 ---
 

@@ -5,7 +5,7 @@ status: Draft
 owner: '@your-handle'
 priority: Medium
 version: 1.0
-created: 2025-02-01T00:00:00Z
+created: 2025-02-01T00:00:00.000Z
 tags: [example]
 ---
 

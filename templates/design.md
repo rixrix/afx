@@ -4,18 +4,13 @@ type: DESIGN
 status: Draft
 owner: "@owner"
 version: 1.0
-created: "{YYYY-MM-DDTHH:MM:SSZ}"
-last_verified: "{YYYY-MM-DD}"
+created: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
+last_verified: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
 tags: ["{feature}"]
+spec: spec.md
 ---
 
 # {Feature Name} - Technical Design
-
-**Version:** 1.0
-**Date:** {YYYY-MM-DD}
-**Status:** Draft | In Review | Approved
-**Author:** {name}
-**Spec:** [spec.md](./spec.md)
 
 ---
 
