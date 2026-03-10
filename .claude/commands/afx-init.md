@@ -161,6 +161,10 @@ cat <<EOF > "$SPEC_DIR/tasks.md"
 ## Phase 1: Core
 
 - [ ] Task 1.1
+
+## Work Sessions
+| Date | Task | Action | Files Modified | Agent | Human |
+| ---- | ---- | ------ | -------------- | ----- | ----- |
 EOF
 
 # 4. JOURNAL
@@ -184,10 +188,6 @@ tags: [$FEATURE, journal]
 
 ## Discussions
 ---
-
-## Work Sessions
-| Date | Task | Action | Files Modified | Agent | Human |
-| ---- | ---- | ------ | -------------- | ----- | ----- |
 EOF
 
 echo "Feature '$FEATURE' initialized at $SPEC_DIR"
@@ -542,13 +542,6 @@ tags: [{ feature }, journal]
 <!-- Recorded discussions with IDs: {XX}-D001, {XX}-D002, etc. -->
 
 ---
-
-## Work Sessions
-
-<!-- Task execution log - updated by /afx:work next, /afx:dev code -->
-
-| Date | Task | Action | Files Modified | Agent | Human |
-| ---- | ---- | ------ | -------------- | ----- | ----- |
 ```
 
 ---

@@ -52,13 +52,3 @@ tags: [global-adr, journal]
 **Participants**: @rix, Claude
 
 ---
-
-## Work Sessions
-
-| Date       | Task          | Action                           | Files Modified                                                       | Agent | Human |
-| ---------- | ------------- | -------------------------------- | -------------------------------------------------------------------- | ----- | ----- |
-| 2026-02-24 | Phase 0 (all) | Scaffolded ADR dir + config      | .afx.yaml, ADR-0001, feature spec                                    | [OK]  | [OK]  |
-| 2026-02-24 | 1.3, 1.4      | Added adr subcommand to afx-init | afx-init.md, design.md                                               | [OK]  | [OK]  |
-| 2026-02-24 | Phase 0-1     | VERIFIED                         | Tested /afx:init adr in tmp/, generates real content                 | [OK]  | [OK]  |
-| 2026-02-24 | 3.1-3.3       | Phase 3 Documentation complete   | agenticflowx.md, cheatsheet.md, CLAUDE.md                            | [OK]  | -     |
-| 2026-02-24 | 3.1-3.3       | VERIFIED                         | Docs reviewed: prompts/, .afx.yaml.template, install.sh also updated | [OK]  | [OK]  |

@@ -532,20 +532,9 @@ Next: /afx:work next docs/specs/{new-feature}/tasks.md   # Start implementing ne
 
 ...
 
----
-
-## Work Sessions
-
-<!-- Task execution log - updated by /afx:work next, /afx:dev code, /afx:check path -->
-
-| Date       | Task | Action           | Files Modified  | Agent | Human  |
-| ---------- | ---- | ---------------- | --------------- | ----- | ------ |
-| 2025-12-15 | 7.3  | Updated supplier | claim.action.ts | [OK]  | -      |
-| 2025-12-15 | 7.3  | READY FOR REVIEW | -               | [OK]  | [WAIT] |
-| 2025-12-15 | 7.3  | COMPLETE         | -               | [OK]  | [OK]   |
 ```
 
-> **Note**: Work Sessions is updated by `/afx:work` and `/afx:dev` commands, NOT by `/afx:session`.
+> **Note**: Work Sessions table lives in `tasks.md`, not `journal.md`. It is updated by `/afx:work` and `/afx:dev` commands, NOT by `/afx:session`.
 > **Two-stage verification**: Agent marks [OK] after checks pass, Human marks [OK] after code review.
 > See [agenticflowx.md#work-sessions](../../docs/agenticflowx/agenticflowx.md#work-sessions) for update rules.
 

@@ -108,7 +108,7 @@ Gate 1 (`/afx:check path`) is **blocking** - tasks cannot be closed without path
 
 ### Two-Stage Verification
 
-Tasks require both Agent verification (`[OK]`) AND Human approval (`[OK]`) before completion. The Work Sessions table in `journal.md` tracks both columns.
+Tasks require both Agent verification (`[OK]`) AND Human approval (`[OK]`) before completion. The Work Sessions table in `tasks.md` tracks both columns.
 
 ## Frontmatter Schema
 

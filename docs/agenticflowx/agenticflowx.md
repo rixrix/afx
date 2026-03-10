@@ -704,7 +704,6 @@ Each feature has a `journal.md` file for capturing discussions during developmen
 
 - **Captures**: Quick notes during active chat (scratchpad)
 - **Discussions**: Recorded conversations with IDs for reference
-- **Work Sessions**: Task execution log (separate from discussions)
 
 ### Discussion Entry Fields
 
@@ -778,7 +777,7 @@ The **Work Sessions** table tracks task execution history. This is the authorita
 
 **Storage Location**:
 
-- **Primary**: `docs/specs/{feature}/journal.md` → `## Work Sessions` table
+- **Primary**: `docs/specs/{feature}/tasks.md` → `## Work Sessions` table
 - **Mirror**: GitHub Issue (if linked) → `### Session Log` section
 
 ```markdown
@@ -834,9 +833,9 @@ The Work Sessions table has **two verification columns**:
 
 When a GitHub issue is linked to the spec:
 
-1. **Single Source**: The `journal.md` file is the master record.
+1. **Single Source**: The `tasks.md` file is the master record.
 2. **Mirroring**: Agents copy the last session's row to the GitHub issue comment for visibility.
-3. **Conflict**: If GitHub says one thing and Journal says another, Journal wins (version-controlled with code).
+3. **Conflict**: If GitHub says one thing and tasks.md says another, tasks.md wins (version-controlled with code).
 
 ---
 

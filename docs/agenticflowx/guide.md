@@ -63,11 +63,12 @@ docs/specs/{feature-name}/
 
 ### Journal Structure
 
-The `journal.md` file has three sections:
+The `journal.md` file has two sections:
 
 1. **Captures** - Quick notes during active chat (cleared when recorded)
 2. **Discussions** - Permanent records with IDs (e.g., `UA-D001`)
-3. **Work Sessions** - Task execution log (updated by `/afx:work`)
+
+> **Note:** Work Sessions (task execution log) are stored in `tasks.md`, not `journal.md`. Updated by `/afx:work`.
 
 #### Discussion Status Keywords
 

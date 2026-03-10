@@ -196,8 +196,8 @@ Pick up the next available task(s) from a feature spec and generate agent assign
 
 ### Session:
 
-- Reads `journal.md` for context
-- Updates `journal.md` with new work entry
+- Reads `tasks.md` for context
+- Updates `tasks.md` with new work entry
 
 ### Usage
 
@@ -224,7 +224,7 @@ Pick up the next available task(s) from a feature spec and generate agent assign
    - Find the first unchecked task in the current phase.
 
 3. **Update Work Log**:
-   - Open `docs/specs/{feature}/journal.md`
+   - Open `docs/specs/{feature}/tasks.md`
    - Append row to `## Work Sessions` table:
      `| {date} | {task_id} | Started {task_title} | - | [WAIT] | - |`
 
@@ -331,10 +331,10 @@ Cannot assign Task 2.2 until verification passes.
 
 **CRITICAL**: Update Work Sessions table after EACH subtask, not just at the end.
 
-**Step 1**: Update local `journal.md`:
+**Step 1**: Update local `tasks.md`:
 
 ```markdown
-<!-- In docs/specs/{feature}/journal.md → ## Work Sessions -->
+<!-- In docs/specs/{feature}/tasks.md → ## Work Sessions -->
 
 | {YYYY-MM-DDTHH:MM:SS.mmmZ} | {X.Y} | {action taken} | {files modified} | [WAIT] | - |
 ```
@@ -448,7 +448,7 @@ When called with specific spec:
 2. **Read tasks.md**: Get current phase status
 3. **Read tasks.md**: Find active phase and next unchecked task
 4. **Read design.md**: Get relevant section for context
-5. **Check GitHub** (optional): Get session log if issue linked in journal
+5. **Check GitHub** (optional): Get session log if issue linked in tasks
 6. **Generate continuation brief**: Output context for resuming work
 
 ### Output Format (Mode 2)
@@ -460,7 +460,7 @@ When called with specific spec:
 
 **Active Phase:** {phase number and name}
 **Next Task:** {task number and description}
-**Last Update:** {date from journal.md}
+**Last Update:** {date from tasks.md}
 ```
 
 #### 2. Continuation Point
@@ -499,13 +499,13 @@ Next: /afx:dev code # Continue implementation
 
 ### Data Sources
 
-| Source            | Data Extracted                                        |
-| ----------------- | ----------------------------------------------------- |
-| `spec.md`         | Spec metadata (status, owner, version, tags)          |
-| `tasks.md`        | Task checkboxes `- [x]` vs `- [ ]`, task descriptions |
-| `journal.md`      | Past session logs synced from GitHub via sync         |
-| `design.md`       | Implementation context, code samples                  |
-| GitHub (optional) | Issue numbers, session logs, discovered issues        |
+| Source            | Data Extracted                                                |
+| ----------------- | ------------------------------------------------------------- |
+| `spec.md`         | Spec metadata (status, owner, version, tags)                  |
+| `tasks.md`        | Task checkboxes `- [x]` vs `- [ ]`, task descriptions         |
+| `tasks.md`        | Work Sessions + past session logs synced from GitHub via sync |
+| `design.md`       | Implementation context, code samples                          |
+| GitHub (optional) | Issue numbers, session logs, discovered issues                |
 
 ### Error Handling
 
@@ -557,12 +557,12 @@ Bidirectional synchronization between local AgenticFlowX files and GitHub Issues
 
 Ensure **Session Continuity** by syncing:
 
-1. **GitHub → Local**: Pull "Session Log" from issue body/comments into `docs/specs/{module}/journal.md`.
+1. **GitHub → Local**: Pull "Session Log" from issue body/comments into `docs/specs/{module}/tasks.md`.
 
 ### Context
 
 - **Data Sources**:
-  - `docs/specs/{module}/journal.md` (Local continuity log)
+  - `docs/specs/{module}/tasks.md` (Local continuity log)
   - GitHub Issue (Remote continuity log)
 
 ### Process
@@ -570,19 +570,19 @@ Ensure **Session Continuity** by syncing:
 #### Direction 1: GitHub → Local (Session Pull)
 
 1. **Fetch Issue Data**:
-   - Access the linked GitHub issue (found in `journal.md` or argument).
+   - Access the linked GitHub issue (found in `tasks.md` or argument).
    - Scan Issue Body AND Comments for "Session Log" tables.
 2. **Normalize Data**:
    - Extract rows: Date, Task, Action, Files Modified, Verify.
    - Filter out rows already present locally (deduplication).
 3. **Update Local File**:
-   - Append new rows to `docs/specs/{module}/journal.md`.
+   - Append new rows to `docs/specs/{module}/tasks.md`.
    - If file doesn't exist, create it.
 
 ### Output
 
 ```markdown
-Synced 3 session entries from Issue #123 to journal.md
+Synced 3 session entries from Issue #123 to tasks.md
 
 Next: /afx:work next docs/specs/{feature} # Continue with next task
 ```
@@ -716,8 +716,8 @@ Marks the **human approval** stage complete. This is the final step in the two-s
 
    Extract feature name from branch.
 
-2. **Read journal.md**:
-   - Find `docs/specs/{feature}/journal.md`
+2. **Read tasks.md**:
+   - Find `docs/specs/{feature}/tasks.md`
    - Locate Work Sessions table
 
 3. **Update Work Sessions table**:
@@ -735,7 +735,7 @@ Marks the **human approval** stage complete. This is the final step in the two-s
 
 **Feature:** {feature}
 **Note:** {note}
-**Updated:** docs/specs/{feature}/journal.md
+**Updated:** docs/specs/{feature}/tasks.md
 
 Next (ranked):
 
@@ -835,8 +835,7 @@ Task {task} reopened
 **Reason:** {reason}
 **Updated:**
 
-- docs/specs/{feature}/tasks.md (unchecked)
-- docs/specs/{feature}/journal.md
+- docs/specs/{feature}/tasks.md (unchecked + Work Sessions updated)
 
 Next (ranked):
 
@@ -930,7 +929,7 @@ Continue anyway? (issue will be closed)
 
 #### 4. Verify Human Verification Complete
 
-Read `docs/specs/{feature}/journal.md` Work Sessions table:
+Read `docs/specs/{feature}/tasks.md` Work Sessions table:
 
 - Check last entry has Human = [OK]
 - If Human = [WAIT], **BLOCK** and require `/afx:work approve` first
@@ -953,19 +952,19 @@ gh issue view {issue-number} --json body,comments
 ```
 
 - Extract any Session Log entries from issue body/comments
-- Check for entries not in local `journal.md`
+- Check for entries not in local `tasks.md`
 - Append missing entries to local file
 
 **Step 5b - Push to GitHub:**
 
-- Read local `journal.md` Work Sessions table
+- Read local `tasks.md` Work Sessions table
 - Post completion comment to issue with:
   - Final journal state
   - Completion summary
 
 #### 6. Update Local Documentation
 
-**Update `journal.md`:**
+**Update `tasks.md` Work Sessions:**
 
 Add final closure entry to Work Sessions:
 
@@ -973,9 +972,9 @@ Add final closure entry to Work Sessions:
 | {date} | - | CLOSED #{issue} | {summary} | [OK] | [OK] |
 ```
 
-**Update `tasks.md` (required):**
+**Update `tasks.md` checkboxes (required):**
 
-Ensure all completed tasks for the closed issue are checked and consistent with journal entries.
+Ensure all completed tasks for the closed issue are checked and consistent with Work Sessions entries.
 
 #### 7. Close GitHub Issue
 
@@ -986,7 +985,7 @@ gh issue close {issue-number} --comment "$(cat <<'EOF'
 {summary}
 
 ### Journal (Final)
-{table from journal.md}
+{table from tasks.md Work Sessions}
 
 
 
@@ -1006,11 +1005,11 @@ Issue #{issue-number} closed
 
 ### Updates Made
 
-| File                              | Action                    |
-| --------------------------------- | ------------------------- |
-| docs/specs/{feature}/tasks.md     | Checked completed tasks   |
-| docs/specs/{feature}/journal.md   | Added closure row         |
-| GitHub Issue #{issue-number}      | Closed with final comment |
+| File                          | Action                             |
+| ----------------------------- | ---------------------------------- |
+| docs/specs/{feature}/tasks.md | Checked completed tasks            |
+| docs/specs/{feature}/tasks.md | Added closure row to Work Sessions |
+| GitHub Issue #{issue-number}  | Closed with final comment          |
 
 ### Synced
 
@@ -1082,7 +1081,7 @@ The `close` command ensures consistency between GitHub and local files:
 
 | Direction      | What's Synced                                | Target                 |
 | -------------- | -------------------------------------------- | ---------------------- |
-| GitHub → Local | Session Log entries from issue body/comments | journal.md             |
+| GitHub → Local | Session Log entries from issue body/comments | tasks.md               |
 | GitHub → Local | Discovered Issues from issue comments        | journal.md Discussions |
 | Local → GitHub | Completion summary                           | Issue close comment    |
 

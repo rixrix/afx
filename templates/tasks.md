@@ -113,3 +113,12 @@ Phase N: {Continue as needed}
 - Tasks are marked complete (`[x]`) as implementation progresses
 - GitHub issue numbers are added when issues are created
 - Cross-references help trace requirements → design → implementation
+
+---
+
+## Work Sessions
+
+<!-- Task execution log — updated by /afx:work, /afx:dev -->
+
+| Date | Task | Action | Files Modified | Agent | Human |
+| ---- | ---- | ------ | -------------- | ----- | ----- |

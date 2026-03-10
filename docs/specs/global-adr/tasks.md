@@ -33,3 +33,17 @@ tags: [global-adr, framework, tasks]
 - [x] 3.1 Update `docs/agenticflowx/agenticflowx.md` with ADR workflow
 - [x] 3.2 Update `docs/agenticflowx/cheatsheet.md` with ADR commands
 - [x] 3.3 Update `CLAUDE.md` with ADR references
+
+---
+
+## Work Sessions
+
+<!-- Task execution log - updated by /afx:work next, /afx:dev code -->
+
+| Date       | Task          | Action                           | Files Modified                                                       | Agent | Human |
+| ---------- | ------------- | -------------------------------- | -------------------------------------------------------------------- | ----- | ----- |
+| 2026-02-24 | Phase 0 (all) | Scaffolded ADR dir + config      | .afx.yaml, ADR-0001, feature spec                                    | [OK]  | [OK]  |
+| 2026-02-24 | 1.3, 1.4      | Added adr subcommand to afx-init | afx-init.md, design.md                                               | [OK]  | [OK]  |
+| 2026-02-24 | Phase 0-1     | VERIFIED                         | Tested /afx:init adr in tmp/, generates real content                 | [OK]  | [OK]  |
+| 2026-02-24 | 3.1-3.3       | Phase 3 Documentation complete   | agenticflowx.md, cheatsheet.md, CLAUDE.md                            | [OK]  | -     |
+| 2026-02-24 | 3.1-3.3       | VERIFIED                         | Docs reviewed: prompts/, .afx.yaml.template, install.sh also updated | [OK]  | [OK]  |

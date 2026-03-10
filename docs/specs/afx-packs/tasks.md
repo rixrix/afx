@@ -361,3 +361,44 @@ Phase 4: install.sh — State Management (lifecycle commands)
 - Phase 3 must complete before Phase 4 (state management depends on download + detection)
 - Tasks within each phase are ordered by dependency — work top to bottom
 - Backward compatibility verification (4.10) should be the final gate before merge
+
+---
+
+## Work Sessions
+
+<!-- Task execution log - updated by /afx:work next, /afx:dev code -->
+
+| Date       | Task    | Action            | Files Modified                                                                   | Agent | Human |
+| ---------- | ------- | ----------------- | -------------------------------------------------------------------------------- | ----- | ----- |
+| 2026-02-28 | 1.1     | /afx:dev code     | packs/afx-pack-qa.yaml                                                           | [OK]  |       |
+| 2026-02-28 | 1.2     | /afx:dev code     | packs/afx-pack-security.yaml                                                     | [OK]  |       |
+| 2026-02-28 | 1.3     | /afx:dev code     | packs/index.json                                                                 | [OK]  |       |
+| 2026-02-28 | 2.1     | /afx:dev code     | skills/ (4 skill dirs × 4 providers)                                             | [OK]  |       |
+| 2026-02-28 | 2.2     | /afx:dev code     | skills/afx-qa-methodology/ (4 variants)                                          | [OK]  |       |
+| 2026-02-28 | 2.3     | /afx:dev code     | skills/afx-spec-test-planning/ (4 variants)                                      | [OK]  |       |
+| 2026-02-28 | 2.4     | /afx:dev code     | skills/afx-owasp-top-10/ (4 variants)                                            | [OK]  |       |
+| 2026-02-28 | 2.5     | /afx:dev code     | skills/afx-security-audit/ (4 variants)                                          | [OK]  |       |
+| 2026-02-28 | —       | /afx:dev code     | .agent/skills/ (13 core AFX skills)                                              | [OK]  |       |
+| 2026-02-28 | —       | /afx:dev code     | install.sh (add Antigravity step 3/12)                                           | [OK]  |       |
+| 2026-02-28 | —       | /afx:dev code     | CLAUDE.md (.agent/ + packs/ + skills/)                                           | [OK]  |       |
+| 2026-02-28 | 3.1     | /afx:dev code     | install.sh (14 new case entries, help text)                                      | [OK]  |       |
+| 2026-02-28 | 3.2     | /afx:dev code     | install.sh (resolve_ref, fetch_manifest)                                         | [OK]  |       |
+| 2026-02-28 | 3.3     | /afx:dev code     | install.sh (download_items, for_each_include)                                    | [OK]  |       |
+| 2026-02-28 | 3.4     | /afx:dev code     | install.sh (detect_type — 5 type rules)                                          | [OK]  |       |
+| 2026-02-28 | 3.5     | /afx:dev code     | install.sh (route_item, platform_enabled)                                        | [OK]  |       |
+| 2026-02-28 | 3.6     | /afx:dev code     | install.sh (check_collision)                                                     | [OK]  |       |
+| 2026-02-28 | 3.7     | /afx:dev code     | install.sh (ensure_gitignore)                                                    | [OK]  |       |
+| 2026-02-28 | 4.1     | /afx:dev code     | install.sh (6 afx_yaml_* helpers)                                                | [OK]  |       |
+| 2026-02-28 | 4.2     | /afx:dev code     | install.sh (pack_install orchestrator)                                           | [OK]  |       |
+| 2026-02-28 | 4.3     | /afx:dev code     | install.sh (pack_copy/remove_from_providers)                                     | [OK]  |       |
+| 2026-02-28 | 4.4     | /afx:dev code     | install.sh (pack_enable, pack_disable, pack_remove)                              | [OK]  |       |
+| 2026-02-28 | 4.5     | /afx:dev code     | install.sh (skill_disable, skill_enable)                                         | [OK]  |       |
+| 2026-02-28 | 4.6     | /afx:dev code     | install.sh (pack_list)                                                           | [OK]  |       |
+| 2026-02-28 | 4.7     | /afx:dev code     | install.sh (pack_update_all)                                                     | [OK]  |       |
+| 2026-02-28 | 4.8     | /afx:dev code     | install.sh (add_skill — one-off install)                                         | [OK]  |       |
+| 2026-02-28 | 4.9     | /afx:dev code     | install.sh (dry-run for all pack ops)                                            | [OK]  |       |
+| 2026-02-28 | 4.10    | /afx:dev code     | install.sh (main dispatch, help, bash -n pass)                                   | [OK]  |       |
+| 2026-02-28 | 2.1–2.5 | /afx:dev refactor | skills/ (4×4 provider dirs → 4 canonical SKILL.md)                               | [OK]  |       |
+| 2026-02-28 | 3.5     | /afx:dev refactor | install.sh (transform_for_provider, generate_copilot_agent, route_item afx case) | [OK]  |       |
+| 2026-02-28 | —       | /afx:dev code     | design.md (Section 3.7 rewrite: canonical + transform docs)                      | [OK]  |       |
+| 2026-02-28 | —       | /afx:dev test     | install.sh (8 test suites, 27 transform tests, 3 bugs fixed)                     | [OK]  |       |

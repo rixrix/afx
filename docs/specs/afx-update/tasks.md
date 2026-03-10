@@ -35,3 +35,17 @@ tags: [afx-update, tasks]
 - [x] 4.2 Run `/afx:update check` in a test project and verify status outputs
 - [x] 4.3 Run `/afx:update apply --dry-run` in a test project and verify installer invocation
 - [x] 4.4 Confirm Claude/Codex parity and next-command suggestions
+
+---
+
+## Work Sessions
+
+<!-- Task execution log - updated by /afx:work next, /afx:dev code -->
+
+| Date       | Task             | Action                                                                      | Files Modified                                                                                                                                                                                                                          | Agent | Human |
+| ---------- | ---------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ----- |
+| 2026-02-25 | 1.1, 1.2         | Drafted PRDs for afx-update                                                 | spec.md, design.md, tasks.md                                                                                                                                                                                                            | [OK]  | [OK]  |
+| 2026-02-25 | 1.3              | Approved PRDs                                                               | spec.md, tasks.md, journal.md                                                                                                                                                                                                           | [OK]  | [OK]  |
+| 2026-02-25 | 2.1-2.5, 3.1-3.3 | Implemented `/afx:update` + `afx-update` parity                             | .claude/commands/afx-update.md, .codex/skills/afx-update/\*, .claude/commands/afx-help.md, docs/agenticflowx/codex.md, AGENTS.md, prompts/agents.md, README.md, CLAUDE.md, docs/\_index.md, docs/agenticflowx/agenticflowx.md, tasks.md | [OK]  | -     |
+| 2026-02-25 | 4.1, 4.4         | Validated docs parity and command references                                | tasks.md                                                                                                                                                                                                                                | [OK]  | -     |
+| 2026-02-25 | 4.2, 4.3         | Ran update scenario matrix in tmp app; fixed Unknown-version check behavior | .claude/commands/afx-update.md, tasks.md, journal.md                                                                                                                                                                                    | [OK]  | -     |
