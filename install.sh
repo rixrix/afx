@@ -2118,7 +2118,7 @@ if [ -z "$SCRIPT_DIR" ] || [ ! -f "$SCRIPT_DIR/.afx.yaml.template" ]; then
     TEMP_DIR=$(mktemp -d)
     trap "rm -rf $TEMP_DIR" EXIT
 
-    local clone_branch="${_afx_ref:-main}"
+    clone_branch="${_afx_ref:-main}"
     git clone --depth 1 --branch "$clone_branch" --quiet https://github.com/${AFX_REPO}.git "$TEMP_DIR/afx" 2>/dev/null || {
         echo -e "${RED}Error: Failed to clone AFX repository${NC}"
         echo "Check your internet connection or clone manually:"
