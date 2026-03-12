@@ -57,6 +57,7 @@ NO_AGENTS_MD=false
 NO_GEMINI_MD=false
 NO_COPILOT_MD=false
 NO_DOCS=false
+EXPLICIT_NO_FLAGS=false  # Set true if any --no-*-md flag was passed via CLI
 FORCE=false
 DRY_RUN=false
 YES=false
@@ -97,10 +98,10 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --update)         UPDATE_MODE=true; shift ;;
         --commands-only)  COMMANDS_ONLY=true; shift ;;
-        --no-claude-md)   NO_CLAUDE_MD=true; shift ;;
-        --no-agents-md)   NO_AGENTS_MD=true; shift ;;
-        --no-gemini-md)   NO_GEMINI_MD=true; shift ;;
-        --no-copilot-md)  NO_COPILOT_MD=true; shift ;;
+        --no-claude-md)   NO_CLAUDE_MD=true; EXPLICIT_NO_FLAGS=true; shift ;;
+        --no-agents-md)   NO_AGENTS_MD=true; EXPLICIT_NO_FLAGS=true; shift ;;
+        --no-gemini-md)   NO_GEMINI_MD=true; EXPLICIT_NO_FLAGS=true; shift ;;
+        --no-copilot-md)  NO_COPILOT_MD=true; EXPLICIT_NO_FLAGS=true; shift ;;
         --no-docs)        NO_DOCS=true; shift ;;
         --force)          FORCE=true; shift ;;
         --dry-run)        DRY_RUN=true; shift ;;
@@ -386,6 +387,13 @@ version: main
 #   ./install.sh --pack qa .
 #   ./install.sh --pack security .
 
+providers:
+  claude: true
+  codex: true
+  antigravity: true
+  gemini: true
+  copilot: true
+
 packs: []
 
 # ── Your Overrides ───────────────────────────────────────────────────────
@@ -409,14 +417,13 @@ YAMLEOF
 # Interactive provider selection menu for first install.
 # Sets INSTALL_* flags and NO_*_MD flags based on user choices.
 select_providers() {
-    # Skip selection in non-interactive modes
-    if [[ "$YES" == "true" || "$DRY_RUN" == "true" || "$UPDATE_MODE" == "true" ]]; then
+    # Skip in dry-run (preview only) or non-TTY (piped install)
+    if [[ "$DRY_RUN" == "true" ]] || ! [[ -t 0 ]]; then
         return 0
     fi
 
-    # Skip if any --no-* flags were explicitly set (user knows what they want)
-    if [[ "$NO_CLAUDE_MD" == "true" || "$NO_AGENTS_MD" == "true" || \
-          "$NO_GEMINI_MD" == "true" || "$NO_COPILOT_MD" == "true" ]]; then
+    # Skip if --no-*-md flags were explicitly passed via CLI (user knows what they want)
+    if [[ "$EXPLICIT_NO_FLAGS" == "true" ]]; then
         return 0
     fi
 
@@ -482,6 +489,78 @@ select_providers() {
 
     echo -e "${GREEN}Selected: ${selected[*]}${NC}"
     echo ""
+}
+
+# Read provider flags from .afx.yaml (returns nothing if file/section missing).
+# Sets INSTALL_* and NO_*_MD flags based on saved providers.
+load_providers_from_yaml() {
+    local yaml="$TARGET_DIR/.afx.yaml"
+    [[ -f "$yaml" ]] || return 1
+    grep -q "^providers:" "$yaml" || return 1
+
+    local val
+    for provider in claude codex antigravity gemini copilot; do
+        val=$(grep "^  ${provider}:" "$yaml" | head -1 | awk '{print $2}')
+        [[ -z "$val" ]] && val="true"
+        case "$provider" in
+            claude)       INSTALL_CLAUDE="$val";       [[ "$val" == "false" ]] && NO_CLAUDE_MD=true ;;
+            codex)        INSTALL_CODEX="$val";        [[ "$val" == "false" ]] && NO_AGENTS_MD=true ;;
+            antigravity)  INSTALL_ANTIGRAVITY="$val" ;;
+            gemini)       INSTALL_GEMINI="$val";       [[ "$val" == "false" ]] && NO_GEMINI_MD=true ;;
+            copilot)      INSTALL_COPILOT="$val";      [[ "$val" == "false" ]] && NO_COPILOT_MD=true ;;
+        esac
+    done
+    return 0
+}
+
+# Write current INSTALL_* flags into the providers: section of .afx.yaml.
+save_providers_to_yaml() {
+    local yaml="$TARGET_DIR/.afx.yaml"
+    [[ -f "$yaml" ]] || return 0
+    [[ "$DRY_RUN" == "true" ]] && return 0
+
+    # If providers: section exists, update in place; otherwise append after version:
+    if grep -q "^providers:" "$yaml"; then
+        local temp=$(mktemp)
+        local in_providers=false
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            if [[ "$line" == "providers:" ]]; then
+                in_providers=true
+                echo "providers:" >> "$temp"
+                echo "  claude: $INSTALL_CLAUDE" >> "$temp"
+                echo "  codex: $INSTALL_CODEX" >> "$temp"
+                echo "  antigravity: $INSTALL_ANTIGRAVITY" >> "$temp"
+                echo "  gemini: $INSTALL_GEMINI" >> "$temp"
+                echo "  copilot: $INSTALL_COPILOT" >> "$temp"
+                continue
+            fi
+            if $in_providers; then
+                # Skip old provider lines until we hit a non-provider line
+                if [[ "$line" =~ ^\ \ (claude|codex|antigravity|gemini|copilot): ]]; then
+                    continue
+                fi
+                in_providers=false
+            fi
+            echo "$line" >> "$temp"
+        done < "$yaml"
+        mv "$temp" "$yaml"
+    else
+        # Insert after version: line
+        local temp=$(mktemp)
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            echo "$line" >> "$temp"
+            if [[ "$line" =~ ^version: ]]; then
+                echo "" >> "$temp"
+                echo "providers:" >> "$temp"
+                echo "  claude: $INSTALL_CLAUDE" >> "$temp"
+                echo "  codex: $INSTALL_CODEX" >> "$temp"
+                echo "  antigravity: $INSTALL_ANTIGRAVITY" >> "$temp"
+                echo "  gemini: $INSTALL_GEMINI" >> "$temp"
+                echo "  copilot: $INSTALL_COPILOT" >> "$temp"
+            fi
+        done < "$yaml"
+        mv "$temp" "$yaml"
+    fi
 }
 
 # ============================================================================
@@ -2067,13 +2146,25 @@ if [[ "$RESET" == "true" ]]; then
     exit 0
 fi
 
-# Provider selection (first install only, when no --no-* flags are set)
-if [[ "$UPDATE_MODE" != "true" && ! -f "$TARGET_DIR/.afx.yaml" ]]; then
+# Provider selection
+# - Fresh install: interactive provider menu (all providers if non-TTY/piped)
+# - Update: always show provider menu (skills may have been added/updated)
+# - Non-TTY/piped: defaults to all providers (use --no-* flags to exclude)
+if [[ "$UPDATE_MODE" == "true" ]]; then
+    # Load previously saved providers as defaults
+    load_providers_from_yaml
+    # Re-ask on update so user can add/remove providers
+    # select_providers will skip if non-TTY/piped (saved providers used as-is)
     select_providers
+elif [[ ! -f "$TARGET_DIR/.afx.yaml" ]]; then
+    select_providers
+else
+    # Existing install, not --update: load saved providers
+    load_providers_from_yaml
 fi
 
-# ── Step execution with confirmations ─────────────────────────────────────
-# Each step checks provider flags, --no-* flags, and asks for confirmation.
+# ── Step execution ─────────────────────────────────────────────────────────
+# Each step checks provider flags and --no-* flags.
 
 STEP=0
 total_steps() {
@@ -2100,11 +2191,7 @@ run_step() {
     local func="$2"
     ((STEP++))
     echo -e "${DIM}[${STEP}/${TOTAL}]${NC} ${label}"
-    if confirm "  Proceed?"; then
-        "$func"
-    else
-        echo -e "  ${YELLOW}Skipped${NC}"
-    fi
+    "$func"
     echo ""
 }
 
@@ -2143,6 +2230,9 @@ fi
 # Always-available steps
 run_step "Templates" step_templates
 run_step "Configuration (.afx.yaml)" step_config
+
+# Persist provider selection to .afx.yaml
+save_providers_to_yaml
 
 # MD integration steps (gated by --no-* flags)
 if [[ "$NO_CLAUDE_MD" != "true" ]]; then
