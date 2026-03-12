@@ -417,8 +417,8 @@ YAMLEOF
 # Interactive provider selection menu for first install.
 # Sets INSTALL_* flags and NO_*_MD flags based on user choices.
 select_providers() {
-    # Skip in dry-run (preview only) or non-TTY (piped install)
-    if [[ "$DRY_RUN" == "true" ]] || ! [[ -t 0 ]]; then
+    # Skip in dry-run (preview only)
+    if [[ "$DRY_RUN" == "true" ]]; then
         return 0
     fi
 
