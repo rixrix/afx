@@ -439,12 +439,14 @@ select_providers() {
     echo -e "  ${CYAN}a${NC}) All of the above"
     echo ""
     echo -en "${BOLD}Select providers (comma-separated, e.g. 1,4):${NC} "
-    read -r selection </dev/tty
-
-    # Default to all if empty
-    if [[ -z "$selection" ]]; then
-        selection="a"
+    selection=""
+    if [[ -t 0 ]]; then
+        read -r selection || true
+    else
+        read -r selection </dev/tty 2>/dev/null || true
     fi
+    # No input — default to all
+    [[ -z "$selection" ]] && selection="a"
 
     # If "all", keep everything true and return
     if [[ "$selection" == "a" || "$selection" == "A" || "$selection" == "all" ]]; then
@@ -495,8 +497,8 @@ select_providers() {
 # Sets INSTALL_* and NO_*_MD flags based on saved providers.
 load_providers_from_yaml() {
     local yaml="$TARGET_DIR/.afx.yaml"
-    [[ -f "$yaml" ]] || return 1
-    grep -q "^providers:" "$yaml" || return 1
+    [[ -f "$yaml" ]] || return 0
+    grep -q "^providers:" "$yaml" || return 0
 
     local val
     for provider in claude codex antigravity gemini copilot; do
@@ -2116,7 +2118,8 @@ if [ -z "$SCRIPT_DIR" ] || [ ! -f "$SCRIPT_DIR/.afx.yaml.template" ]; then
     TEMP_DIR=$(mktemp -d)
     trap "rm -rf $TEMP_DIR" EXIT
 
-    git clone --depth 1 --quiet https://github.com/${AFX_REPO}.git "$TEMP_DIR/afx" 2>/dev/null || {
+    local clone_branch="${_afx_ref:-main}"
+    git clone --depth 1 --branch "$clone_branch" --quiet https://github.com/${AFX_REPO}.git "$TEMP_DIR/afx" 2>/dev/null || {
         echo -e "${RED}Error: Failed to clone AFX repository${NC}"
         echo "Check your internet connection or clone manually:"
         echo "  git clone https://github.com/${AFX_REPO}.git"
