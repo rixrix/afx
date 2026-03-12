@@ -26,7 +26,7 @@ features: []
 library:
   docs: 'docs/agenticflowx'             # AFX framework documentation
   research: 'docs/research'             # Global exploration & knowledge
-  # architecture: 'docs/architecture'    # System constraints & patterns
+  architecture: 'docs/architecture'    # System constraints & patterns
 
 # ─────────────────────────────────────────────────────────────────────────────
 # AI Attribution - Optional

@@ -11,12 +11,12 @@ Specification management, navigation, review, and approval for spec-centric work
 
 ## Configuration
 
-**Read `.afx.yaml`** at project root to resolve paths:
+**Read config** using two-tier resolution: `.afx/.afx.yaml` (managed defaults) + `.afx.yaml` (user overrides).
 
 - `paths.specs` - Where spec files live (default: `docs/specs`)
 - `paths.templates` - Where spec templates live (default: `docs/agenticflowx/templates`)
 
-If `.afx.yaml` doesn't exist, use defaults.
+If neither file exists, use defaults.
 
 ## Usage
 

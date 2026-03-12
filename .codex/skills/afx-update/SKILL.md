@@ -21,7 +21,7 @@ Do not re-invent workflow steps. Read the command file and execute it faithfully
 
 ## Execution Rules
 
-1. Read `.afx.yaml` if present; otherwise use defaults described in the command spec.
+1. Read config: `.afx/.afx.yaml` (defaults) + `.afx.yaml` (user overrides). Use defaults from command spec if neither exists.
 2. Execute only the requested subcommand(s).
 3. Preserve command safety and update behavior exactly as defined in the command spec.
 4. End with ranked next-command suggestions matching the command spec.

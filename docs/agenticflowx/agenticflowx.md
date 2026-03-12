@@ -380,7 +380,9 @@ tags: [topic1, topic2]
 
 ```
 project-root/
-├── .afx.yaml            # AFX project configuration
+├── .afx.yaml            # User overrides (version, packs, custom settings)
+├── .afx/
+│   └── .afx.yaml        # Managed defaults (do not edit — maintained by install.sh)
 ├── docs/
 │   ├── agenticflowx/    # Framework documentation
 │   │   ├── agenticflowx.md   # Manual (this file)
@@ -408,34 +410,39 @@ project-root/
 
 ## Project Configuration
 
-AFX settings are stored in `.afx.yaml` at project root:
+AFX uses **two-tier config resolution**:
+
+| File             | Purpose                        | Edited by                |
+| ---------------- | ------------------------------ | ------------------------ |
+| `.afx/.afx.yaml` | Managed defaults (full config) | install.sh (do not edit) |
+| `.afx.yaml`      | User overrides                 | You                      |
+
+Values in `.afx.yaml` take precedence over `.afx/.afx.yaml`. If neither file exists, hardcoded defaults are used.
+
+### `.afx.yaml` (user overrides)
+
+The root config is intentionally minimal — override only what you need:
 
 ```yaml
-# .afx.yaml - key settings
+# AFX version — controls which branch/tag install.sh fetches from.
 version: "1.0"
 
-paths:
-  specs: "docs/specs" # Feature spec directory
-  adr: "docs/adr" # Global ADR directory (default: docs/adr)
+packs: []
 
-ai_attribution:
-  enabled: true # Enable @ai-assisted annotations
-  required: false # Set true for compliance projects
-
-test_traceability:
-  enabled: true # Enable @covers annotations
-
-prefixes: # Feature discussion ID prefixes
-  user-auth: UA
-  users-permissions: UP
-
-library:
-  architecture: "docs/architecture"
-  proposals: "docs/proposals"
-  research: "docs/research"
+# Override any default below. Examples:
+#   paths:
+#     specs: my-specs
+#   features:
+#     - user-auth
+#   quality_gates:
+#     require_path_check: false
 ```
 
-See [.afx.yaml](../../.afx.yaml) for all configuration options.
+### `.afx/.afx.yaml` (managed defaults)
+
+Contains all default settings (paths, quality gates, verification, etc.). This file is written by `install.sh` on install/update — do not edit it directly. To customize a value, add the override to `.afx.yaml` instead.
+
+See [.afx.yaml.template](../../.afx.yaml.template) for the full list of available settings.
 
 ## Research Folder Standards
 
@@ -448,7 +455,7 @@ The `research/` directory stores decisions, proposals, and reference material. A
 | **Global**        | `docs/adr/`                      | `ADR-NNNN-slug.md` (4-digit) | Cross-cutting decisions affecting the whole project |
 | **Feature-local** | `docs/specs/{feature}/research/` | `0001-slug.md`               | Decisions scoped to a single feature                |
 
-Global ADRs are created via `/afx:init adr <title>`. The path is configured in `.afx.yaml` under `paths.adr` (default: `docs/adr`).
+Global ADRs are created via `/afx:init adr <title>`. The path is configured under `paths.adr` (default: `docs/adr`).
 
 ### File Types & Naming
 

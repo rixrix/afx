@@ -11,11 +11,11 @@ Verify and summarize task implementation status.
 
 ## Configuration
 
-**Read `.afx.yaml`** at project root to resolve paths:
+**Read config** using two-tier resolution: `.afx/.afx.yaml` (managed defaults) + `.afx.yaml` (user overrides).
 
 - `paths.specs` - Where spec files live (default: `docs/specs`)
 
-If `.afx.yaml` doesn't exist, use defaults.
+If neither file exists, use defaults.
 
 ## Usage
 

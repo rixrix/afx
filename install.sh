@@ -363,6 +363,45 @@ ensure_gitignore() {
     fi
 }
 
+# Write minimal user-facing .afx.yaml (version + packs + override guide)
+# All defaults live in .afx/.afx.yaml — user only adds overrides here.
+write_minimal_user_config() {
+    cat > "$TARGET_DIR/.afx.yaml" <<'YAMLEOF'
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │  AFX Configuration                                                      │
+# │                                                                         │
+# │  Defaults are in .afx/.afx.yaml (managed by AFX — do not edit).        │
+# │  Add overrides below — they take precedence over defaults.             │
+# │                                                                         │
+# │  Docs: docs/agenticflowx/agenticflowx.md                              │
+# │  Help: /afx:help (Claude) or afx-help (Codex)                         │
+# └─────────────────────────────────────────────────────────────────────────┘
+
+# AFX version — controls which branch/tag install.sh fetches from.
+# Accepts: semver (e.g. '1.5.3' → tag v1.5.3), branch name, or 'main'.
+version: main
+
+# ── Installed Packs ───────────────────────────────────────────────────────
+# Managed by install.sh. Add packs with:
+#   ./install.sh --pack qa .
+#   ./install.sh --pack security .
+
+packs: []
+
+# ── Your Overrides ───────────────────────────────────────────────────────
+# Override any value from .afx/.afx.yaml here. Examples:
+#
+#   paths:
+#     specs: my-specs          # Custom spec directory
+#
+#   features:
+#     - user-auth              # Active features
+#
+#   quality_gates:
+#     require_path_check: false
+YAMLEOF
+}
+
 # ============================================================================
 # Section 5: Provider Selection (first install only)
 # ============================================================================
@@ -1511,66 +1550,20 @@ step_config() {
     # User config — never overwritten (unless --force)
     if [ -f "$TARGET_DIR/.afx.yaml" ]; then
         if [ "$FORCE" = "true" ]; then
-            install_file "$AFX_DIR/.afx.yaml.template" "$TARGET_DIR/.afx.yaml" ".afx.yaml" "true"
+            if [[ "$DRY_RUN" == "true" ]]; then
+                UPDATED+=(".afx.yaml (would reset to minimal)")
+            else
+                write_minimal_user_config
+                UPDATED+=(".afx.yaml (reset to minimal)")
+            fi
         else
             SKIPPED+=(".afx.yaml (preserved - user config)")
         fi
     else
-        # Create user-friendly config with inline guide
         if [[ "$DRY_RUN" == "true" ]]; then
             INSTALLED+=(".afx.yaml (would create)")
         else
-            cat > "$TARGET_DIR/.afx.yaml" <<'YAMLEOF'
-# ┌─────────────────────────────────────────────────────────────────────────┐
-# │  AFX Configuration                                                      │
-# │                                                                         │
-# │  This file configures AgenticFlowX for your project.                   │
-# │  Edit the values below to match your setup.                            │
-# │                                                                         │
-# │  Docs: docs/agenticflowx/agenticflowx.md                              │
-# │  Help: /afx:help (Claude) or afx-help (Codex)                         │
-# └─────────────────────────────────────────────────────────────────────────┘
-
-# AFX version (do not edit — managed by install.sh)
-version: main
-
-# ── Project Info ──────────────────────────────────────────────────────────
-# These are used by AFX commands for context and traceability.
-
-project:
-  name: my-project                # Your project name
-  description: ""                 # Brief project description
-  repo: ""                        # GitHub repo (e.g., owner/repo)
-
-# ── Spec Locations ────────────────────────────────────────────────────────
-# Where AFX looks for specs, ADRs, and journals.
-
-paths:
-  specs: docs/specs               # Feature spec directories
-  adr: docs/adr                   # Architecture Decision Records
-  research: docs/research         # Research documents
-  templates: docs/agenticflowx/templates  # Spec templates
-
-# ── Installed Packs ───────────────────────────────────────────────────────
-# Managed by install.sh. Add packs with:
-#   ./install.sh --pack qa .
-#   ./install.sh --pack security .
-
-packs: []
-
-# ── Quick Start ───────────────────────────────────────────────────────────
-#
-# 1. Edit the project info above
-# 2. Create your first feature:
-#      /afx:init feature user-auth    (Claude Code)
-#      afx-init                       (Codex)
-# 3. Start working:
-#      /afx:next                      (Claude Code)
-#      afx-next                       (Codex)
-# 4. Install optional packs:
-#      ./install.sh --pack qa .       (QA guardrails)
-#      ./install.sh --pack security . (Security checks)
-YAMLEOF
+            write_minimal_user_config
             INSTALLED+=(".afx.yaml (created with guide)")
         fi
     fi

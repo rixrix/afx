@@ -11,7 +11,7 @@ Check for upstream AFX updates and apply them safely.
 
 ## Configuration
 
-Read `.afx.yaml` if present. Use defaults when absent:
+Read config using two-tier resolution: `.afx/.afx.yaml` (managed defaults) + `.afx.yaml` (user overrides). Use defaults when neither exists:
 
 - upstream repo: `rixrix/afx`
 - upstream ref: `main`

@@ -11,12 +11,12 @@ The "Golden Thread" command. intelligently analyzes your current context (git st
 
 ## Configuration
 
-**Read `.afx.yaml`** at project root to resolve paths:
+**Read config** using two-tier resolution: `.afx/.afx.yaml` (managed defaults) + `.afx.yaml` (user overrides).
 
 - `paths.specs` - Where spec files live (default: `docs/specs`)
 - `paths.adr` - Where global ADR files live (default: `docs/adr`)
 
-If `.afx.yaml` doesn't exist, use defaults.
+If neither file exists, use defaults.
 
 ## Usage
 

@@ -11,13 +11,13 @@ Session discussion capture and recall for multi-agent workflows.
 
 ## Configuration
 
-**Read `.afx.yaml`** at project root to resolve paths:
+**Read config** using two-tier resolution: `.afx/.afx.yaml` (managed defaults) + `.afx.yaml` (user overrides).
 
 - `paths.specs` - Where spec files live (default: `docs/specs`)
 - `paths.sessions` - Global discussion location (default: `docs/specs`)
 - `prefixes` - Feature prefix mappings for discussion IDs
 
-If `.afx.yaml` doesn't exist, use defaults.
+If neither file exists, use defaults.
 
 ## Usage
 

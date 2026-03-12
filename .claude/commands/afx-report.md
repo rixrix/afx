@@ -11,13 +11,13 @@ Traceability metrics and project health reporting for AgenticFlowX.
 
 ## Configuration
 
-**Read `.afx.yaml`** at project root to resolve paths:
+**Read config** using two-tier resolution: `.afx/.afx.yaml` (managed defaults) + `.afx.yaml` (user overrides).
 
 - `paths.specs` - Where spec files live (default: `docs/specs`)
 - `features` - List of active features
 - `scan_for_orphans` - File patterns to scan
 
-If `.afx.yaml` doesn't exist, use defaults.
+If neither file exists, use defaults.
 
 ## Usage
 
