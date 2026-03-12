@@ -73,7 +73,7 @@ quality_gates:
 # Verification Settings
 # ─────────────────────────────────────────────────────────────────────────────
 verification:
-  two_stage: true                        # Agent [OK] + Human [OK] required
+  two_stage: true                        # Agent [x] + Human [x] required
   stale_threshold_days: 30               # Report specs older than this as stale
 
 # ─────────────────────────────────────────────────────────────────────────────

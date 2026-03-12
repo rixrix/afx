@@ -226,7 +226,7 @@ Pick up the next available task(s) from a feature spec and generate agent assign
 3. **Update Work Log**:
    - Open `docs/specs/{feature}/tasks.md`
    - Append row to `## Work Sessions` table:
-     `| {date} | {task_id} | Started {task_title} | - | [WAIT] | - |`
+     `| {date} | {task_id} | Started {task_title} | - | [ ] | [ ] |`
 
 ### Task Readiness
 
@@ -336,10 +336,10 @@ Cannot assign Task 2.2 until verification passes.
 ```markdown
 <!-- In docs/specs/{feature}/tasks.md → ## Work Sessions -->
 
-| {YYYY-MM-DDTHH:MM:SS.mmmZ} | {X.Y} | {action taken} | {files modified} | [WAIT] | - |
+| {YYYY-MM-DDTHH:MM:SS.mmmZ} | {X.Y} | {action taken} | {files modified} | [ ] | [ ] |
 ```
 
-Note: Two verification columns - Agent ([OK]/[WAIT]/[FAIL]) and Human (-/[WAIT]/[OK])
+Note: Two verification columns - Agent (`[x]`/`[ ]`) and Human (`[x]`/`[ ]`)
 
 **Step 2**: If GitHub issue linked, sync:
 
@@ -360,11 +360,11 @@ Next: /afx:dev code
 
 1. **Run `/afx:check path`** - Must pass before proceeding
 2. Verify all subtasks checked
-3. Final Session Log entry: `READY FOR REVIEW` with Agent=[OK], Human=[WAIT]
+3. Final Session Log entry: `READY FOR REVIEW` with Agent=`[x]`, Human=`[ ]`
 4. Document any Discovered Issues
 5. **Request human review** - Post review request format
-6. **DO NOT close issue** - Human must review, mark Human=[OK], then close
-7. Task is NOT complete until both Agent and Human columns show [OK]
+6. **DO NOT close issue** - Human must review, mark Human=`[x]`, then close
+7. Task is NOT complete until both Agent and Human columns show `[x]`
 
 **Next Command** (after task complete):
 
@@ -691,8 +691,8 @@ Examples:
 
 Marks the **human approval** stage complete. This is the final step in the two-stage verification process:
 
-1. **Agent** completes implementation → marks Agent [OK]
-2. **Human** tests + reviews code → runs `/afx:work approve` → marks Human [OK]
+1. **Agent** completes implementation → marks Agent `[x]`
+2. **Human** tests + reviews code → runs `/afx:work approve` → marks Human `[x]`
 3. **Documentation Audit**: Ensure any history, failed attempts, or architectural decisions from this task are logged in `journal.md`, and that `design.md` reflects only the final clean state.
 
 ### Flexible Verification (Override)
@@ -722,7 +722,7 @@ Marks the **human approval** stage complete. This is the final step in the two-s
 
 3. **Update Work Sessions table**:
    - Add new row with verification entry
-   - Format: `| {date} | {task} | VERIFIED | {note} | - | [OK] | [OK] |`
+   - Format: `| {date} | {task} | VERIFIED | {note} | - | [x] | [x] |`
 
 4. **Confirm tasks.md** (optional):
    - Verify task is marked `[x]` in `docs/specs/{feature}/tasks.md`
@@ -731,7 +731,7 @@ Marks the **human approval** stage complete. This is the final step in the two-s
 ### Output Format
 
 ```markdown
-[OK] Task {task} approved
+[x] Task {task} approved
 
 **Feature:** {feature}
 **Note:** {note}
@@ -750,15 +750,15 @@ Before:
 
 ```
 | Date       | Task | Status | Action                | Files Modified       | Agent | Human |
-| 2025-12-15 | 7.4  | DONE   | Added supplier filter | feature-filters.tsx | [OK]   | [WAIT] |
+| 2025-12-15 | 7.4  | DONE   | Added supplier filter | feature-filters.tsx | [x]   | [ ] |
 ```
 
 After:
 
 ```
 | Date       | Task | Status   | Action                              | Files Modified       | Agent  | Human  |
-| 2025-12-15 | 7.4  | DONE     | Added supplier filter               | feature-filters.tsx | [OK]   | -      |
-| 2025-12-16 | 7.4  | VERIFIED | Tested supplier filter, all 5 work  | -                    | [OK]   | [OK]   |
+| 2025-12-15 | 7.4  | DONE     | Added supplier filter               | feature-filters.tsx | [x]   | [ ]    |
+| 2025-12-16 | 7.4  | VERIFIED | Tested supplier filter, all 5 work  | -                    | [x]   | [x]   |
 ```
 
 ### Error Handling
@@ -813,7 +813,7 @@ When human verification finds issues that need fixing:
 
 - Reopens the task for agent work
 - Records the failure reason
-- Marks Human [FAIL] in Work Sessions
+- Resets both Agent and Human to `[ ]` in Work Sessions
 
 ### Actions
 
@@ -824,7 +824,7 @@ When human verification finds issues that need fixing:
    - Change `[x]` back to `[ ]`
 
 3. **Update Work Sessions table**:
-   - Add new row: `| {date} | {task} | REOPENED | {reason} | - | [WAIT] | [FAIL] |`
+   - Add new row: `| {date} | {task} | REOPENED | {reason} | - | [ ] | [ ] |`
 
 ### Output Format
 
@@ -848,8 +848,8 @@ Next (ranked):
 
 ```
 | Date       | Task | Status   | Action                        | Files Modified | Agent  | Human  |
-| 2025-12-15 | 7.4  | DONE     | Added supplier filter         | ...            | [OK]   | -      |
-| 2025-12-16 | 7.4  | REOPENED | Filter breaks with empty list | -              | [WAIT] | [FAIL] |
+| 2025-12-15 | 7.4  | DONE     | Added supplier filter         | ...            | [x]   | [ ]    |
+| 2025-12-16 | 7.4  | REOPENED | Filter breaks with empty list | -              | [ ]   | [ ]    |
 ```
 
 ### When to Use reopen vs New Ticket
@@ -931,13 +931,13 @@ Continue anyway? (issue will be closed)
 
 Read `docs/specs/{feature}/tasks.md` Work Sessions table:
 
-- Check last entry has Human = [OK]
-- If Human = [WAIT], **BLOCK** and require `/afx:work approve` first
+- Check last entry has Human = `[x]`
+- If Human = `[ ]`, **BLOCK** and require `/afx:work approve` first
 
 ```
 BLOCKED: Human verification pending
 
-Last entry shows Human = [WAIT]
+Last entry shows Human = [ ]
 Run: /afx:work verify {task} "verification note"
 
 Cannot close issue until human verification complete.
@@ -969,7 +969,7 @@ gh issue view {issue-number} --json body,comments
 Add final closure entry to Work Sessions:
 
 ```markdown
-| {date} | - | CLOSED #{issue} | {summary} | [OK] | [OK] |
+| {date} | - | CLOSED #{issue} | {summary} | [x] | [x] |
 ```
 
 **Update `tasks.md` checkboxes (required):**
@@ -1028,7 +1028,7 @@ Next (ranked):
 The command automatically verifies:
 
 - [ ] All phase tasks checked in tasks.md
-- [ ] Human verification complete (Human = [OK])
+- [ ] Human verification complete (Human = `[x]`)
 - [ ] No REOPENED entries without subsequent VERIFIED
 - [ ] Session log synced with GitHub
 
@@ -1062,7 +1062,7 @@ To reopen: gh issue reopen 51
 ```
 BLOCKED: Human verification incomplete
 
-Task 7.4 has Agent [OK] but Human [WAIT]
+Task 7.4 has Agent [x] but Human [ ]
 Run: /afx:work verify 7.4 "verification note"
 
 Cannot close until human verification complete.
@@ -1092,7 +1092,7 @@ The `close` command ensures consistency between GitHub and local files:
      ↓
 /afx:dev code       → Implements, updates session-log
      ↓
-/afx:work verify    → Human confirms, marks Human [OK]
+/afx:work verify    → Human confirms, marks Human [x]
      ↓
 /afx:work close     → Syncs, updates docs, closes issue  ← YOU ARE HERE
      ↓

@@ -250,7 +250,7 @@ Plan mode is active. [action] will be performed after plan approval.
 
 ### Gate: Human Review Required
 
-**Trigger**: Task marked with `READY FOR REVIEW` or `[WAIT]` in Work Sessions table
+**Trigger**: Task marked with `READY FOR REVIEW` or `[ ]` in Human column of Work Sessions table
 
 **Blocked Actions**:
 
@@ -268,7 +268,7 @@ Plan mode is active. [action] will be performed after plan approval.
 Awaiting human review. Task [X.Y] is ready for your review before proceeding.
 ```
 
-**Exit Condition**: Human marks `[OK]` in Human column
+**Exit Condition**: Human marks `[x]` in Human column
 
 ### Gate Check Protocol
 
@@ -743,7 +743,7 @@ The `**Related Files**:` field accumulates as notes are appended:
 
 ### Progress Auto-Sync
 
-**IF** `/afx:session append` text contains triggers (`[OK]`, `[DONE]`, "deployed", "done", "complete"), **THEN**:
+**IF** `/afx:session append` text contains triggers (`[x]`, `[DONE]`, "deployed", "done", "complete"), **THEN**:
 
 1. Find matching unchecked item in `**Progress**` (fuzzy keyword match).
 2. Mark as `[x]`.
@@ -794,23 +794,23 @@ The **Work Sessions** table tracks task execution history. This is the authorita
 
 | Date       | Task | Action                   | Files Modified      | Agent  | Human  |
 | ---------- | ---- | ------------------------ | ------------------- | ------ | ------ |
-| 2025-12-15 | 7.4  | Started supplier filter  | -                   | [WAIT] | -      |
-| 2025-12-15 | 7.4  | Added dropdown component | feature-filters.tsx | [WAIT] | -      |
-| 2025-12-15 | 7.4  | Wired searchParams       | page.tsx, action.ts | [OK]   | -      |
-| 2025-12-15 | 7.4  | READY FOR REVIEW         | -                   | [OK]   | [WAIT] |
-| 2025-12-15 | 7.4  | APPROVED                 | -                   | [OK]   | [OK]   |
+| 2025-12-15 | 7.4  | Started supplier filter  | -                   | [ ]  | [ ]  |
+| 2025-12-15 | 7.4  | Added dropdown component | feature-filters.tsx | [ ]  | [ ]  |
+| 2025-12-15 | 7.4  | Wired searchParams       | page.tsx, action.ts | [x]  | [ ]  |
+| 2025-12-15 | 7.4  | READY FOR REVIEW         | -                   | [x]  | [ ]  |
+| 2025-12-15 | 7.4  | APPROVED                 | -                   | [x]  | [x]  |
 ```
 
 ### When to Update Work Sessions
 
 | Trigger                           | Action                       | Agent  | Human  |
 | :-------------------------------- | :--------------------------- | :----- | :----- |
-| `/afx:work next` assigns task     | Add row: "Started {task}"    | [WAIT] | -      |
-| `/afx:dev code` completes subtask | Add row: "{action taken}"    | [WAIT] | -      |
-| `/afx:check path` passes          | Agent marks verified         | [OK]   | -      |
-| `/afx:check path` fails           | Add row: "BLOCKED: {reason}" | [FAIL] | -      |
-| Task complete                     | Agent requests review        | [OK]   | [WAIT] |
-| Human reviews & approves          | Human marks verified         | [OK]   | [OK]   |
+| `/afx:work next` assigns task     | Add row: "Started {task}"    | [ ]  | [ ]  |
+| `/afx:dev code` completes subtask | Add row: "{action taken}"    | [ ]  | [ ]  |
+| `/afx:check path` passes          | Agent marks verified         | [x]  | [ ]  |
+| `/afx:check path` fails           | Add row: "BLOCKED: {reason}" | [ ]  | [ ]  |
+| Task complete                     | Agent requests review        | [x]  | [ ]  |
+| Human reviews & approves          | Human marks verified         | [x]  | [x]  |
 
 ### Verification Columns
 
@@ -825,16 +825,14 @@ The Work Sessions table has **two verification columns**:
 
 - Agents can pass technical checks but miss quality issues
 - Human review catches: over-engineering, wrong patterns, sloppy code, missing edge cases
-- Task is NOT complete until both columns show `[OK]`
+- Task is NOT complete until both columns show `[x]`
 
 ### Verification States
 
-| State    | Meaning                           |
-| :------- | :-------------------------------- |
-| `-`      | Not applicable (task in progress) |
-| `[WAIT]` | Pending verification              |
-| `[OK]`   | Verified and passed               |
-| `[FAIL]` | Failed verification (needs fix)   |
+| State | Meaning                    |
+| :---- | :------------------------- |
+| `[ ]` | Pending verification       |
+| `[x]` | Verified and passed        |
 
 ### Sync Rules
 
@@ -972,7 +970,7 @@ STATUS → ASSIGN → IMPLEMENT → VERIFY → AUDIT → LOG
 | Gate         | Blocked When             | Exit Condition     |
 | :----------- | :----------------------- | :----------------- |
 | Plan Mode    | System reminder present  | User approves plan |
-| Human Review | `[WAIT]` in Human column | Human marks `[OK]` |
+| Human Review | `[ ]` in Human column    | Human marks `[x]`  |
 
 ## File Naming
 

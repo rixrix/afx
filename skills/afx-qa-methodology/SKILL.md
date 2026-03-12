@@ -21,7 +21,7 @@ This skill activates when the user asks about:
 @see docs/specs/{feature}/spec.md#FR-{n}
 @see docs/specs/{feature}/tasks.md#2.1-task-slug
 ```
-3. **Two-stage verification** — mark tasks `[OK]` in agent column, leave human column for reviewer
+3. **Two-stage verification** — mark tasks `[x]` in agent column, leave human column for reviewer
 4. **Coverage mapping** — identify untested requirements and flag gaps
 
 ### Bug Triage

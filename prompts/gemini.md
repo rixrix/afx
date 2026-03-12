@@ -66,7 +66,7 @@ When executing AFX commands, leverage Gemini's specialized tools:
 
 Gate 1 (`/afx:check path`) is **blocking** — tasks cannot be closed without path verification that traces execution from UI to DB.
 
-Tasks require both Agent verification (`[OK]`) AND Human approval (`[OK]`) before completion.
+Tasks require both Agent verification (`[x]`) AND Human approval (`[x]`) before completion.
 
 ### Git Commit Attribution
 

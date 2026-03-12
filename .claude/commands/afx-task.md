@@ -234,9 +234,9 @@ List tasks from tasks.md:
 
 | Task | Description                      | Status    |
 | ---- | -------------------------------- | --------- |
-| 7.1  | Create supplier constants        | [OK]      |
-| 7.2  | Add supplier dropdown to Portal  | [OK]      |
-| 7.3  | Add supplier assignment to Admin | [OK]      |
+| 7.1  | Create supplier constants        | [x]      |
+| 7.2  | Add supplier dropdown to Portal  | [x]      |
+| 7.3  | Add supplier assignment to Admin | [x]      |
 | 7.4  | Add supplier filter (optional)   | [PENDING] |
 
 ### Phase 6: Testing

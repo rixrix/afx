@@ -535,7 +535,7 @@ Next: /afx:work next docs/specs/{new-feature}/tasks.md   # Start implementing ne
 ```
 
 > **Note**: Work Sessions table lives in `tasks.md`, not `journal.md`. It is updated by `/afx:work` and `/afx:dev` commands, NOT by `/afx:session`.
-> **Two-stage verification**: Agent marks [OK] after checks pass, Human marks [OK] after code review.
+> **Two-stage verification**: Agent marks `[x]` after checks pass, Human marks `[x]` after code review.
 > See [agenticflowx.md#work-sessions](../../docs/agenticflowx/agenticflowx.md#work-sessions) for update rules.
 
 ---

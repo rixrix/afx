@@ -1523,7 +1523,7 @@ This skill activates when the user asks about:
 @see docs/specs/{feature}/tasks.md#2.1-task-slug
 
 ```
-3. **Two-stage verification** — mark tasks `[OK]` in agent column, leave human column for reviewer
+3. **Two-stage verification** — mark tasks `[x]` in agent column, leave human column for reviewer
 4. **Coverage mapping** — identify untested requirements and flag gaps
 
 ### Bug Triage
@@ -1567,7 +1567,7 @@ This skill activates when the user asks about:
 @see docs/specs/{feature}/tasks.md#2.1-task-slug
 
 ```
-3. **Two-stage verification** — mark tasks `[OK]` in agent column, leave human column for reviewer
+3. **Two-stage verification** — mark tasks `[x]` in agent column, leave human column for reviewer
 4. **Coverage mapping** — identify untested requirements and flag gaps
 
 ### Bug Triage
@@ -1611,7 +1611,7 @@ This skill activates when the user asks about:
 @see docs/specs/{feature}/tasks.md#2.1-task-slug
 
 ```
-3. **Two-stage verification** — mark tasks `[OK]` in agent column, leave human column for reviewer
+3. **Two-stage verification** — mark tasks `[x]` in agent column, leave human column for reviewer
 4. **Coverage mapping** — identify untested requirements and flag gaps
 
 ### Bug Triage
@@ -1644,7 +1644,7 @@ When assisting with testing or QA:
 2. Link test files to specs with `@see` annotations
 3. Map test coverage to functional requirements (FR-{n})
 4. Flag untested requirements as gaps
-5. Follow two-stage verification: agent marks [OK], human reviews separately
+5. Follow two-stage verification: agent marks [x], human reviews separately
 ```
 
 ### 4.2 `afx-spec-test-planning`
