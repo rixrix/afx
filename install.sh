@@ -371,11 +371,11 @@ write_minimal_user_config() {
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │  AFX Configuration                                                      │
 # │                                                                         │
-# │  Defaults are in .afx/.afx.yaml (managed by AFX — do not edit).        │
-# │  Add overrides below — they take precedence over defaults.             │
+# │  Defaults are in .afx/.afx.yaml (managed by AFX — do not edit).         │
+# │  Add overrides below — they take precedence over defaults.              │
 # │                                                                         │
-# │  Docs: docs/agenticflowx/agenticflowx.md                              │
-# │  Help: /afx:help (Claude) or afx-help (Codex)                         │
+# │  Docs: docs/agenticflowx/agenticflowx.md                                │
+# │  Help: /afx:help (Claude) or afx-help (Codex)                           │
 # └─────────────────────────────────────────────────────────────────────────┘
 
 # AFX version — controls which branch/tag install.sh fetches from.
