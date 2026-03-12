@@ -1902,9 +1902,9 @@ step_directories() {
         mkdir -p "$TARGET_DIR/docs/adr"
         mkdir -p "$TARGET_DIR/docs/research"
     fi
-    [ ! -d "$TARGET_DIR/docs/specs" ] && INSTALLED+=("docs/specs/ directory")
-    [ ! -d "$TARGET_DIR/docs/adr" ] && INSTALLED+=("docs/adr/ directory")
-    [ ! -d "$TARGET_DIR/docs/research" ] && INSTALLED+=("docs/research/ directory")
+    if [ ! -d "$TARGET_DIR/docs/specs" ]; then INSTALLED+=("docs/specs/ directory"); fi
+    if [ ! -d "$TARGET_DIR/docs/adr" ]; then INSTALLED+=("docs/adr/ directory"); fi
+    if [ ! -d "$TARGET_DIR/docs/research" ]; then INSTALLED+=("docs/research/ directory"); fi
 }
 
 # ============================================================================
