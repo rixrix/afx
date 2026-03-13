@@ -5,6 +5,25 @@ All notable changes to AFX will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-03-13
+
+### Added
+
+- **Pack System**: Curated skill pack management for distributing bundles of AI skills across providers.
+  - Pack manifests (`packs/afx-pack-qa.yaml`, `packs/afx-pack-security.yaml`) with provider-aware skill mapping.
+  - Pack index (`packs/index.json`) for remote discovery and version checking.
+  - New `install.sh` options: `--pack`, `--update-packs`, `--reset`, `--disable-pack`, `--enable-pack`, `--remove-pack`, `--skill-enable`, `--skill-disable`, `--branch`, `--version`.
+- **New AFX-Built Skills**: `afx-qa-methodology`, `afx-security-audit`, `afx-owasp-top-10`, `afx-spec-test-planning`.
+- **Antigravity Provider Support**: `.agent/skills/` directory with 15 AFX Antigravity skills.
+- **Pack Spec Documentation**: Full spec, design, tasks, and journal at `docs/specs/afx-packs/`.
+
+### Changed
+
+- **Gemini Commands**: Converted all `.gemini/commands/*.md` to TOML format (`.toml`) for Gemini CLI compatibility.
+- Updated `.claude/commands/` and `.codex/skills/` with pack-aware references.
+- Updated `CLAUDE.md`, `README.md`, and spec templates with pack system documentation.
+- Refactored `install.sh` with modular sections for constants, defaults, argument parsing, provider detection, and pack resolution.
+
 ## [1.5.3] - 2026-02-27
 
 ### Changed
