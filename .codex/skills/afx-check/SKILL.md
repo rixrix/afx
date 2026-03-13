@@ -1,6 +1,6 @@
 ---
 name: afx-check
-description: Execute the AFX check command workflow in Codex. Trigger when the user asks for afx-check, /afx:check, or the corresponding check subcommands.
+description: Quality verification and compliance checking for AgenticFlowX.
 ---
 
 # AFX check
@@ -21,7 +21,7 @@ Do not re-invent workflow steps. Read the command file and execute it faithfully
 
 ## Execution Rules
 
-1. Read `.afx.yaml` if present; otherwise use defaults described in the command spec.
+1. Read config: `.afx/.afx.yaml` (defaults) + `.afx.yaml` (user overrides). Use defaults from command spec if neither exists.
 2. Execute only the requested subcommand(s).
 3. Preserve AFX traceability requirements (`@see`, task/session updates, gates) exactly as defined.
 4. End with ranked next-command suggestions matching the command spec.

@@ -11,13 +11,13 @@ Feature spec scaffolding for AgenticFlowX projects.
 
 ## Configuration
 
-**Read `.afx.yaml`** at project root to resolve paths:
+**Read config** using two-tier resolution: `.afx/.afx.yaml` (managed defaults) + `.afx.yaml` (user overrides).
 
 - `paths.specs` - Where spec files live (default: `docs/specs`)
 - `paths.adr` - Where global ADRs live (default: `docs/adr`)
 - `paths.templates` - Where templates live (default: `docs/agenticflowx/templates`)
 
-If `.afx.yaml` doesn't exist, use defaults.
+If neither file exists, use defaults.
 
 ## Usage
 
@@ -115,7 +115,7 @@ SPEC_DIR="docs/specs/$FEATURE"
 if [ -d "$SPEC_DIR" ]; then echo "Error: $FEATURE exists"; exit 1; fi
 
 mkdir -p "$SPEC_DIR/research"
-DATE=$(date +%Y-%m-%d)
+DATE=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
 PREFIX=$(echo "$FEATURE" | awk -F- '{print toupper(substr($1,0,1) substr($2,0,1))}')
 [ ${#PREFIX} -lt 2 ] && PREFIX=$(echo "$FEATURE" | awk '{print toupper(substr($0,0,2))}')
 
@@ -161,6 +161,10 @@ cat <<EOF > "$SPEC_DIR/tasks.md"
 ## Phase 1: Core
 
 - [ ] Task 1.1
+
+## Work Sessions
+| Date | Task | Action | Files Modified | Agent | Human |
+| ---- | ---- | ------ | -------------- | ----- | ----- |
 EOF
 
 # 4. JOURNAL
@@ -184,10 +188,6 @@ tags: [$FEATURE, journal]
 
 ## Discussions
 ---
-
-## Work Sessions
-| Date | Task | Action | Files Modified | Agent | Human |
-| ---- | ---- | ------ | -------------- | ----- | ----- |
 EOF
 
 echo "Feature '$FEATURE' initialized at $SPEC_DIR"
@@ -542,13 +542,6 @@ tags: [{ feature }, journal]
 <!-- Recorded discussions with IDs: {XX}-D001, {XX}-D002, etc. -->
 
 ---
-
-## Work Sessions
-
-<!-- Task execution log - updated by /afx:work next, /afx:dev code -->
-
-| Date | Task | Action | Files Modified | Agent | Human |
-| ---- | ---- | ------ | -------------- | ----- | ----- |
 ```
 
 ---

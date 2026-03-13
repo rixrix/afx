@@ -3,7 +3,7 @@ afx: true
 type: ADR
 status: Accepted
 version: 1.0
-created: 2024-03-24
+created: 2024-03-24T00:00:00.000Z
 owner: "@lead-dev"
 tags: [adr, frontend, ui]
 ---

@@ -4,18 +4,14 @@ type: TASKS
 status: Living
 owner: '@owner'
 version: 1.0
-created: '{YYYY-MM-DDTHH:MM:SSZ}'
-last_verified: '{YYYY-MM-DD}'
+created: '{YYYY-MM-DDTHH:MM:SS.mmmZ}'
+last_verified: '{YYYY-MM-DDTHH:MM:SS.mmmZ}'
 tags: ['{feature}']
+spec: spec.md
+design: design.md
 ---
 
 # {Feature Name} - Implementation Tasks
-
-**Version:** 1.0
-**Date:** {YYYY-MM-DD}
-**Status:** Draft | Ready for Implementation
-**Spec:** [spec.md](./spec.md)
-**Design:** [design.md](./design.md)
 
 ---
 
@@ -117,3 +113,12 @@ Phase N: {Continue as needed}
 - Tasks are marked complete (`[x]`) as implementation progresses
 - GitHub issue numbers are added when issues are created
 - Cross-references help trace requirements → design → implementation
+
+---
+
+## Work Sessions
+
+<!-- Task execution log — updated by /afx:work, /afx:dev -->
+
+| Date | Task | Action | Files Modified | Agent | Human |
+| ---- | ---- | ------ | -------------- | ----- | ----- |

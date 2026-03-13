@@ -7,6 +7,10 @@ version: 1.0
 tags: [framework, specification, afx]
 ---
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rixrix/afx/main/assets/agenticflow_logo_light.svg" alt="AgenticFlowX Logo" width="600"/>
+</p>
+
 # AgenticFlowX (AFX)
 
 > **Agentic workflow—from spec to ship.**
@@ -246,7 +250,7 @@ Plan mode is active. [action] will be performed after plan approval.
 
 ### Gate: Human Review Required
 
-**Trigger**: Task marked with `READY FOR REVIEW` or `[WAIT]` in Work Sessions table
+**Trigger**: Task marked with `READY FOR REVIEW` or `[ ]` in Human column of Work Sessions table
 
 **Blocked Actions**:
 
@@ -264,7 +268,7 @@ Plan mode is active. [action] will be performed after plan approval.
 Awaiting human review. Task [X.Y] is ready for your review before proceeding.
 ```
 
-**Exit Condition**: Human marks `[OK]` in Human column
+**Exit Condition**: Human marks `[x]` in Human column
 
 ### Gate Check Protocol
 
@@ -313,8 +317,8 @@ status: Draft # Draft | Approved | Living
 owner: "@handle" # GitHub handle (quoted)
 priority: High # High | Medium | Low (SPEC only)
 version: 1.0 # Semantic versioning
-created: YYYY-MM-DDTHH:MM:SSZ # ISO 8601 creation timestamp
-last_verified: YYYY-MM-DD # Last review date
+created: YYYY-MM-DDTHH:MM:SS.mmmZ # ISO 8601 creation timestamp (millisecond precision)
+last_verified: YYYY-MM-DDTHH:MM:SS.mmmZ # Last review timestamp (millisecond precision)
 tags: [feature, topic] # Content tags (Obsidian convention)
 ---
 ```
@@ -339,7 +343,7 @@ id: 0001 # Optional numbered ID
 type: RES # RES | ADR
 status: Approved # Draft | Approved | Deprecated
 owner: "@handle"
-date: YYYY-MM-DD # Decision/creation date
+date: YYYY-MM-DDTHH:MM:SS.mmmZ # Decision/creation timestamp (millisecond precision)
 tags: [topic1, topic2]
 ---
 ```
@@ -376,7 +380,9 @@ tags: [topic1, topic2]
 
 ```
 project-root/
-├── .afx.yaml            # AFX project configuration
+├── .afx.yaml            # User overrides (version, packs, custom settings)
+├── .afx/
+│   └── .afx.yaml        # Managed defaults (do not edit — maintained by install.sh)
 ├── docs/
 │   ├── agenticflowx/    # Framework documentation
 │   │   ├── agenticflowx.md   # Manual (this file)
@@ -404,34 +410,39 @@ project-root/
 
 ## Project Configuration
 
-AFX settings are stored in `.afx.yaml` at project root:
+AFX uses **two-tier config resolution**:
+
+| File             | Purpose                        | Edited by                |
+| ---------------- | ------------------------------ | ------------------------ |
+| `.afx/.afx.yaml` | Managed defaults (full config) | install.sh (do not edit) |
+| `.afx.yaml`      | User overrides                 | You                      |
+
+Values in `.afx.yaml` take precedence over `.afx/.afx.yaml`. If neither file exists, hardcoded defaults are used.
+
+### `.afx.yaml` (user overrides)
+
+The root config is intentionally minimal — override only what you need:
 
 ```yaml
-# .afx.yaml - key settings
+# AFX version — controls which branch/tag install.sh fetches from.
 version: "1.0"
 
-paths:
-  specs: "docs/specs" # Feature spec directory
-  adr: "docs/adr" # Global ADR directory (default: docs/adr)
+packs: []
 
-ai_attribution:
-  enabled: true # Enable @ai-assisted annotations
-  required: false # Set true for compliance projects
-
-test_traceability:
-  enabled: true # Enable @covers annotations
-
-prefixes: # Feature discussion ID prefixes
-  user-auth: UA
-  users-permissions: UP
-
-library:
-  architecture: "docs/architecture"
-  proposals: "docs/proposals"
-  research: "docs/research"
+# Override any default below. Examples:
+#   paths:
+#     specs: my-specs
+#   features:
+#     - user-auth
+#   quality_gates:
+#     require_path_check: false
 ```
 
-See [.afx.yaml](../../.afx.yaml) for all configuration options.
+### `.afx/.afx.yaml` (managed defaults)
+
+Contains all default settings (paths, quality gates, verification, etc.). This file is written by `install.sh` on install/update — do not edit it directly. To customize a value, add the override to `.afx.yaml` instead.
+
+See [.afx.yaml.template](../../.afx.yaml.template) for the full list of available settings.
 
 ## Research Folder Standards
 
@@ -444,7 +455,7 @@ The `research/` directory stores decisions, proposals, and reference material. A
 | **Global**        | `docs/adr/`                      | `ADR-NNNN-slug.md` (4-digit) | Cross-cutting decisions affecting the whole project |
 | **Feature-local** | `docs/specs/{feature}/research/` | `0001-slug.md`               | Decisions scoped to a single feature                |
 
-Global ADRs are created via `/afx:init adr <title>`. The path is configured in `.afx.yaml` under `paths.adr` (default: `docs/adr`).
+Global ADRs are created via `/afx:init adr <title>`. The path is configured under `paths.adr` (default: `docs/adr`).
 
 ### File Types & Naming
 
@@ -686,7 +697,7 @@ Before an agent session ends (timeout, window close), use `/afx:context save` to
 
 - Uncommitted changes + Active Task status + Key Decisions
 - Writes a "Prompt Bundle" to the session log
-  - New agent reads `docs/specs/afx-context.md`, reconstructs the context, and picks up seamlessly.
+  - New agent reads `.afx/context.md`, reconstructs the context, and picks up seamlessly.
 
 > **Why?** Prevents "context death" where the next agent has to re-read everything from scratch.
 
@@ -700,7 +711,6 @@ Each feature has a `journal.md` file for capturing discussions during developmen
 
 - **Captures**: Quick notes during active chat (scratchpad)
 - **Discussions**: Recorded conversations with IDs for reference
-- **Work Sessions**: Task execution log (separate from discussions)
 
 ### Discussion Entry Fields
 
@@ -733,7 +743,7 @@ The `**Related Files**:` field accumulates as notes are appended:
 
 ### Progress Auto-Sync
 
-**IF** `/afx:session append` text contains triggers (`[OK]`, `[DONE]`, "deployed", "done", "complete"), **THEN**:
+**IF** `/afx:session append` text contains triggers (`[x]`, `[DONE]`, "deployed", "done", "complete"), **THEN**:
 
 1. Find matching unchecked item in `**Progress**` (fuzzy keyword match).
 2. Mark as `[x]`.
@@ -774,7 +784,7 @@ The **Work Sessions** table tracks task execution history. This is the authorita
 
 **Storage Location**:
 
-- **Primary**: `docs/specs/{feature}/journal.md` → `## Work Sessions` table
+- **Primary**: `docs/specs/{feature}/tasks.md` → `## Work Sessions` table
 - **Mirror**: GitHub Issue (if linked) → `### Session Log` section
 
 ```markdown
@@ -784,23 +794,23 @@ The **Work Sessions** table tracks task execution history. This is the authorita
 
 | Date       | Task | Action                   | Files Modified      | Agent  | Human  |
 | ---------- | ---- | ------------------------ | ------------------- | ------ | ------ |
-| 2025-12-15 | 7.4  | Started supplier filter  | -                   | [WAIT] | -      |
-| 2025-12-15 | 7.4  | Added dropdown component | feature-filters.tsx | [WAIT] | -      |
-| 2025-12-15 | 7.4  | Wired searchParams       | page.tsx, action.ts | [OK]   | -      |
-| 2025-12-15 | 7.4  | READY FOR REVIEW         | -                   | [OK]   | [WAIT] |
-| 2025-12-15 | 7.4  | APPROVED                 | -                   | [OK]   | [OK]   |
+| 2025-12-15 | 7.4  | Started supplier filter  | -                   | [ ]  | [ ]  |
+| 2025-12-15 | 7.4  | Added dropdown component | feature-filters.tsx | [ ]  | [ ]  |
+| 2025-12-15 | 7.4  | Wired searchParams       | page.tsx, action.ts | [x]  | [ ]  |
+| 2025-12-15 | 7.4  | READY FOR REVIEW         | -                   | [x]  | [ ]  |
+| 2025-12-15 | 7.4  | APPROVED                 | -                   | [x]  | [x]  |
 ```
 
 ### When to Update Work Sessions
 
 | Trigger                           | Action                       | Agent  | Human  |
 | :-------------------------------- | :--------------------------- | :----- | :----- |
-| `/afx:work next` assigns task     | Add row: "Started {task}"    | [WAIT] | -      |
-| `/afx:dev code` completes subtask | Add row: "{action taken}"    | [WAIT] | -      |
-| `/afx:check path` passes          | Agent marks verified         | [OK]   | -      |
-| `/afx:check path` fails           | Add row: "BLOCKED: {reason}" | [FAIL] | -      |
-| Task complete                     | Agent requests review        | [OK]   | [WAIT] |
-| Human reviews & approves          | Human marks verified         | [OK]   | [OK]   |
+| `/afx:work next` assigns task     | Add row: "Started {task}"    | [ ]  | [ ]  |
+| `/afx:dev code` completes subtask | Add row: "{action taken}"    | [ ]  | [ ]  |
+| `/afx:check path` passes          | Agent marks verified         | [x]  | [ ]  |
+| `/afx:check path` fails           | Add row: "BLOCKED: {reason}" | [ ]  | [ ]  |
+| Task complete                     | Agent requests review        | [x]  | [ ]  |
+| Human reviews & approves          | Human marks verified         | [x]  | [x]  |
 
 ### Verification Columns
 
@@ -815,24 +825,22 @@ The Work Sessions table has **two verification columns**:
 
 - Agents can pass technical checks but miss quality issues
 - Human review catches: over-engineering, wrong patterns, sloppy code, missing edge cases
-- Task is NOT complete until both columns show `[OK]`
+- Task is NOT complete until both columns show `[x]`
 
 ### Verification States
 
-| State    | Meaning                           |
-| :------- | :-------------------------------- |
-| `-`      | Not applicable (task in progress) |
-| `[WAIT]` | Pending verification              |
-| `[OK]`   | Verified and passed               |
-| `[FAIL]` | Failed verification (needs fix)   |
+| State | Meaning                    |
+| :---- | :------------------------- |
+| `[ ]` | Pending verification       |
+| `[x]` | Verified and passed        |
 
 ### Sync Rules
 
 When a GitHub issue is linked to the spec:
 
-1. **Single Source**: The `journal.md` file is the master record.
+1. **Single Source**: The `tasks.md` file is the master record.
 2. **Mirroring**: Agents copy the last session's row to the GitHub issue comment for visibility.
-3. **Conflict**: If GitHub says one thing and Journal says another, Journal wins (version-controlled with code).
+3. **Conflict**: If GitHub says one thing and tasks.md says another, tasks.md wins (version-controlled with code).
 
 ---
 
@@ -962,7 +970,7 @@ STATUS → ASSIGN → IMPLEMENT → VERIFY → AUDIT → LOG
 | Gate         | Blocked When             | Exit Condition     |
 | :----------- | :----------------------- | :----------------- |
 | Plan Mode    | System reminder present  | User approves plan |
-| Human Review | `[WAIT]` in Human column | Human marks `[OK]` |
+| Human Review | `[ ]` in Human column    | Human marks `[x]`  |
 
 ## File Naming
 

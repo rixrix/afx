@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX spec commands for drafting and refining specs, design, and tasks.
+description: Specification management, navigation, review, and approval for spec-centric workflows.
 ---
 
 # AFX spec
@@ -13,6 +13,6 @@ Source of truth: `.claude/commands/afx-spec.md`
 
 1. Read the source command file fully before taking action.
 2. Execute only the requested subcommand behavior.
-3. Honor `.afx.yaml` path settings; use source defaults when absent.
+3. Read config: `.afx/.afx.yaml` (defaults) + `.afx.yaml` (user overrides); use source defaults when neither exists.
 4. Preserve output format and traceability requirements from the source.
 5. Do not invent new workflow steps outside the source command definition.

@@ -11,11 +11,11 @@ Verify and summarize task implementation status.
 
 ## Configuration
 
-**Read `.afx.yaml`** at project root to resolve paths:
+**Read config** using two-tier resolution: `.afx/.afx.yaml` (managed defaults) + `.afx.yaml` (user overrides).
 
 - `paths.specs` - Where spec files live (default: `docs/specs`)
 
-If `.afx.yaml` doesn't exist, use defaults.
+If neither file exists, use defaults.
 
 ## Usage
 
@@ -234,9 +234,9 @@ List tasks from tasks.md:
 
 | Task | Description                      | Status    |
 | ---- | -------------------------------- | --------- |
-| 7.1  | Create supplier constants        | [OK]      |
-| 7.2  | Add supplier dropdown to Portal  | [OK]      |
-| 7.3  | Add supplier assignment to Admin | [OK]      |
+| 7.1  | Create supplier constants        | [x]      |
+| 7.2  | Add supplier dropdown to Portal  | [x]      |
+| 7.3  | Add supplier assignment to Admin | [x]      |
 | 7.4  | Add supplier filter (optional)   | [PENDING] |
 
 ### Phase 6: Testing

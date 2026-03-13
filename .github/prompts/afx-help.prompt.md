@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX command reference and workflow guidance.
+description: AFX (AgenticFlowX) command reference.
 ---
 
 # AFX help
@@ -13,6 +13,6 @@ Source of truth: `.claude/commands/afx-help.md`
 
 1. Read the source command file fully before taking action.
 2. Execute only the requested subcommand behavior.
-3. Honor `.afx.yaml` path settings; use source defaults when absent.
+3. Read config: `.afx/.afx.yaml` (defaults) + `.afx.yaml` (user overrides); use source defaults when neither exists.
 4. Preserve output structure and navigation hints from the source.
 5. Do not add new workflow steps or command semantics beyond the source.

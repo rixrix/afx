@@ -31,9 +31,3 @@ tags: [example]
 **Decisions**: Using factory pattern for services
 **Related Files**: spec.md, design.md, tasks.md
 **Participants**: @your-handle
-
-## Work Sessions
-
-| Date | Task | Action | Files Modified | Agent | Human |
-|------|------|--------|----------------|-------|-------|
-| 2025-02-01 | 1.1 | Created spec structure | spec.md, design.md, tasks.md | [OK] | [WAIT] |

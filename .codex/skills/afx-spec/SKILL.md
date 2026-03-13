@@ -1,6 +1,6 @@
 ---
 name: afx-spec
-description: Execute the AFX spec command workflow in Codex. Trigger when the user asks for afx-spec, /afx:spec, or the corresponding spec subcommands.
+description: Specification management, navigation, review, and approval for spec-centric workflows.
 ---
 
 # AFX spec
@@ -21,7 +21,7 @@ Do not re-invent workflow steps. Read the command file and execute it faithfully
 
 ## Execution Rules
 
-1. Read `.afx.yaml` if present; otherwise use defaults described in the command spec.
+1. Read config: `.afx/.afx.yaml` (defaults) + `.afx.yaml` (user overrides). Use defaults from command spec if neither exists.
 2. Execute only the requested subcommand(s).
 3. Preserve AFX traceability requirements (`@see`, task/session updates, gates) exactly as defined.
 4. End with ranked next-command suggestions matching the command spec.

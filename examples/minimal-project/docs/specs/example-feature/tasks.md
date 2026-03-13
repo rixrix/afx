@@ -4,7 +4,7 @@ type: TASKS
 status: Draft
 owner: '@your-handle'
 version: 1.0
-created: 2025-02-01T00:00:00Z
+created: 2025-02-01T00:00:00.000Z
 tags: [example]
 ---
 
@@ -63,3 +63,13 @@ tags: [example]
 
 - [ ] Update README if needed
 - [ ] Verify @see annotations
+
+---
+
+## Work Sessions
+
+<!-- Task execution log - updated by /afx:work next, /afx:dev code -->
+
+| Date       | Task | Action                 | Files Modified               | Agent | Human  |
+| ---------- | ---- | ---------------------- | ---------------------------- | ----- | ------ |
+| 2025-02-01 | 1.1  | Created spec structure | spec.md, design.md, tasks.md | [x]  | [ ] |

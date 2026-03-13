@@ -11,13 +11,13 @@ Session discussion capture and recall for multi-agent workflows.
 
 ## Configuration
 
-**Read `.afx.yaml`** at project root to resolve paths:
+**Read config** using two-tier resolution: `.afx/.afx.yaml` (managed defaults) + `.afx.yaml` (user overrides).
 
 - `paths.specs` - Where spec files live (default: `docs/specs`)
 - `paths.sessions` - Global discussion location (default: `docs/specs`)
 - `prefixes` - Feature prefix mappings for discussion IDs
 
-If `.afx.yaml` doesn't exist, use defaults.
+If neither file exists, use defaults.
 
 ## Usage
 
@@ -532,21 +532,10 @@ Next: /afx:work next docs/specs/{new-feature}/tasks.md   # Start implementing ne
 
 ...
 
----
-
-## Work Sessions
-
-<!-- Task execution log - updated by /afx:work next, /afx:dev code, /afx:check path -->
-
-| Date       | Task | Action           | Files Modified  | Agent | Human  |
-| ---------- | ---- | ---------------- | --------------- | ----- | ------ |
-| 2025-12-15 | 7.3  | Updated supplier | claim.action.ts | [OK]  | -      |
-| 2025-12-15 | 7.3  | READY FOR REVIEW | -               | [OK]  | [WAIT] |
-| 2025-12-15 | 7.3  | COMPLETE         | -               | [OK]  | [OK]   |
 ```
 
-> **Note**: Work Sessions is updated by `/afx:work` and `/afx:dev` commands, NOT by `/afx:session`.
-> **Two-stage verification**: Agent marks [OK] after checks pass, Human marks [OK] after code review.
+> **Note**: Work Sessions table lives in `tasks.md`, not `journal.md`. It is updated by `/afx:work` and `/afx:dev` commands, NOT by `/afx:session`.
+> **Two-stage verification**: Agent marks `[x]` after checks pass, Human marks `[x]` after code review.
 > See [agenticflowx.md#work-sessions](../../docs/agenticflowx/agenticflowx.md#work-sessions) for update rules.
 
 ---

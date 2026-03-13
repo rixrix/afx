@@ -78,7 +78,7 @@ graph TD
 
 **3. Two-Stage Quality Gates**
 
-AI agents can hallucinate completion. AFX forces tasks to require both `[Agent OK]` and `[Human OK]` before they can be closed.
+AI agents can hallucinate completion. AFX forces tasks to require both Agent `[x]` and Human `[x]` before they can be closed.
 
 ```mermaid
 stateDiagram-v2
@@ -87,9 +87,9 @@ stateDiagram-v2
     state "Task Closed" as C
 
     [*] --> AI
-    AI --> HR: [Agent OK]
+    AI --> HR: Agent [x]
     HR --> AI: Rejected
-    HR --> C: [Human OK]
+    HR --> C: Human [x]
     C --> [*]
 ```
 
@@ -149,9 +149,9 @@ docs/specs/user-authentication/
 **`tasks.md`** - Implementation checklist with two-stage verification.
 
 - Numbered tasks (1.1, 1.2, 2.1, etc.) that map to design sections
-- Each task has `[Agent OK]` and `[Human OK]` columns
-- Tasks cannot close without both approvals
-- Example: "1.2: Implement JWT token generation [OK] [OK]"
+- Each task has Agent `[x]`/`[ ]` and Human `[x]`/`[ ]` columns
+- Tasks cannot close without both checked
+- Example: "1.2: Implement JWT token generation [x] [x]"
 
 **`journal.md`** - Append-only historical log of all discussions and decisions.
 
@@ -307,7 +307,7 @@ Write code with automatic `@see` annotation insertion. Claude links every functi
 
 - `verify <task-id>` - Confirm implementation matches task requirements
 - `audit` - Review all tasks for completion criteria
-- `close <task-id>` - Close task after verification (requires both [OK] columns)
+- `close <task-id>` - Close task after verification (requires both `[x]` columns)
 
 ### Session Management
 
@@ -424,9 +424,9 @@ stateDiagram-v2
 # ✓ Gate 1 passed
 
 /afx:task verify 1.2
-# Agent marks [OK] in tasks.md
+# Agent marks [x] in tasks.md
 
-# Human reviews, marks second [OK]
+# Human reviews, marks [x]
 /afx:task close 1.2
 # Task closed with both verifications
 ```
@@ -725,7 +725,7 @@ Reason: Spec requires 24-hour expiry, but implementation hardcodes 1-hour expiry
 - **Context over Memory**
   - AI agents don't have memory between sessions. The journal preserves the "why" behind the "what," making interrupted work resumable.
 - **Two-Stage Verification**
-  - Agents implement; humans verify. Both columns must say `[OK]` before tasks close.
+  - Agents implement; humans verify. Both columns must show `[x]` before tasks close.
 - **Execution Proof over Promises**
   - Don't trust that code works just because it exists. `/afx:check path` traces execution from the entry point to the database to prove the path is wired up.
 

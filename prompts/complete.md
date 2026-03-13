@@ -77,8 +77,8 @@ status: Draft # Draft | Approved | Living
 owner: "@handle" # GitHub handle
 priority: High # High | Medium | Low (SPEC only)
 version: 1.0 # Semantic versioning
-created: YYYY-MM-DDTHH:MM:SSZ # ISO 8601 creation timestamp
-last_verified: YYYY-MM-DD # Last review date
+created: YYYY-MM-DDTHH:MM:SS.mmmZ # ISO 8601 creation timestamp (millisecond precision)
+last_verified: YYYY-MM-DDTHH:MM:SS.mmmZ # Last review timestamp (millisecond precision)
 tags: [feature, topic] # Content tags (Obsidian convention)
 ---
 ```

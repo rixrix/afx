@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: Help with AFX context commands for saving and loading project context.
+description: Session Context protocol for seamless context transfer between AI sessions.
 ---
 
 # AFX context
@@ -13,6 +13,6 @@ Source of truth: `.claude/commands/afx-context.md`
 
 1. Read the source command file fully before taking action.
 2. Execute only the requested subcommand behavior.
-3. Honor `.afx.yaml` path settings; use source defaults when absent.
+3. Read config: `.afx/.afx.yaml` (defaults) + `.afx.yaml` (user overrides); use source defaults when neither exists.
 4. Preserve output format and context-bundle semantics from the source.
 5. Do not invent new workflow steps outside the source command definition.

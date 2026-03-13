@@ -11,8 +11,8 @@ AFX (AgenticFlowX) command reference.
 
 ## Configuration
 
-All AFX commands read `.afx.yaml` at project root for path configuration.
-See [.afx.yaml.template](../../.afx.yaml.template) for options.
+All AFX commands use two-tier config resolution: `.afx/.afx.yaml` (managed defaults) + `.afx.yaml` (user overrides).
+See `.afx/.afx.yaml` for all available options.
 
 ## Usage
 

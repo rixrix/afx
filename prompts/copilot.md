@@ -13,7 +13,7 @@ This project uses **AgenticFlowX (AFX)** for spec-driven development. Read `docs
 - All work originates from approved specs (`docs/specs/{feature}/spec.md`, `design.md`, `tasks.md`, `journal.md`)
 - Code MUST include `@see` annotations linking back to specs: `/** @see docs/specs/{feature}/design.md#section */`
 - Gate 1 (`/afx:check path`) is **blocking** — tasks cannot close without path verification
-- Tasks require both Agent (`[OK]`) AND Human (`[OK]`) approval before completion
+- Tasks require both Agent (`[x]`) AND Human (`[x]`) approval before completion
 
 ### Commands
 

@@ -1,0 +1,22 @@
+description = "Session discussion capture and recall for multi-agent workflows."
+prompt = """
+You are executing the AFX /afx:session command. This captures and recalls session discussions for multi-agent workflows.
+
+## Canonical Command Logic
+
+Follow the full command logic defined in the canonical source:
+
+@{.claude/commands/afx-session.md}
+
+## Gemini-Specific Tool Guidance
+
+To preserve session context:
+
+1. **Capturing Discussions**: Use `write_file` to append structured metadata and discussion summaries to `journal.md`.
+2. **Recall**: Use `read_file` to browse and restore previous session contexts.
+3. **Note Taking**: Use `write_file` for smart notes, ensuring they are auto-tagged and linked to the correct feature journal.
+
+## Arguments
+
+{{args}}
+"""
