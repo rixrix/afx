@@ -87,9 +87,9 @@ while [[ $# -gt 0 ]]; do
         --update)         UPDATE_MODE=true; shift ;;
         --skills-only)    SKILLS_ONLY=true; shift ;;
         --commands-only)  SKILLS_ONLY=true; shift ;;  # backward compat alias
-        --no-claude-md)   NO_CLAUDE_MD=true; shift ;;
-        --no-agents-md)   NO_AGENTS_MD=true; shift ;;
-        --with-gemini-md)  NO_GEMINI_MD=false; shift ;;
+        --no-claude-md)   NO_CLAUDE_MD=true; NO_CLAUDE_MD_FLAG=true; shift ;;
+        --no-agents-md)   NO_AGENTS_MD=true; NO_AGENTS_MD_FLAG=true; shift ;;
+        --with-gemini-md)  NO_GEMINI_MD=false; NO_GEMINI_MD_FLAG=true; shift ;;
         --no-docs)        NO_DOCS=true; shift ;;
         --force)          FORCE=true; shift ;;
         --dry-run)        DRY_RUN=true; shift ;;
@@ -350,10 +350,90 @@ ensure_gitignore() {
     fi
 }
 
-# Write minimal user-facing .afx.yaml (version + packs + override guide)
+# Read agent selection from existing .afx.yaml (if present).
+# Sets NO_CLAUDE_MD/NO_AGENTS_MD/NO_GEMINI_MD only if still empty (not set by flags).
+read_agent_config() {
+    local yaml="$TARGET_DIR/.afx.yaml"
+    [[ -f "$yaml" ]] || return 0
+
+    if [[ -z "$NO_CLAUDE_MD" ]]; then
+        local val
+        val=$(sed -n '/^agents:/,/^[^ #]/{ s/^  claude: *//p; }' "$yaml" | head -1)
+        case "$val" in
+            true)  NO_CLAUDE_MD=false ;;
+            false) NO_CLAUDE_MD=true ;;
+        esac
+    fi
+    if [[ -z "$NO_AGENTS_MD" ]]; then
+        local val
+        val=$(sed -n '/^agents:/,/^[^ #]/{ s/^  agents: *//p; }' "$yaml" | head -1)
+        case "$val" in
+            true)  NO_AGENTS_MD=false ;;
+            false) NO_AGENTS_MD=true ;;
+        esac
+    fi
+    if [[ -z "$NO_GEMINI_MD" ]]; then
+        local val
+        val=$(sed -n '/^agents:/,/^[^ #]/{ s/^  gemini: *//p; }' "$yaml" | head -1)
+        case "$val" in
+            true)  NO_GEMINI_MD=false ;;
+            false) NO_GEMINI_MD=true ;;
+        esac
+    fi
+}
+
+# Update the agents: block in .afx.yaml with current selection.
+# Creates the block if it doesn't exist, replaces it if it does.
+update_agent_config() {
+    local yaml="$TARGET_DIR/.afx.yaml"
+    [[ -f "$yaml" ]] || return 0
+    [[ "$DRY_RUN" == "true" ]] && return 0
+
+    local claude_val="true" agents_val="true" gemini_val="false"
+    [[ "$NO_CLAUDE_MD" == "true" ]] && claude_val="false"
+    [[ "$NO_AGENTS_MD" == "true" ]] && agents_val="false"
+    [[ "$NO_GEMINI_MD" != "true" ]] && gemini_val="true"
+
+    local block
+    block="agents:\n  claude: ${claude_val}\n  agents: ${agents_val}\n  gemini: ${gemini_val}"
+
+    local tmp="$yaml.tmp.$$"
+
+    if grep -q '^agents:' "$yaml"; then
+        # Remove existing agents block first
+        awk '
+            /^agents:/ { skip=1; next }
+            skip && /^  [a-z]/ { next }
+            skip && /^[^ #]/ { skip=0 }
+            skip { next }
+            { print }
+        ' "$yaml" > "$tmp"
+    else
+        cp "$yaml" "$tmp"
+    fi
+
+    # Insert agents block before skills: line (or append)
+    if grep -q '^skills:' "$tmp"; then
+        awk -v b="agents:\n  claude: ${claude_val}\n  agents: ${agents_val}\n  gemini: ${gemini_val}" '
+            /^skills:/ { n=split(b, lines, "\\n"); for(i=1;i<=n;i++) print lines[i]; print ""; }
+            { print }
+        ' "$tmp" > "$tmp.2"
+        mv "$tmp.2" "$tmp"
+    else
+        printf '\n%b\n' "$block" >> "$tmp"
+    fi
+    mv "$tmp" "$yaml"
+}
+
+# Write minimal user-facing .afx.yaml (version + agents + packs + override guide)
 # All defaults live in .afx/.afx.yaml — user only adds overrides here.
 write_minimal_user_config() {
-    cat > "$TARGET_DIR/.afx.yaml" <<'YAMLEOF'
+    local claude_val="true" agents_val="true" gemini_val="false"
+    [[ "$NO_CLAUDE_MD" == "true" ]] && claude_val="false"
+    [[ "$NO_AGENTS_MD" == "true" ]] && agents_val="false"
+    [[ "$NO_GEMINI_MD" != "true" ]] && gemini_val="true"
+
+    cat > "$TARGET_DIR/.afx.yaml" <<YAMLEOF
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │  AFX Configuration                                                      │
 # │                                                                         │
@@ -367,6 +447,13 @@ write_minimal_user_config() {
 # AFX version — controls which branch/tag afx-cli fetches from.
 # Accepts: semver (e.g. '1.5.3' → tag v1.5.3), branch name, or 'main'.
 version: main
+
+# ── Agent Selection ────────────────────────────────────────────────────
+# Which AI agents are enabled. Managed by afx-cli during install/update.
+agents:
+  claude: ${claude_val}
+  agents: ${agents_val}
+  gemini: ${gemini_val}
 
 # ── Installed Packs & Skills ─────────────────────────────────────────────
 # Managed by afx-cli. Add packs with:
@@ -1296,24 +1383,25 @@ step_config() {
     # Managed defaults — always written/overwritten in .afx/.afx.yaml
     install_file "$AFX_DIR/.afx.yaml.template" "$TARGET_DIR/.afx/.afx.yaml" ".afx/.afx.yaml" "true"
 
-    # User config — never overwritten (unless --force)
+    # User config — preserved on --update (unless --force), overwritten on fresh install.
+    # Note: agents: block is always updated by update_agent_config() regardless.
     if [ -f "$TARGET_DIR/.afx.yaml" ]; then
-        if [ "$FORCE" = "true" ]; then
+        if [ "$UPDATE_MODE" = "true" ] && [ "$FORCE" != "true" ]; then
+            UPDATED+=(".afx.yaml (agents updated, user config preserved)")
+        else
             if [[ "$DRY_RUN" == "true" ]]; then
                 UPDATED+=(".afx.yaml (would reset to minimal)")
             else
                 write_minimal_user_config
                 UPDATED+=(".afx.yaml (reset to minimal)")
             fi
-        else
-            SKIPPED+=(".afx.yaml (preserved - user config)")
         fi
     else
         if [[ "$DRY_RUN" == "true" ]]; then
             INSTALLED+=(".afx.yaml (would create)")
         else
             write_minimal_user_config
-            INSTALLED+=(".afx.yaml (created with guide)")
+            INSTALLED+=(".afx.yaml (created)")
         fi
     fi
 }
@@ -1815,39 +1903,61 @@ fi
 #
 # Skipped with --yes or --skills-only (use defaults).
 # Explicit flags take precedence over prompts.
+# On --update, reads previous selection from .afx.yaml as defaults.
+
+read_agent_config
 
 if [[ "$YES" != "true" && "$SKILLS_ONLY" != "true" ]]; then
     echo ""
     echo -e "${BOLD}Which AI coding agents do you use?${NC}"
 
     # Claude Code: .claude/skills/ + CLAUDE.md
-    if [[ -z "$NO_CLAUDE_MD" ]]; then
-        echo -en "  Claude Code ${DIM}→ .claude/skills/ + CLAUDE.md${NC} [Y/n] "
+    if [[ "$NO_CLAUDE_MD_FLAG" != "true" ]]; then
+        hint="Y/n"
+        [[ "$NO_CLAUDE_MD" == "true" ]] && hint="y/N"
+        echo -en "  Claude Code ${DIM}→ .claude/skills/ + CLAUDE.md${NC} [$hint] "
         read -r answer </dev/tty
-        case "$answer" in
-            [nN]|[nN][oO]) NO_CLAUDE_MD=true ;;
-            *) NO_CLAUDE_MD=false ;;
-        esac
+        if [[ -z "$answer" ]]; then
+            # Enter = keep current default
+            [[ "$NO_CLAUDE_MD" != "true" ]] && NO_CLAUDE_MD=false || NO_CLAUDE_MD=true
+        else
+            case "$answer" in
+                [nN]|[nN][oO]) NO_CLAUDE_MD=true ;;
+                *) NO_CLAUDE_MD=false ;;
+            esac
+        fi
     fi
 
     # Codex/Copilot/Antigravity: .agents/skills/ + AGENTS.md
-    if [[ -z "$NO_AGENTS_MD" ]]; then
-        echo -en "  Codex / Copilot / Antigravity ${DIM}→ .agents/skills/ + AGENTS.md${NC} [Y/n] "
+    if [[ "$NO_AGENTS_MD_FLAG" != "true" ]]; then
+        hint="Y/n"
+        [[ "$NO_AGENTS_MD" == "true" ]] && hint="y/N"
+        echo -en "  Codex / Copilot / Antigravity ${DIM}→ .agents/skills/ + AGENTS.md${NC} [$hint] "
         read -r answer </dev/tty
-        case "$answer" in
-            [nN]|[nN][oO]) NO_AGENTS_MD=true ;;
-            *) NO_AGENTS_MD=false ;;
-        esac
+        if [[ -z "$answer" ]]; then
+            [[ "$NO_AGENTS_MD" != "true" ]] && NO_AGENTS_MD=false || NO_AGENTS_MD=true
+        else
+            case "$answer" in
+                [nN]|[nN][oO]) NO_AGENTS_MD=true ;;
+                *) NO_AGENTS_MD=false ;;
+            esac
+        fi
     fi
 
     # Gemini CLI: GEMINI.md (partial .agents/skills/ support)
-    if [[ -z "$NO_GEMINI_MD" ]]; then
-        echo -en "  Gemini CLI ${DIM}→ GEMINI.md${NC} [y/N] "
+    if [[ "$NO_GEMINI_MD_FLAG" != "true" ]]; then
+        hint="y/N"
+        [[ "$NO_GEMINI_MD" == "false" ]] && hint="Y/n"
+        echo -en "  Gemini CLI ${DIM}→ GEMINI.md${NC} [$hint] "
         read -r answer </dev/tty
-        case "$answer" in
-            [yY]|[yY][eE][sS]) NO_GEMINI_MD=false ;;
-            *) NO_GEMINI_MD=true ;;
-        esac
+        if [[ -z "$answer" ]]; then
+            [[ "$NO_GEMINI_MD" == "false" ]] && NO_GEMINI_MD=false || NO_GEMINI_MD=true
+        else
+            case "$answer" in
+                [yY]|[yY][eE][sS]) NO_GEMINI_MD=false ;;
+                *) NO_GEMINI_MD=true ;;
+            esac
+        fi
     fi
     echo ""
 fi
@@ -1863,6 +1973,9 @@ if [[ "$NO_CLAUDE_MD" == "true" && "$NO_AGENTS_MD" == "true" && "$NO_GEMINI_MD" 
     echo -e "${DIM}Re-run and select at least one agent, or use --yes for defaults.${NC}"
     exit 1
 fi
+
+# Persist agent selection to .afx.yaml (updates existing or written by write_minimal_user_config)
+update_agent_config
 
 # ── Step execution ─────────────────────────────────────────────────────────
 # Each step checks --no-* flags.
