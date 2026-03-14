@@ -47,28 +47,28 @@ The spec tells you _what_ to build. The GitHub ticket tells you _where you left 
 
 **Discovery**
 
-- `/afx:discover capabilities` - Understand project setup (what exists)
-- `/afx:discover infra [type]` - Find infrastructure/provisioning scripts
-- `/afx:discover scripts [keyword]` - Find automation/deployment scripts
+- `/afx-discover capabilities` - Understand project setup (what exists)
+- `/afx-discover infra [type]` - Find infrastructure/provisioning scripts
+- `/afx-discover scripts [keyword]` - Find automation/deployment scripts
 
 **Work Orchestration**
 
-- `/afx:work status` - Quick state check
-- `/afx:work next <spec-path>` - Pick next task from spec
-- `/afx:next` - Context-aware guidance
+- `/afx-work status` - Quick state check
+- `/afx-work next <spec-path>` - Pick next task from spec
+- `/afx-next` - Context-aware guidance
 
 **Quality Checks**
 
-- `/afx:check path <feature-path>` - Trace execution path (BLOCKING gate)
-- `/afx:check lint [path]` - Audit annotations
+- `/afx-check path <feature-path>` - Trace execution path (BLOCKING gate)
+- `/afx-check lint [path]` - Audit annotations
 
 **Development**
 
-- `/afx:dev code [instruction]` - Implement with @see traceability
-- `/afx:init feature <name>` - Create new feature spec
+- `/afx-dev code [instruction]` - Implement with @see traceability
+- `/afx-init feature <name>` - Create new feature spec
 
 **Session**
 
-- `/afx:session note "content"` - Capture notes
-- `/afx:session save [feature]` - Save session to journal
-- `/afx:help` - Show all commands
+- `/afx-session note "content"` - Capture notes
+- `/afx-session save [feature]` - Save session to journal
+- `/afx-help` - Show all commands

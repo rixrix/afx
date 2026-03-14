@@ -41,9 +41,9 @@ Unlike frameworks that generate code _from_ specs, AFX requires code to link _ba
 | Feature          | AFX (AgenticFlowX)                                            | Standard Workflow                            |
 | :--------------- | :------------------------------------------------------------ | :------------------------------------------- |
 | **Traceability** | **Bidirectional**: Code links to Spec (`@see task.md`).       | **Unidirectional**: Specs likely forgotten.  |
-| **Verification** | **Runtime**: `/afx:check path` proves execution.              | **Static**: Tests only.                      |
-| **Memory**       | **Persistent**: Session logs (`/afx:session`) survive reboot. | **Ephemeral**: Context lost on window close. |
-| **Context**      | **Structured**: `/afx:context` serializes state.              | **None**: Next agent starts blind.           |
+| **Verification** | **Runtime**: `/afx-check path` proves execution.              | **Static**: Tests only.                      |
+| **Memory**       | **Persistent**: Session logs (`/afx-session`) survive reboot. | **Ephemeral**: Context lost on window close. |
+| **Context**      | **Structured**: `/afx-context` serializes state.              | **None**: Next agent starts blind.           |
 | **Docs**         | **Living**: Updated via PRs with code.                        | **Stale**: Wikis/Docs drift from reality.    |
 | **Decisions**    | Promoted to immutable ADRs.                                   | Lost in Slack/Teams threads.                 |
 
@@ -51,15 +51,15 @@ Unlike frameworks that generate code _from_ specs, AFX requires code to link _ba
 
 ### 1. Orchestration Engine
 
-- **Golden Thread** (`/afx:next`): Algorithmic next-action determination based on Git state, Task status, and Session history.
-- **Smart Scaffolding** (`/afx:init`): Performs **Context Scans** and asks strategic questions before generating code. Supports custom **Templates**.
+- **Golden Thread** (`/afx-next`): Algorithmic next-action determination based on Git state, Task status, and Session history.
+- **Smart Scaffolding** (`/afx-init`): Performs **Context Scans** and asks strategic questions before generating code. Supports custom **Templates**.
 - **Parallelization Logic**: Explicit "Safe vs Unsafe" matrix for concurrent agent work.
 
 ### 2. Verification Matrix
 
-- **Runtime Path Tracing** (`/afx:check path`): Validates 5-layer execution flow (UI→Action→Service→Repo→DB). Detects **Mock Patterns**.
-- **Schema Consistency** (`/afx:check schema`): Verifies `design.md` internal integrity (Migrations vs Types vs Seeds vs ERD).
-- **Spec Audit** (`/afx:task audit`): Static verification of implementation against requirements (file existence, `@see` links).
+- **Runtime Path Tracing** (`/afx-check path`): Validates 5-layer execution flow (UI→Action→Service→Repo→DB). Detects **Mock Patterns**.
+- **Schema Consistency** (`/afx-check schema`): Verifies `design.md` internal integrity (Migrations vs Types vs Seeds vs ERD).
+- **Spec Audit** (`/afx-task audit`): Static verification of implementation against requirements (file existence, `@see` links).
 
 ### 3. Memory & Context
 
@@ -67,13 +67,13 @@ Unlike frameworks that generate code _from_ specs, AFX requires code to link _ba
   - **Active Inference**: Auto-suggests saving key decisions.
   - **Smart Tagging**: Auto-categorizes discussion topics.
   - **Bidirectional Sync**: GitHub Issue comments ↔ Local `journal.md`.
-- **State Context** (`/afx:context`): Serializes logic state, uncommitted changes, and decision context for the next agent.
+- **State Context** (`/afx-context`): Serializes logic state, uncommitted changes, and decision context for the next agent.
 - **Impact Analysis**: Calculates cross-feature risk when specifications change.
 
 ### 4. Traceability Guardrails
 
 - **Link Integrity**: Enforces `@see` backlinks in code.
-- **Orphan Detection** (`/afx:report orphans`): Hunts for code detached from specs.
+- **Orphan Detection** (`/afx-report orphans`): Hunts for code detached from specs.
 - **Refactor Contracts**: Enforces "Update Design First" workflow for architectural changes.
 
 ### 5. Context Segregation (Global vs Local Brain)
@@ -121,7 +121,7 @@ flowchart TB
 3. **Task**: Break down `Phase 1: Basic Auth` in `tasks.md`.
 4. **Work**: Agent picks up `Task 1.1`.
 5. **Code**: Agent writes `auth.service.ts` with `@see` backlinks.
-6. **Verify**: Agent runs `/afx:check path` to confirm `Login Flow`.
+6. **Verify**: Agent runs `/afx-check path` to confirm `Login Flow`.
 
 ## Standard Work Cycle
 
@@ -133,16 +133,16 @@ STATUS → ASSIGN → IMPLEMENT → VERIFY → AUDIT → LOG
 
 | Step             | Command                  | What It Does                                             |
 | :--------------- | :----------------------- | :------------------------------------------------------- |
-| **1. Status**    | `/afx:work status`       | Check current state: What's in progress? What's blocked? |
-| **2. Assign**    | `/afx:work next <spec>`  | Get the next unassigned task from the spec               |
-| **3. Implement** | `/afx:dev code`          | Write the code with `@see` backlinks                     |
-| **4. Verify**    | `/afx:check path <path>` | Trace execution from UI to DB (no mocks allowed)         |
-| **5. Audit**     | `/afx:task audit <task>` | Confirm implementation matches spec requirements         |
-| **6. Log**       | `/afx:session save`      | Record what was done for the next session                |
+| **1. Status**    | `/afx-work status`       | Check current state: What's in progress? What's blocked? |
+| **2. Assign**    | `/afx-work next <spec>`  | Get the next unassigned task from the spec               |
+| **3. Implement** | `/afx-dev code`          | Write the code with `@see` backlinks                     |
+| **4. Verify**    | `/afx-check path <path>` | Trace execution from UI to DB (no mocks allowed)         |
+| **5. Audit**     | `/afx-task audit <task>` | Confirm implementation matches spec requirements         |
+| **6. Log**       | `/afx-session save`      | Record what was done for the next session                |
 
 ### When You're Stuck
 
-Run `/afx:next` to get context-aware guidance. This command:
+Run `/afx-next` to get context-aware guidance. This command:
 
 1. Reads your git state (uncommitted changes, branch)
 2. Checks active tasks in `tasks.md`
@@ -153,12 +153,12 @@ Run `/afx:next` to get context-aware guidance. This command:
 
 | Step | Action                   | Result                                               |
 | :--- | :----------------------- | :--------------------------------------------------- |
-| 1    | `/afx:work next auth`    | Returns "Task 1.2: Create Login Button"              |
+| 1    | `/afx-work next auth`    | Returns "Task 1.2: Create Login Button"              |
 | 2    | Implement button         | Create component with onClick handler                |
 | 3    | Add backlink             | `@see docs/specs/auth/design.md#ui-tokens`           |
-| 4    | `/afx:check path /login` | Verifies button → action → service → DB              |
-| 5    | `/afx:task audit 1.2`    | Confirms files match task definition                 |
-| 6    | `/afx:session save`      | Logs "Implemented login button with primary variant" |
+| 4    | `/afx-check path /login` | Verifies button → action → service → DB              |
+| 5    | `/afx-task audit 1.2`    | Confirms files match task definition                 |
+| 6    | `/afx-session save`      | Logs "Implemented login button with primary variant" |
 
 ## Traceability Mechanism
 
@@ -198,7 +198,7 @@ flowchart TD
 
 1. **Chat**: "Should we use NextAuth or Clerk?"
 2. **Log**: Agent records "Discussed Auth providers. Leaning towards NextAuth due to cost."
-3. **Sync**: `/afx:work sync` pushes this log to the GitHub Issue comment thread.
+3. **Sync**: `/afx-work sync` pushes this log to the GitHub Issue comment thread.
 4. **Decision**: User requests formalized decision.
 5. **Artifact**: Created `docs/specs/auth/research/001-auth-provider.md` (ADR).
 6. **Next Session**: New agent reads ADR and implements NextAuth without re-debating.
@@ -214,8 +214,8 @@ flowchart LR
 
 | Gate  | Check        | Tool              | Criteria                                            |
 | :---- | :----------- | :---------------- | :-------------------------------------------------- |
-| **1** | Trace Path   | `/afx:check path` | Full execution flow (UI→DB). **Mocking forbidden.** |
-| **2** | Spec Audit   | `/afx:task audit` | All task items marked complete in `tasks.md`.       |
+| **1** | Trace Path   | `/afx-check path` | Full execution flow (UI→DB). **Mocking forbidden.** |
+| **2** | Spec Audit   | `/afx-task audit` | All task items marked complete in `tasks.md`.       |
 | **3** | Build/Test   | CI                | `tsc --noEmit` + unit tests pass.                   |
 | **4** | Human Review | PR                | Aesthetics, architecture, edge cases.               |
 
@@ -350,19 +350,19 @@ tags: [topic1, topic2]
 
 ### Document Types
 
-| Type        | Description                                                              | Location                                                                                                           |
-| :---------- | :----------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------- |
-| Type        | Description                                                              | Location                                                                                                           |
-| :---------- | :----------------------------------------------------------------------- | :--------------------------------                                                                                  |
-| `SPEC`      | **Living state doc**: Functional requirements and user stories           | `docs/specs/{feature}/spec.md`                                                                                     |
-| `DESIGN`    | **Living state doc**: Technical architecture and data models             | `docs/specs/{feature}/design.md`                                                                                   |
-| `TASKS`     | Implementation checklist and status                                      | `docs/specs/{feature}/tasks.md`                                                                                    |
-| `RES`       | Research findings (exploration)                                          | `docs/specs/{feature}/research/`                                                                                   |
-| `ADR`       | Architectural Decision Record (final decision)                           | `docs/adr/` (global) or `docs/specs/{feature}/research/` (local)                                                   |
-| `JOURNAL`   | **Append-only historical log**: Session logs and history                 | `docs/specs/{feature}/journal.md`                                                                                  |
-| `COMMAND`   | AFX command definition (all agent platforms)                             | `.claude/commands/afx-*.md`, `.codex/skills/afx-*`, `.gemini/commands/afx-*.md`, `.github/prompts/afx-*.prompt.md` |
-| `GUIDE`     | Developer guides and handbooks                                           | `docs/guides/*.md`                                                                                                 |
-| `FRAMEWORK` | Framework documentation (like this file)                                 | `docs/agenticflowx/*.md`                                                                                           |
+| Type        | Description                                                              | Location                                                                          |
+| :---------- | :----------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
+| Type        | Description                                                              | Location                                                                          |
+| :---------- | :----------------------------------------------------------------------- | :--------------------------------                                                 |
+| `SPEC`      | **Living state doc**: Functional requirements and user stories           | `docs/specs/{feature}/spec.md`                                                    |
+| `DESIGN`    | **Living state doc**: Technical architecture and data models             | `docs/specs/{feature}/design.md`                                                  |
+| `TASKS`     | Implementation checklist and status                                      | `docs/specs/{feature}/tasks.md`                                                   |
+| `RES`       | Research findings (exploration)                                          | `docs/specs/{feature}/research/`                                                  |
+| `ADR`       | Architectural Decision Record (final decision)                           | `docs/adr/` (global) or `docs/specs/{feature}/research/` (local)                  |
+| `JOURNAL`   | **Append-only historical log**: Session logs and history                 | `docs/specs/{feature}/journal.md`                                                 |
+| `COMMAND`   | AFX command definition (all agent platforms)                             | `skills/agenticflowx/afx-*.md` (canonical), `.agents/skills/` (provider wrappers) |
+| `GUIDE`     | Developer guides and handbooks                                           | `docs/guides/*.md`                                                                |
+| `FRAMEWORK` | Framework documentation (like this file)                                 | `docs/agenticflowx/*.md`                                                          |
 
 ### Ordering Conventions
 
@@ -382,7 +382,7 @@ tags: [topic1, topic2]
 project-root/
 ├── .afx.yaml            # User overrides (version, packs, custom settings)
 ├── .afx/
-│   └── .afx.yaml        # Managed defaults (do not edit — maintained by install.sh)
+│   └── .afx.yaml        # Managed defaults (do not edit — maintained by afx-cli)
 ├── docs/
 │   ├── agenticflowx/    # Framework documentation
 │   │   ├── agenticflowx.md   # Manual (this file)
@@ -414,7 +414,7 @@ AFX uses **two-tier config resolution**:
 
 | File             | Purpose                        | Edited by                |
 | ---------------- | ------------------------------ | ------------------------ |
-| `.afx/.afx.yaml` | Managed defaults (full config) | install.sh (do not edit) |
+| `.afx/.afx.yaml` | Managed defaults (full config) | afx-cli (do not edit) |
 | `.afx.yaml`      | User overrides                 | You                      |
 
 Values in `.afx.yaml` take precedence over `.afx/.afx.yaml`. If neither file exists, hardcoded defaults are used.
@@ -424,7 +424,7 @@ Values in `.afx.yaml` take precedence over `.afx/.afx.yaml`. If neither file exi
 The root config is intentionally minimal — override only what you need:
 
 ```yaml
-# AFX version — controls which branch/tag install.sh fetches from.
+# AFX version — controls which branch/tag afx-cli fetches from.
 version: "1.0"
 
 packs: []
@@ -440,7 +440,7 @@ packs: []
 
 ### `.afx/.afx.yaml` (managed defaults)
 
-Contains all default settings (paths, quality gates, verification, etc.). This file is written by `install.sh` on install/update — do not edit it directly. To customize a value, add the override to `.afx.yaml` instead.
+Contains all default settings (paths, quality gates, verification, etc.). This file is written by `afx-cli` on install/update — do not edit it directly. To customize a value, add the override to `.afx.yaml` instead.
 
 See [.afx.yaml.template](../../.afx.yaml.template) for the full list of available settings.
 
@@ -455,7 +455,7 @@ The `research/` directory stores decisions, proposals, and reference material. A
 | **Global**        | `docs/adr/`                      | `ADR-NNNN-slug.md` (4-digit) | Cross-cutting decisions affecting the whole project |
 | **Feature-local** | `docs/specs/{feature}/research/` | `0001-slug.md`               | Decisions scoped to a single feature                |
 
-Global ADRs are created via `/afx:init adr <title>`. The path is configured under `paths.adr` (default: `docs/adr`).
+Global ADRs are created via `/afx-init adr <title>`. The path is configured under `paths.adr` (default: `docs/adr`).
 
 ### File Types & Naming
 
@@ -605,7 +605,7 @@ Tasks: {Phase}.{Task}             (e.g., 0.1, 1.2)
 ### Definition of Done
 
 1.  **Code exists**: Files created/modified as specified with `@see` links.
-2.  **Path verified**: `/afx:check path` passes for the feature.
+2.  **Path verified**: `/afx-check path` passes for the feature.
 3.  **Types compile**: `npx tsc --noEmit` passes.
 4.  **Tests pass**: Relevant tests execute successfully.
 5.  **Build works**: `npx nx build` completes.
@@ -654,7 +654,7 @@ Agents **MUST** parse tickets using this template structure:
 **Execution Path Status:**
 
 ```bash
-/afx:check path <feature-path>
+/afx-check path <feature-path>
 ```
 
 - [ ] Result: ALL PATHS VERIFIED
@@ -681,17 +681,17 @@ When starting/resuming a session, Agents **MUST**:
 
 ## Context Protocol
 
-Before an agent session ends (timeout, window close), use `/afx:context save` to bundle context:
+Before an agent session ends (timeout, window close), use `/afx-context save` to bundle context:
 
 **Pre-Exit Checklist**:
 
 1.  Update `journal.md` with latest session row.
 2.  Commit "WIP" if necessary (or stash).
-3.  Run `/afx:context save`.
+3.  Run `/afx-context save`.
 
 **Entry Checklist**:
 
-1.  Run `/afx:context load`.
+1.  Run `/afx-context load`.
 
 **What Gets Bundled**:
 
@@ -723,7 +723,7 @@ Each feature has a `journal.md` file for capturing discussions during developmen
 | **Progress**      | Checkbox items for tracking (auto-synced on append)     |
 | **Decisions**     | Key decisions made                                      |
 | **Tips/Ideas**    | Insights captured during discussion                     |
-| **Notes**         | Later additions via `/afx:session append`               |
+| **Notes**         | Later additions via `/afx-session append`               |
 | **Related Files** | **Cumulative** list of files mentioned across all notes |
 | **Participants**  | Who was involved                                        |
 
@@ -743,7 +743,7 @@ The `**Related Files**:` field accumulates as notes are appended:
 
 ### Progress Auto-Sync
 
-**IF** `/afx:session append` text contains triggers (`[x]`, `[DONE]`, "deployed", "done", "complete"), **THEN**:
+**IF** `/afx-session append` text contains triggers (`[x]`, `[DONE]`, "deployed", "done", "complete"), **THEN**:
 
 1. Find matching unchecked item in `**Progress**` (fuzzy keyword match).
 2. Mark as `[x]`.
@@ -790,27 +790,27 @@ The **Work Sessions** table tracks task execution history. This is the authorita
 ```markdown
 ## Work Sessions
 
-<!-- Task execution log - updated by /afx:work next -->
+<!-- Task execution log - updated by /afx-work next -->
 
-| Date       | Task | Action                   | Files Modified      | Agent  | Human  |
-| ---------- | ---- | ------------------------ | ------------------- | ------ | ------ |
-| 2025-12-15 | 7.4  | Started supplier filter  | -                   | [ ]  | [ ]  |
-| 2025-12-15 | 7.4  | Added dropdown component | feature-filters.tsx | [ ]  | [ ]  |
-| 2025-12-15 | 7.4  | Wired searchParams       | page.tsx, action.ts | [x]  | [ ]  |
-| 2025-12-15 | 7.4  | READY FOR REVIEW         | -                   | [x]  | [ ]  |
-| 2025-12-15 | 7.4  | APPROVED                 | -                   | [x]  | [x]  |
+| Date       | Task | Action                   | Files Modified      | Agent | Human |
+| ---------- | ---- | ------------------------ | ------------------- | ----- | ----- |
+| 2025-12-15 | 7.4  | Started supplier filter  | -                   | [ ]   | [ ]   |
+| 2025-12-15 | 7.4  | Added dropdown component | feature-filters.tsx | [ ]   | [ ]   |
+| 2025-12-15 | 7.4  | Wired searchParams       | page.tsx, action.ts | [x]   | [ ]   |
+| 2025-12-15 | 7.4  | READY FOR REVIEW         | -                   | [x]   | [ ]   |
+| 2025-12-15 | 7.4  | APPROVED                 | -                   | [x]   | [x]   |
 ```
 
 ### When to Update Work Sessions
 
-| Trigger                           | Action                       | Agent  | Human  |
-| :-------------------------------- | :--------------------------- | :----- | :----- |
-| `/afx:work next` assigns task     | Add row: "Started {task}"    | [ ]  | [ ]  |
-| `/afx:dev code` completes subtask | Add row: "{action taken}"    | [ ]  | [ ]  |
-| `/afx:check path` passes          | Agent marks verified         | [x]  | [ ]  |
-| `/afx:check path` fails           | Add row: "BLOCKED: {reason}" | [ ]  | [ ]  |
-| Task complete                     | Agent requests review        | [x]  | [ ]  |
-| Human reviews & approves          | Human marks verified         | [x]  | [x]  |
+| Trigger                           | Action                       | Agent | Human |
+| :-------------------------------- | :--------------------------- | :---- | :---- |
+| `/afx-work next` assigns task     | Add row: "Started {task}"    | [ ]   | [ ]   |
+| `/afx-dev code` completes subtask | Add row: "{action taken}"    | [ ]   | [ ]   |
+| `/afx-check path` passes          | Agent marks verified         | [x]   | [ ]   |
+| `/afx-check path` fails           | Add row: "BLOCKED: {reason}" | [ ]   | [ ]   |
+| Task complete                     | Agent requests review        | [x]   | [ ]   |
+| Human reviews & approves          | Human marks verified         | [x]   | [x]   |
 
 ### Verification Columns
 
@@ -818,7 +818,7 @@ The Work Sessions table has **two verification columns**:
 
 | Column    | Who       | Purpose                                                      |
 | :-------- | :-------- | :----------------------------------------------------------- |
-| **Agent** | AI agent  | Did `/afx:check path` pass? Code compiles? Tests pass?       |
+| **Agent** | AI agent  | Did `/afx-check path` pass? Code compiles? Tests pass?       |
 | **Human** | Developer | Code review passed? Quality acceptable? No sloppy shortcuts? |
 
 **Why two columns?**
@@ -829,10 +829,10 @@ The Work Sessions table has **two verification columns**:
 
 ### Verification States
 
-| State | Meaning                    |
-| :---- | :------------------------- |
-| `[ ]` | Pending verification       |
-| `[x]` | Verified and passed        |
+| State | Meaning              |
+| :---- | :------------------- |
+| `[ ]` | Pending verification |
+| `[x]` | Verified and passed  |
 
 ### Sync Rules
 
@@ -852,90 +852,90 @@ When a GitHub issue is linked to the spec:
 
 | Command                         | Purpose                              |
 | :------------------------------ | :----------------------------------- |
-| `/afx:work status`              | Quick state check after interruption |
-| `/afx:work next <spec-path>`    | Pick next task from spec             |
-| `/afx:work resume [spec/num]`   | Continue in-progress work            |
-| `/afx:work sync [spec] [issue]` | Bidirectional GitHub sync            |
-| `/afx:work plan [instruction]`  | Generate tickets from specs          |
+| `/afx-work status`              | Quick state check after interruption |
+| `/afx-work next <spec-path>`    | Pick next task from spec             |
+| `/afx-work resume [spec/num]`   | Continue in-progress work            |
+| `/afx-work sync [spec] [issue]` | Bidirectional GitHub sync            |
+| `/afx-work plan [instruction]`  | Generate tickets from specs          |
 
 ### Task Verification
 
 | Command                       | Purpose                            |
 | :---------------------------- | :--------------------------------- |
-| `/afx:task verify <task-id>`  | Verify task implementation vs spec |
-| `/afx:task summary <task-id>` | Get implementation summary         |
-| `/afx:task list [phase]`      | List tasks by phase                |
-| `/afx:task status`            | Overall task completion            |
-| `/afx:task audit <task>`      | Check spec alignment               |
+| `/afx-task verify <task-id>`  | Verify task implementation vs spec |
+| `/afx-task summary <task-id>` | Get implementation summary         |
+| `/afx-task list [phase]`      | List tasks by phase                |
+| `/afx-task status`            | Overall task completion            |
+| `/afx-task audit <task>`      | Check spec alignment               |
 
 ### Quality Checks
 
 | Command                   | Purpose                              |
 | :------------------------ | :----------------------------------- |
-| `/afx:check path <path>`  | Trace execution path UI→DB (Gate 1)  |
-| `/afx:check lint [path]`  | Audit annotations for PRD compliance |
-| `/afx:check links <spec>` | Verify cross-references              |
-| `/afx:check schema`       | Verify design.md internal integrity  |
-| `/afx:check all <path>`   | Run all checks                       |
+| `/afx-check path <path>`  | Trace execution path UI→DB (Gate 1)  |
+| `/afx-check lint [path]`  | Audit annotations for PRD compliance |
+| `/afx-check links <spec>` | Verify cross-references              |
+| `/afx-check schema`       | Verify design.md internal integrity  |
+| `/afx-check all <path>`   | Run all checks                       |
 
 ### Development Actions
 
 | Command                       | Purpose                             |
 | :---------------------------- | :---------------------------------- |
-| `/afx:dev code [instruction]` | Implement with @see traceability    |
-| `/afx:dev debug [error]`      | Debug with spec trace               |
-| `/afx:dev refactor [scope]`   | Refactor maintaining spec alignment |
-| `/afx:dev review [scope]`     | Code review against specs           |
-| `/afx:dev test [scope]`       | Run/generate tests                  |
+| `/afx-dev code [instruction]` | Implement with @see traceability    |
+| `/afx-dev debug [error]`      | Debug with spec trace               |
+| `/afx-dev refactor [scope]`   | Refactor maintaining spec alignment |
+| `/afx-dev review [scope]`     | Code review against specs           |
+| `/afx-dev test [scope]`       | Run/generate tests                  |
 
 ### Session Capture
 
 | Command                           | Purpose                                |
 | :-------------------------------- | :------------------------------------- |
-| `/afx:session note "content"`     | Smart note (auto-tags)                 |
-| `/afx:session save [feature]`     | Save session to log                    |
-| `/afx:session show [feature/all]` | Show recent discussions                |
-| `/afx:session active [feature]`   | Show active discussions                |
-| `/afx:session search "query"`     | Search notes across journals           |
-| `/afx:session recap [feature]`    | Recap for resumption                   |
-| `/afx:session promote <id>`       | Promote discussion to ADR              |
-| `/afx:next`                       | Context-aware "Golden Thread" guidance |
+| `/afx-session note "content"`     | Smart note (auto-tags)                 |
+| `/afx-session save [feature]`     | Save session to log                    |
+| `/afx-session show [feature/all]` | Show recent discussions                |
+| `/afx-session active [feature]`   | Show active discussions                |
+| `/afx-session search "query"`     | Search notes across journals           |
+| `/afx-session recap [feature]`    | Recap for resumption                   |
+| `/afx-session promote <id>`       | Promote discussion to ADR              |
+| `/afx-next`                       | Context-aware "Golden Thread" guidance |
 
 ### Reporting
 
 | Command                       | Purpose                      |
 | :---------------------------- | :--------------------------- |
-| `/afx:report health [spec]`   | Overall traceability metrics |
-| `/afx:report orphans [path]`  | Code without @see links      |
-| `/afx:report coverage <spec>` | Spec→Code coverage map       |
+| `/afx-report health [spec]`   | Overall traceability metrics |
+| `/afx-report orphans [path]`  | Code without @see links      |
+| `/afx-report coverage <spec>` | Spec→Code coverage map       |
 
 ### Capability Discovery
 
 | Command                           | Purpose                                |
 | :-------------------------------- | :------------------------------------- |
-| `/afx:discover infra [type]`      | Find infrastructure scripts            |
-| `/afx:discover scripts [keyword]` | Find automation/deployment scripts     |
-| `/afx:discover tools`             | List dev/deployment tools              |
-| `/afx:discover capabilities`      | High-level project automation overview |
+| `/afx-discover infra [type]`      | Find infrastructure scripts            |
+| `/afx-discover scripts [keyword]` | Find automation/deployment scripts     |
+| `/afx-discover tools`             | List dev/deployment tools              |
+| `/afx-discover capabilities`      | High-level project automation overview |
 
 ### Setup & Context
 
 | Command                    | Purpose                            |
 | :------------------------- | :--------------------------------- |
-| `/afx:init feature <name>` | Create new feature spec            |
-| `/afx:init adr <title>`    | Create global ADR in `docs/adr/`   |
-| `/afx:init config`         | Manage `.afx.yaml`                 |
-| `/afx:context save`        | Generate context bundle            |
-| `/afx:context load`        | Load context from previous context |
-| `/afx:update check/apply`  | Check/apply upstream AFX updates   |
-| `/afx:help`                | Show command reference             |
+| `/afx-init feature <name>` | Create new feature spec            |
+| `/afx-init adr <title>`    | Create global ADR in `docs/adr/`   |
+| `/afx-init config`         | Manage `.afx.yaml`                 |
+| `/afx-context save`        | Generate context bundle            |
+| `/afx-context load`        | Load context from previous context |
+| `/afx-update check/apply`  | Check/apply upstream AFX updates   |
+| `/afx-help`                | Show command reference             |
 
 ## CLI Tooling Scripts
 
 | Script                  | Command            | Purpose                                                  |
 | :---------------------- | :----------------- | :------------------------------------------------------- |
-| `scripts/afx-config.js` | `/afx:init config` | Manage `.afx.yaml` (get/set/add values). Uses `js-yaml`. |
-| `scripts/afx-report.js` | `/afx:report`      | Generate health reports based on frontmatter metadata.   |
+| `scripts/afx-config.js` | `/afx-init config` | Manage `.afx.yaml` (get/set/add values). Uses `js-yaml`. |
+| `scripts/afx-report.js` | `/afx-report`      | Generate health reports based on frontmatter metadata.   |
 
 **Usage:**
 
@@ -952,7 +952,7 @@ node scripts/afx-report.js health
 
 ```
 STATUS → ASSIGN → IMPLEMENT → VERIFY → AUDIT → LOG
-/afx:work status → /afx:work next → /afx:dev code → /afx:check path → /afx:task audit → /afx:session save
+/afx-work status → /afx-work next → /afx-dev code → /afx-check path → /afx-task audit → /afx-session save
 ```
 
 ## Minimum Viable Annotations
@@ -967,10 +967,10 @@ STATUS → ASSIGN → IMPLEMENT → VERIFY → AUDIT → LOG
 
 ## Gate Summary
 
-| Gate         | Blocked When             | Exit Condition     |
-| :----------- | :----------------------- | :----------------- |
-| Plan Mode    | System reminder present  | User approves plan |
-| Human Review | `[ ]` in Human column    | Human marks `[x]`  |
+| Gate         | Blocked When            | Exit Condition     |
+| :----------- | :---------------------- | :----------------- |
+| Plan Mode    | System reminder present | User approves plan |
+| Human Review | `[ ]` in Human column   | Human marks `[x]`  |
 
 ## File Naming
 
@@ -993,27 +993,27 @@ Example: UA-D001, UP-D002, GEN-D003
 ### "Do we have a script for X?"
 
 ```
-/afx:discover infra rds              # Find RDS provisioning scripts
-/afx:discover scripts deploy         # Find deployment scripts
-/afx:discover capabilities           # See what automation exists
+/afx-discover infra rds              # Find RDS provisioning scripts
+/afx-discover scripts deploy         # Find deployment scripts
+/afx-discover capabilities           # See what automation exists
 ```
 
 ### Setting up new infrastructure
 
 ```
-/afx:discover infra dynamodb         # Check existing DynamoDB scripts
+/afx-discover infra dynamodb         # Check existing DynamoDB scripts
 → Found: npm run create:ddb:table:*
 → Use as template for new tables
 
-/afx:discover infra lambda --all     # Deep scan for Lambda deployment
+/afx-discover infra lambda --all     # Deep scan for Lambda deployment
 → Not found
-→ /afx:init script deploy-lambda     # Create new script
+→ /afx-init script deploy-lambda     # Create new script
 ```
 
 ### Understanding project tooling
 
 ```
-/afx:discover tools                  # List all dev tools
-/afx:discover capabilities           # Overview of what's automated
-/afx:discover scripts --all          # Comprehensive script inventory
+/afx-discover tools                  # List all dev tools
+/afx-discover capabilities           # Overview of what's automated
+/afx-discover scripts --all          # Comprehensive script inventory
 ```

@@ -1,4 +1,0 @@
-version: 1
-display_name: AFX check
-short_description: Run the AFX check workflow in Codex.
-default_prompt: Run afx-check.

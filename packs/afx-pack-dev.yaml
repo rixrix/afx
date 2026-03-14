@@ -1,0 +1,19 @@
+# @see docs/specs/afx-packs/spec.md#FR-1
+# @see docs/specs/afx-packs/spec.md#FR-2
+# @see docs/specs/afx-packs/spec.md#FR-3
+# @see docs/specs/afx-packs/design.md#11-pack-manifests
+
+name: afx-pack-dev
+description: Developer essentials — clean code, debugging, TDD, git workflows, architecture patterns
+category: role
+
+includes:
+  # AFX-built skills (curated from community, improved with AFX integration)
+  - repo: rixrix/afx
+    path: skills/dev/
+    items:
+      - afx-systematic-debugging # Root cause methodology
+      - afx-clean-code           # Uncle Bob's Clean Code principles
+      - afx-tdd                  # Test-driven development workflow
+      - afx-git-workflow         # Advanced git techniques
+      - afx-architecture-patterns # Architecture selection and ADRs

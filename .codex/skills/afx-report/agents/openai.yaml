@@ -1,4 +1,0 @@
-version: 1
-display_name: AFX report
-short_description: Run the AFX report workflow in Codex.
-default_prompt: Run afx-report.

@@ -1,4 +1,0 @@
-version: 1
-display_name: AFX next
-short_description: Run the AFX next workflow in Codex.
-default_prompt: Run afx-next.

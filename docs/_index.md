@@ -32,12 +32,12 @@ SORT file.name ASC
 
 ## Commands
 
-> Note: Claude commands live in `.claude/commands/`; Codex skills live in `.codex/skills/`.
+> Note: AFX skills are installed to `.claude/skills/` (Claude Code) and `.agents/skills/` (Codex, Copilot, Antigravity).
 
 | Command         | Purpose                            |
 | --------------- | ---------------------------------- |
-| `/afx:discover` | Project discovery (tools, scripts) |
-| `/afx:init`     | Feature spec scaffolding           |
-| `/afx:session`  | Discussion capture                 |
-| `/afx:work`     | Task execution                     |
-| `/afx:update`   | Framework update maintenance       |
+| `/afx-discover` | Project discovery (tools, scripts) |
+| `/afx-init`     | Feature spec scaffolding           |
+| `/afx-session`  | Discussion capture                 |
+| `/afx-work`     | Task execution                     |
+| `/afx-update`   | Framework update maintenance       |

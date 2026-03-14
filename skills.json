@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "name": "agenticflowx",
+  "version": "1.0.0",
+  "description": "AFX skills collection — multi-provider skill packs for AI-assisted development",
+  "license": "MIT",
+
+  "afx": {
+    "packs": {
+      "afx-pack-starter": {
+        "description": "Starter pack — verify AFX installation and multi-provider routing",
+        "category": "utility",
+        "providers": ["agents", "antigravity", "copilot"]
+      },
+      "afx-pack-dev": {
+        "description": "Developer essentials — clean code, debugging, TDD, git workflows, architecture patterns",
+        "category": "role",
+        "providers": ["agents", "antigravity", "copilot"]
+      },
+      "afx-pack-qa": {
+        "description": "QA Engineer role pack — testing, review, and quality assurance",
+        "category": "role",
+        "providers": ["agents", "antigravity", "copilot"]
+      },
+      "afx-pack-security": {
+        "description": "Security review and audit pack — OWASP, dependency scanning, code hardening",
+        "category": "role",
+        "providers": ["agents", "antigravity", "copilot"]
+      },
+      "afx-pack-product-owner": {
+        "description": "Product Owner role pack — discovery, prioritization, PRDs, and go-to-market",
+        "category": "role",
+        "providers": ["agents", "antigravity", "copilot"]
+      },
+      "afx-pack-architect": {
+        "description": "Architect role pack — system design, patterns, ADRs, and quality attributes",
+        "category": "role",
+        "providers": ["agents", "antigravity", "copilot"]
+      },
+      "afx-pack-agenticflowx": {
+        "description": "AgenticFlowX workflow skills — spec-driven development commands for all AI coding agents",
+        "category": "workflow",
+        "providers": ["agents", "antigravity", "copilot"]
+      }
+    },
+    "upstream": {
+      "anthropics/claude-code": {
+        "featured": ["code-review", "pr-review-toolkit", "security-guidance"]
+      },
+      "anthropics/claude-plugins-official": {
+        "featured": ["code-simplifier", "hookify", "commit-commands"]
+      },
+      "anthropics/skills": {
+        "featured": ["webapp-testing"]
+      },
+      "openai/skills": {
+        "featured": ["playwright"]
+      }
+    }
+  }
+}

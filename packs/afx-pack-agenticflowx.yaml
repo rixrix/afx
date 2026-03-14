@@ -1,0 +1,27 @@
+# @see docs/specs/afx-packs/spec.md#FR-1
+# @see docs/specs/afx-packs/spec.md#FR-2
+# @see docs/specs/afx-packs/spec.md#FR-3
+# @see docs/specs/afx-packs/design.md#11-pack-manifests
+
+name: afx-pack-agenticflowx
+description: AgenticFlowX workflow skills — spec-driven development commands for all AI coding agents
+category: workflow
+
+includes:
+  # AFX workflow skills (spec-driven development commands)
+  - repo: rixrix/afx
+    path: skills/agenticflowx/
+    items:
+      - afx-next        # Context-aware "what to do next" guidance
+      - afx-work        # Work orchestration (status, next, resume, sync, plan)
+      - afx-dev         # Development actions with traceability
+      - afx-check       # Quality gates and compliance checks
+      - afx-task        # Task verification and auditing
+      - afx-session     # Session discussion capture and recall
+      - afx-spec        # Spec management and validation
+      - afx-report      # Traceability metrics and health reporting
+      - afx-discover    # Project discovery (infra, scripts, tools)
+      - afx-init        # Feature scaffolding and ADR creation
+      - afx-context     # Session context transfer between agents
+      - afx-update      # Framework update check and apply
+      - afx-help        # Command reference and workflow guides

@@ -71,7 +71,7 @@ Each discussion has:
 | **Progress**      | Checkbox items for tracking (auto-synced on append) |
 | **Decisions**     | Key decisions made                                  |
 | **Tips/Ideas**    | Insights captured during discussion                 |
-| **Notes**         | Later additions via `/afx:session note --ref ID`    |
+| **Notes**         | Later additions via `/afx-session note --ref ID`    |
 | **Related Files** | Cumulative list of files mentioned across all notes |
 | **Participants**  | Who was involved                                    |
 

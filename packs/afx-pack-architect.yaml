@@ -1,0 +1,21 @@
+# @see docs/specs/afx-packs/spec.md#FR-1
+# @see docs/specs/afx-packs/spec.md#FR-2
+# @see docs/specs/afx-packs/spec.md#FR-3
+# @see docs/specs/afx-packs/design.md#11-pack-manifests
+
+name: afx-pack-architect
+description: Architect role pack — system design, patterns, ADRs, and quality attributes
+category: role
+
+includes:
+  # AFX-built skills (curated from community, improved with AFX integration)
+  - repo: rixrix/afx
+    path: skills/architect/
+    items:
+      - afx-architect              # System design, pattern selection, quality attributes
+      - afx-research               # Deep codebase investigation
+
+  - repo: rixrix/afx
+    path: skills/dev/
+    items:
+      - afx-architecture-patterns  # Clean/hexagonal/DDD patterns + ADRs

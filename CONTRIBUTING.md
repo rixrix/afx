@@ -35,7 +35,7 @@ Thank you for your interest in contributing to AFX (AgenticFlowX)!
 ## Development Setup
 
 1. Clone the repository
-2. Copy commands to a test project's `.claude/commands/`
+2. Copy skills to a test project's `.claude/skills/`
 3. Test with Claude Code
 
 ## Questions?

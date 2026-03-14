@@ -1,4 +1,0 @@
-version: 1
-display_name: AFX spec
-short_description: Run the AFX spec workflow in Codex.
-default_prompt: Run afx-spec.

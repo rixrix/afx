@@ -1,4 +1,0 @@
-version: 1
-display_name: AFX init
-short_description: Run the AFX init workflow in Codex.
-default_prompt: Run afx-init.

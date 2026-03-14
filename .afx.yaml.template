@@ -2,7 +2,7 @@
 # Copy this file to .afx.yaml in your project root and customize.
 # See: docs/agenticflowx/agenticflowx.md
 
-# AFX version — controls which branch/tag install.sh and pack index are fetched from.
+# AFX version — controls which branch/tag afx-cli and pack index are fetched from.
 # Accepts: semver (e.g. '1.5.3' → tag v1.5.3), branch name, or 'main'.
 version: 'main'
 
@@ -15,8 +15,8 @@ paths:
   templates: 'docs/agenticflowx/templates'        # Path to AFX templates
   sessions: 'docs/specs'                 # Global discussions (root)
 
-# Active features (used by /afx:report, /afx:work status)
-# Add your feature folder names here. Use /afx:init to scaffold a new feature.
+# Active features (used by /afx-report, /afx-work status)
+# Add your feature folder names here. Use /afx-init to scaffold a new feature.
 features: []
   # - my-feature                         # Example: uncomment and rename
 
@@ -55,7 +55,7 @@ anchors:
 # ─────────────────────────────────────────────────────────────────────────────
 # Feature Prefixes (for discussion IDs)
 # ─────────────────────────────────────────────────────────────────────────────
-# Add your feature prefixes here. Used by /afx:session for discussion IDs.
+# Add your feature prefixes here. Used by /afx-session for discussion IDs.
 # Format: feature-folder: PREFIX (2-3 letters, uppercase)
 prefixes:
   specs: GEN                             # General cross-cutting discussions
@@ -65,8 +65,8 @@ prefixes:
 # Quality Gates
 # ─────────────────────────────────────────────────────────────────────────────
 quality_gates:
-  require_path_check: true               # Must run /afx:check path before closing
-  require_human_approval: true           # Must run /afx:work approve before closing
+  require_path_check: true               # Must run /afx-check path before closing
+  require_human_approval: true           # Must run /afx-work approve before closing
   block_on_mock_code: true               # Block PRs with setTimeout, // Mock patterns
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -98,17 +98,31 @@ scan_for_orphans:
 # ─────────────────────────────────────────────────────────────────────────────
 templates:
   location: 'docs/agenticflowx/templates'         # Path to AFX templates folder
-  default: 'default'                     # Template used by /afx:init feature
+  default: 'default'                     # Template used by /afx-init feature
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Packs — Managed by install.sh, do not edit manually
+# Packs — Managed by afx-cli, do not edit manually
 # ─────────────────────────────────────────────────────────────────────────────
-# Packs are installed, enabled, disabled, and removed via install.sh.
-# Each entry tracks the pack name, status, installed ref, and disabled items.
+# Packs are installed and removed via afx-cli.
 # Example:
 #   packs:
 #     - name: afx-pack-qa
-#       status: enabled
 #       installed_ref: main
-#       disabled_items: []
+#       installed_at: 2026-03-14T10:00:00Z
 packs: []
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Skills — Managed by afx-cli, do not edit manually
+# ─────────────────────────────────────────────────────────────────────────────
+# Per-skill entries with provider toggles. Managed by pack install/remove.
+# Example:
+#   skills:
+#     - name: afx-qa-methodology
+#       category: qa
+#       source: afx-pack-qa
+#       item_type: afx
+#       providers:
+#         agents: true
+#         antigravity: true
+#         copilot: true
+skills: []

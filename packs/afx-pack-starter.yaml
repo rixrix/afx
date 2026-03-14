@@ -7,15 +7,9 @@ name: afx-pack-starter
 description: Starter pack — verify AFX installation and multi-provider routing
 category: utility
 
-platforms:
-  claude: true
-  codex: true
-  antigravity: true
-  copilot: partial # Only AFX-built skills
-
 includes:
   # AFX-built skills (all-provider test skill)
   - repo: rixrix/afx
-    path: skills/
+    path: skills/starter/
     items:
       - afx-hello # Multi-provider vibe check

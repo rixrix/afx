@@ -57,4 +57,4 @@ tags: [topic1, topic2]
 | `JOURNAL` | Session log           | docs/specs/{feature}/journal.md                              |
 | `RES`     | Research/exploration  | docs/specs/{feature}/research/\*.md                          |
 | `ADR`     | Architecture decision | docs/adr/ (global) or docs/specs/{feature}/research/ (local) |
-| `COMMAND` | AFX slash command     | .claude/commands/afx-\*.md                                   |
+| `COMMAND` | AFX slash command     | .claude/skills/afx-\*.md                                     |

@@ -13,7 +13,7 @@ tags: [afx, reference, cheatsheet]
 
 | Command     | When to use         |
 | :---------- | :------------------ |
-| `/afx:next` | **Whenever stuck.** |
+| `/afx-next` | **Whenever stuck.** |
 
 ---
 
@@ -21,14 +21,14 @@ tags: [afx, reference, cheatsheet]
 
 | Goal                    | Command                           | Notes                                |
 | :---------------------- | :-------------------------------- | :----------------------------------- |
-| **New Feature**         | `/afx:init feature <name>`        | Creates full scaffold (`docs/specs`) |
-| **New ADR**             | `/afx:init adr <title>`           | Creates global ADR in `docs/adr/`    |
-| **Discover Project**    | `/afx:discover capabilities`      | Understand existing setup            |
-| **Find Infrastructure** | `/afx:discover infra [type]`      | Locate provisioning scripts          |
-| **Find Scripts**        | `/afx:discover scripts [keyword]` | Find automation/deployment scripts   |
-| **New Tasks**           | `/afx:work plan "Add search"`     | Generates tasks from spec            |
-| **Resume Work**         | `/afx:work status`                | "Where was I?" (After break)         |
-| **Pick Task**           | `/afx:work next <spec>`           | Assigns next unchecked task          |
+| **New Feature**         | `/afx-init feature <name>`        | Creates full scaffold (`docs/specs`) |
+| **New ADR**             | `/afx-init adr <title>`           | Creates global ADR in `docs/adr/`    |
+| **Discover Project**    | `/afx-discover capabilities`      | Understand existing setup            |
+| **Find Infrastructure** | `/afx-discover infra [type]`      | Locate provisioning scripts          |
+| **Find Scripts**        | `/afx-discover scripts [keyword]` | Find automation/deployment scripts   |
+| **New Tasks**           | `/afx-work plan "Add search"`     | Generates tasks from spec            |
+| **Resume Work**         | `/afx-work status`                | "Where was I?" (After break)         |
+| **Pick Task**           | `/afx-work next <spec>`           | Assigns next unchecked task          |
 
 ---
 
@@ -38,24 +38,24 @@ tags: [afx, reference, cheatsheet]
 
 | Goal             | Command                       | Notes                                  |
 | :--------------- | :---------------------------- | :------------------------------------- |
-| **Implement**    | `/afx:dev code`               | Write code. **Must** add `@see` links. |
-| **Debug**        | `/afx:dev debug <error>`      | Trace error against spec.              |
-| **Refactor**     | `/afx:dev refactor`           | Clean code, preserve `@see` links.     |
-| **Capture Idea** | `/afx:session note "content"` | Save thought without stopping.         |
-| **Save Context** | `/afx:session save`           | Summarize discussion to `journal.md`.  |
+| **Implement**    | `/afx-dev code`               | Write code. **Must** add `@see` links. |
+| **Debug**        | `/afx-dev debug <error>`      | Trace error against spec.              |
+| **Refactor**     | `/afx-dev refactor`           | Clean code, preserve `@see` links.     |
+| **Capture Idea** | `/afx-session note "content"` | Save thought without stopping.         |
+| **Save Context** | `/afx-session save`           | Summarize discussion to `journal.md`.  |
 
 ---
 
 ## Phase 3: Verify (Quality Gates)
 
-**Gate 1 (Blocking)**: `/afx:check path` must pass before marking complete.
+**Gate 1 (Blocking)**: `/afx-check path` must pass before marking complete.
 
 | Goal              | Command                     | Notes                                   |
 | :---------------- | :-------------------------- | :-------------------------------------- |
-| **Check Runtime** | `/afx:check path <path>`    | **Mandatory**. Traces execution flow.   |
-| **Audit Task**    | `/afx:task audit <task-id>` | Static check: Does file match spec?     |
-| **Lint Specs**    | `/afx:check lint`           | Find orphaned code (missing `@see`).    |
-| **Verify Links**  | `/afx:check links <spec>`   | Ensure specs don't have broken anchors. |
+| **Check Runtime** | `/afx-check path <path>`    | **Mandatory**. Traces execution flow.   |
+| **Audit Task**    | `/afx-task audit <task-id>` | Static check: Does file match spec?     |
+| **Lint Specs**    | `/afx-check lint`           | Find orphaned code (missing `@see`).    |
+| **Verify Links**  | `/afx-check links <spec>`   | Ensure specs don't have broken anchors. |
 
 ---
 
@@ -63,10 +63,10 @@ tags: [afx, reference, cheatsheet]
 
 | Goal             | Command                             | Notes                                  |
 | :--------------- | :---------------------------------- | :------------------------------------- |
-| **Human Verify** | `/afx:work approve <task> "note"`   | Mark task as human-verified.           |
-| **Close Issue**  | `/afx:work close <issue> "summary"` | Updates docs, syncing logs, closes.    |
-| **Context**      | `/afx:context save`                 | Bundle context for next agent/session. |
-| **Load Context** | `/afx:context load`                 | Load context from previous agent.      |
+| **Human Verify** | `/afx-work approve <task> "note"`   | Mark task as human-verified.           |
+| **Close Issue**  | `/afx-work close <issue> "summary"` | Updates docs, syncing logs, closes.    |
+| **Context**      | `/afx-context save`                 | Bundle context for next agent/session. |
+| **Load Context** | `/afx-context load`                 | Load context from previous agent.      |
 
 ---
 

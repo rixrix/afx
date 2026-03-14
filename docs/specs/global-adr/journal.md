@@ -24,15 +24,15 @@ tags: [global-adr, journal]
 
 `[adr, framework, afx-init, dogfooding, architecture]`
 
-**Context**: Session began with setting up AFX to dogfood on itself. User proposed adding a global folder for ADRs and cross-cutting content not tied to individual specs. Evolved into full implementation of `docs/adr/` support including the `/afx:init adr` subcommand.
+**Context**: Session began with setting up AFX to dogfood on itself. User proposed adding a global folder for ADRs and cross-cutting content not tied to individual specs. Evolved into full implementation of `docs/adr/` support including the `/afx-init adr` subcommand.
 
-**Summary**: Implemented first-class `docs/adr/` support for AFX. Evaluated naming options (`_project`, `_global`, `_shared`, `decisions`, `adr`) — chose `docs/adr/` as the industry standard (Nygard convention, `adr-tools`). Created ADR-0001 (self-referential), scaffolded the `global-adr` feature spec, and added the `adr` subcommand to `/afx:init`.
+**Summary**: Implemented first-class `docs/adr/` support for AFX. Evaluated naming options (`_project`, `_global`, `_shared`, `decisions`, `adr`) — chose `docs/adr/` as the industry standard (Nygard convention, `adr-tools`). Created ADR-0001 (self-referential), scaffolded the `global-adr` feature spec, and added the `adr` subcommand to `/afx-init`.
 
 **Decisions**:
 
 - Global ADRs live at `docs/adr/` (industry standard path)
 - Numbering format: `ADR-NNNN-kebab-slug.md` (zero-padded 4 digits)
-- `/afx:init adr <title>` generates **real content** via Write tool, not placeholder templates
+- `/afx-init adr <title>` generates **real content** via Write tool, not placeholder templates
 - Config uses `paths.adr` field in `.afx.yaml` with `docs/adr` default
 - `afx-init.md` gains `## Configuration` block matching other command patterns
 
@@ -45,8 +45,8 @@ tags: [global-adr, journal]
 **Key Artifacts**:
 
 - [ADR-0001](../../adr/ADR-0001-global-adr-directory.md) — The decision record
-- [afx-init.md](../../../.claude/commands/afx-init.md) — Updated with `## 5. adr` subcommand
-- [design.md](design.md) — Full `/afx:init` change spec
+- [afx-init.md](../../../.claude/skills/afx-init.md) — Updated with `## 5. adr` subcommand
+- [design.md](design.md) — Full `/afx-init` change spec
 - [tasks.md](tasks.md) — Phase 0 complete, Phase 1 tasks 1.3-1.4 complete
 
 **Participants**: @rix, Claude

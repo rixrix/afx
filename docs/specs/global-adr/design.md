@@ -31,7 +31,7 @@ paths:
   adr: "docs/adr" # New field, optional, defaults to 'docs/adr'
 ```
 
-### `/afx:init adr <title>` Flow
+### `/afx-init adr <title>` Flow
 
 1. Read `paths.adr` from `.afx.yaml` (default: `docs/adr`)
 2. Scan directory for highest existing ADR number
@@ -41,7 +41,7 @@ paths:
 
 ### Installer Changes
 
-- `install.sh` creates `docs/adr/` alongside `docs/specs/`
+- `afx-cli` creates `docs/adr/` alongside `docs/specs/`
 - `--update` preserves existing ADRs
 - `.afx.yaml.template` gains `paths.adr` field
 
@@ -49,21 +49,21 @@ paths:
 
 | Command         | Change                                 |
 | --------------- | -------------------------------------- |
-| `/afx:init`     | New `adr <title>` subcommand           |
-| `/afx:next`     | Check for Proposed ADRs needing review |
-| `/afx:context`  | Include ADRs in context bundle         |
-| `/afx:discover` | List ADR count and latest decisions    |
+| `/afx-init`     | New `adr <title>` subcommand           |
+| `/afx-next`     | Check for Proposed ADRs needing review |
+| `/afx-context`  | Include ADRs in context bundle         |
+| `/afx-discover` | List ADR count and latest decisions    |
 
 ---
 
-## `/afx:init` Changes
+## `/afx-init` Changes
 
 ### 1. Usage Block
 
 Add new line:
 
 ```bash
-/afx:init adr <title>                       # Create numbered ADR in docs/adr/
+/afx-init adr <title>                       # Create numbered ADR in docs/adr/
 ```
 
 ### 2. Next Command Suggestion Table
@@ -81,7 +81,7 @@ Create a global architecture decision record.
 #### Usage
 
 ```bash
-/afx:init adr <title>
+/afx-init adr <title>
 ```
 
 Where `<title>` is a short noun phrase (e.g., "database choice", "api versioning strategy"). Gets kebab-cased into the filename slug.
@@ -169,8 +169,8 @@ echo "ADR created: $FILE"
 Next (ranked):
 
 1. Edit docs/adr/ADR-NNNN-{slug}.md # Fill in context & decision
-2. /afx:session capture specs "ADR discussion" # Capture related discussion
-3. /afx:work status # Check project state
+2. /afx-session capture specs "ADR discussion" # Capture related discussion
+3. /afx-work status # Check project state
 ```
 
 #### Error Handling
@@ -179,8 +179,8 @@ Next (ranked):
 
 ```
 Error: Title required
-Usage: /afx:init adr <title>
-Example: /afx:init adr "database choice"
+Usage: /afx-init adr <title>
+Example: /afx-init adr "database choice"
 ```
 
 **ADR directory not writable:**
@@ -196,7 +196,7 @@ Add row:
 
 | Command         | Relationship                   |
 | --------------- | ------------------------------ |
-| `/afx:init adr` | Create global ADR in docs/adr/ |
+| `/afx-init adr` | Create global ADR in docs/adr/ |
 
 ---
 

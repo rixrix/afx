@@ -1,0 +1,15 @@
+# @see docs/specs/afx-packs/spec.md#FR-1
+# @see docs/specs/afx-packs/spec.md#FR-2
+# @see docs/specs/afx-packs/spec.md#FR-3
+# @see docs/specs/afx-packs/design.md#11-pack-manifests
+
+name: afx-pack-product-owner
+description: Product Owner role pack — discovery, prioritization, PRDs, and go-to-market
+category: role
+
+includes:
+  # AFX-built skills (curated from community, improved with AFX integration)
+  - repo: rixrix/afx
+    path: skills/product-owner/
+    items:
+      - afx-product-owner       # RICE, PRDs, discovery, metrics

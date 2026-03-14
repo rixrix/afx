@@ -7,10 +7,10 @@
 - **Main Technologies:** Bash (Installer/Init), Markdown (Specifications, Commands, Documentation), JSDoc/Annotations (`@see` links).
 - **Architecture:** A decentralized four-file structure for every feature (`spec.md`, `design.md`, `tasks.md`, `journal.md`), global Architecture Decision Records (ADRs), and a set of custom slash commands for AI agents.
 - **Key Files:**
-  - `install.sh`: The primary installer and updater for the framework.
-  - `.claude/commands/`: Definitions for slash commands used by Claude Code.
-  - `.gemini/commands/`: Proxy command files for Gemini CLI that delegate to Claude specs.
-  - `.codex/skills/`: Skills for Codex that delegate to the Claude commands.
+  - `afx-cli`: The primary installer and updater for the framework.
+  - `skills/`: Standard-compliant skills (SKILL.md format with 4-field frontmatter).
+  - `packs/`: Pack manifests grouping skills into installable packs.
+  - `skills.json`: Pack catalog and version info.
   - `templates/`: Base templates for features and ADRs.
   - `.afx.yaml.template`: Configuration schema for projects using AFX.
 
@@ -20,13 +20,13 @@ Since AFX is primarily a framework of documentation and instructions, there is n
 
 - **Installation/Update:**
   ```bash
-  ./install.sh /path/to/target-project      # Install to a project
-  ./install.sh --update /path/to/target-project  # Update an existing installation
+  ./afx-cli /path/to/target-project      # Install to a project
+  ./afx-cli --update /path/to/target-project  # Update an existing installation
   ```
 - **Development/Testing:**
-  - To test changes to commands, copy the modified `.md` files from `.claude/commands/` into a test project's `.claude/commands/` directory and run them using Claude Code.
+  - To test changes to skills, install them to a test project via `./afx-cli` and verify they are discovered correctly.
 - **Validation:**
-  - AFX commands are self-validating through `/afx:check` subcommands (e.g., `/afx:check links`, `/afx:check lint`).
+  - AFX commands are self-validating through `/afx-check` subcommands (e.g., `/afx-check links`, `/afx-check lint`).
 
 ## Development Conventions
 
@@ -34,19 +34,19 @@ Since AFX is primarily a framework of documentation and instructions, there is n
 - **Bidirectional Traceability:**
   - Every function or significant code block MUST include an `@see` annotation linking back to the relevant section in the specification or task.
   - Example: `/** @see docs/specs/auth/design.md#2.1-token-generation */`
-- **Quality Gates:** Implementation is not complete until both `[Agent OK]` and `[Human OK]` markers are present in `tasks.md` and `/afx:check path` has verified the execution flow.
+- **Quality Gates:** Implementation is not complete until both `[Agent OK]` and `[Human OK]` markers are present in `tasks.md` and `/afx-check path` has verified the execution flow.
 - **State vs. Event Separation:**
   - `spec.md` and `design.md` reflect the **current factual state**.
   - `journal.md` and `tasks.md` record **events and history**.
-- **Command Structure:** All custom commands follow a standard Markdown format with YAML frontmatter and specific sections (`Usage`, `Agent Instructions`, `Execution Script`).
+- **Skill Structure:** All skills follow the Agent Skills standard (SKILL.md with `name`, `description`, `license`, `metadata` frontmatter).
 
 ## Gemini-Specific Guidance
 
-- **Command Execution:** Gemini CLI uses proxy files in `.gemini/commands/` which point to the canonical logic in `.claude/commands/`.
+- **Skill Discovery:** Skills are installed to provider target directories. Gemini is not a current provider target — Gemini users should read skills directly from `skills/`.
 - **Specialized Tools:**
-  - Use `codebase_investigator` for high-level architectural analysis or mapping complex dependencies during `/afx:next` or `/afx:discover`.
+  - Use `codebase_investigator` for high-level architectural analysis or mapping complex dependencies during `/afx-next` or `/afx-discover`.
   - Use `grep_search` and `read_file` for precise context scanning within specs and journals.
-  - Follow the "Smart Init Protocol" in `/afx:init` by leveraging these tools for pre-scaffold analysis.
+  - Follow the "Smart Init Protocol" in `/afx-init` by leveraging these tools for pre-scaffold analysis.
 
 ## Git Commit Attribution
 

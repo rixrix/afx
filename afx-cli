@@ -1,0 +1,1985 @@
+#!/bin/bash
+# AFX CLI — install, update, and manage AFX skills
+# Usage:
+#   Install:  ./afx-cli /path/to/project
+#   Update:   ./afx-cli --update /path/to/project
+#   Local:    ./afx-cli --source /path/to/afx /path/to/project
+#   Remote:   curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- .
+#
+# Options:
+#   --update          Update existing AFX installation (preserves user content)
+#   --skills-only     Only sync skills to .agents/skills/ (skip templates, docs, MD)
+#   --no-claude-md    Skip CLAUDE.md snippet integration
+#   --no-agents-md    Skip AGENTS.md snippet integration
+#   --with-gemini-md  Include GEMINI.md snippet integration (opt-in)
+#   --no-docs         Skip copying AFX documentation to docs/agenticflowx/
+#   --force           Overwrite all existing files (fresh install)
+#   --dry-run         Show what would be changed without making changes
+#   --yes             Skip all confirmation prompts (non-interactive mode)
+#   --reset           Reset AFX: recreate .afx/ folder, .afx.yaml defaults
+
+set -e
+
+# ============================================================================
+# Section 1: Constants & Colors
+# ============================================================================
+
+AFX_REPO="rixrix/afx"
+
+# Boundary markers
+AFX_START_MARKER="<!-- AFX:START - Managed by AFX. Do not edit manually. -->"
+AFX_END_MARKER="<!-- AFX:END -->"
+AFX_AGENTS_START_MARKER="<!-- AFX-CODEX:START - Managed by AFX. Do not edit manually. -->"
+AFX_AGENTS_END_MARKER="<!-- AFX-CODEX:END -->"
+AFX_GEMINI_START_MARKER="<!-- AFX-GEMINI:START - Managed by AFX. Do not edit manually. -->"
+AFX_GEMINI_END_MARKER="<!-- AFX-GEMINI:END -->"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
+
+# ============================================================================
+# Section 2: Default Options
+# ============================================================================
+
+UPDATE_MODE=false
+SKILLS_ONLY=false
+NO_CLAUDE_MD=""
+NO_AGENTS_MD=""
+NO_GEMINI_MD=""
+NO_DOCS=false
+FORCE=false
+DRY_RUN=false
+YES=false
+RESET=false
+TARGET_DIR=""
+
+# Pack management options
+# @see docs/specs/afx-packs/design.md#33-new-arguments
+PACK_NAMES=()
+PACK_REMOVE=""
+PACK_LIST=false
+SKILL_DISABLE=""
+SKILL_ENABLE=""
+UPDATE_PACKS=false
+ADD_SKILL=""
+BRANCH=""
+VERSION=""
+SOURCE_DIR=""
+
+# Change tracking
+INSTALLED=()
+UPDATED=()
+SKIPPED=()
+
+# ============================================================================
+# Section 3: Argument Parsing
+# ============================================================================
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --update)         UPDATE_MODE=true; shift ;;
+        --skills-only)    SKILLS_ONLY=true; shift ;;
+        --commands-only)  SKILLS_ONLY=true; shift ;;  # backward compat alias
+        --no-claude-md)   NO_CLAUDE_MD=true; shift ;;
+        --no-agents-md)   NO_AGENTS_MD=true; shift ;;
+        --with-gemini-md)  NO_GEMINI_MD=false; shift ;;
+        --no-docs)        NO_DOCS=true; shift ;;
+        --force)          FORCE=true; shift ;;
+        --dry-run)        DRY_RUN=true; shift ;;
+        --yes|-y)         YES=true; shift ;;
+        --reset)          RESET=true; shift ;;
+        --pack)           PACK_NAMES+=("$2"); shift 2 ;;
+        --pack-remove)    PACK_REMOVE="$2"; shift 2 ;;
+        --pack-list)      PACK_LIST=true; shift ;;
+        --skill-disable)  SKILL_DISABLE="$2"; shift 2 ;;
+        --skill-enable)   SKILL_ENABLE="$2"; shift 2 ;;
+        --packs)          UPDATE_PACKS=true; shift ;;
+        --add-skill)      ADD_SKILL="$2"; shift 2 ;;
+        --branch)         BRANCH="$2"; shift 2 ;;
+        --version)        VERSION="$2"; shift 2 ;;
+        --source)         SOURCE_DIR="$2"; shift 2 ;;
+        -h|--help)
+            cat <<'HELPEOF'
+AFX Installer
+
+Usage: ./afx-cli [OPTIONS] <target-project-path>
+
+Options:
+  --update          Update existing AFX installation
+  --skills-only     Only sync skills to .agents/skills/ (skip templates, docs, MD)
+  --commands-only   Alias for --skills-only (backward compat)
+  --no-claude-md    Skip CLAUDE.md snippet integration
+  --no-agents-md    Skip AGENTS.md snippet integration
+  --with-gemini-md  Include GEMINI.md snippet integration (opt-in)
+  --no-docs         Skip copying AFX documentation to docs/agenticflowx/
+  --force           Overwrite all files (fresh install)
+  --dry-run         Preview changes without applying
+  --yes, -y         Skip all confirmation prompts
+  --reset           Reset AFX: recreate .afx/ folder and config files
+  --branch NAME     Use a specific branch (default: main)
+  --version TAG     Use a specific version tag (e.g., 1.5.3 or v1.5.3)
+  --source PATH     Use local AFX checkout instead of downloading from GitHub
+  -h, --help        Show this help message
+
+Pack Management:
+  --pack NAME                     Install a pack
+  --pack-remove NAME              Remove a pack entirely
+  --pack-list                     List installed packs and skills
+  --skill-disable NAME            Disable a skill (remove from .agents/skills/)
+  --skill-enable NAME             Re-enable a skill (sync to .agents/skills/)
+  --update --packs                Update all installed packs
+  --add-skill REPO:PATH/SKILL     Install a single skill (no pack)
+
+Examples:
+  # Fresh install
+  ./afx-cli .
+
+  # Non-interactive install
+  ./afx-cli --yes .
+
+  # Update existing installation
+  ./afx-cli --update .
+
+  # Remote install
+  curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- .
+
+  # Install QA pack (short or full name)
+  ./afx-cli --pack qa .
+  ./afx-cli --pack afx-pack-qa .
+
+  # Install from version
+  ./afx-cli --version 1.5.3 --pack qa .
+
+  # Multiple packs
+  ./afx-cli --pack qa --pack security .
+
+  # Manage packs (short or full name)
+  ./afx-cli --pack-disable afx-pack-qa .
+  ./afx-cli --pack-enable qa .
+  ./afx-cli --pack-list .
+
+  # Update all packs
+  ./afx-cli --update --packs .
+
+  # Reset AFX (recreate .afx/ folder and config)
+  ./afx-cli --reset .
+HELPEOF
+            exit 0
+            ;;
+        *)
+            TARGET_DIR="$1"
+            shift
+            ;;
+    esac
+done
+
+# ============================================================================
+# Section 4: Core Helper Functions
+# ============================================================================
+
+# Ask for confirmation. Returns 0 (yes) or 1 (no).
+# Usage: confirm "Do something?" && do_it
+# Defaults to Yes if user just presses Enter.
+# Skipped entirely if --yes flag is set.
+confirm() {
+    local prompt="$1"
+    if [[ "$YES" == "true" || "$DRY_RUN" == "true" ]]; then
+        return 0
+    fi
+    echo -en "${BOLD}${prompt}${NC} ${DIM}[Y/n]${NC} "
+    read -r answer </dev/tty
+    case "$answer" in
+        [nN]|[nN][oO]) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
+# Install or update a single file
+install_file() {
+    local src="$1"
+    local dest="$2"
+    local desc="$3"
+    local always_update="${4:-false}"
+
+    if [ "$DRY_RUN" = "true" ]; then
+        if [ -e "$dest" ]; then
+            if [ "$UPDATE_MODE" = "true" ] || [ "$FORCE" = "true" ] || [ "$always_update" = "true" ]; then
+                UPDATED+=("$desc (would update)")
+            else
+                SKIPPED+=("$desc (exists)")
+            fi
+        else
+            INSTALLED+=("$desc (would create)")
+        fi
+        return 0
+    fi
+
+    if [ -e "$dest" ]; then
+        if [ "$UPDATE_MODE" = "true" ] || [ "$FORCE" = "true" ] || [ "$always_update" = "true" ]; then
+            mkdir -p "$(dirname "$dest")"
+            cp -r "$src" "$dest"
+            UPDATED+=("$desc")
+        else
+            SKIPPED+=("$desc (exists)")
+        fi
+    else
+        mkdir -p "$(dirname "$dest")"
+        cp -r "$src" "$dest"
+        INSTALLED+=("$desc")
+    fi
+}
+
+# Install or update a directory by replacing destination contents
+install_directory() {
+    local src="$1"
+    local dest="$2"
+    local desc="$3"
+    local always_update="${4:-false}"
+
+    if [ "$DRY_RUN" = "true" ]; then
+        if [ -e "$dest" ]; then
+            if [ "$UPDATE_MODE" = "true" ] || [ "$FORCE" = "true" ] || [ "$always_update" = "true" ]; then
+                UPDATED+=("$desc (would update)")
+            else
+                SKIPPED+=("$desc (exists)")
+            fi
+        else
+            INSTALLED+=("$desc (would create)")
+        fi
+        return 0
+    fi
+
+    if [ -e "$dest" ]; then
+        if [ "$UPDATE_MODE" = "true" ] || [ "$FORCE" = "true" ] || [ "$always_update" = "true" ]; then
+            rm -rf "$dest"
+            mkdir -p "$(dirname "$dest")"
+            cp -R "$src" "$dest"
+            UPDATED+=("$desc")
+        else
+            SKIPPED+=("$desc (exists)")
+        fi
+    else
+        mkdir -p "$(dirname "$dest")"
+        cp -R "$src" "$dest"
+        INSTALLED+=("$desc")
+    fi
+}
+
+# Update a markdown file with AFX boundary markers (reusable for CLAUDE.md, AGENTS.md, etc.)
+# Usage: update_md_with_markers <file> <start_marker> <end_marker> <snippet_content> <label> <header>
+update_md_with_markers() {
+    local md_file="$1"
+    local start_marker="$2"
+    local end_marker="$3"
+    local snippet_content="$4"
+    local label="$5"
+    local header_content="$6"
+
+    local section="${start_marker}
+<!-- AFX Version: ${AFX_VERSION} -->
+
+${snippet_content}
+${end_marker}"
+
+    if [ "$DRY_RUN" = "true" ]; then
+        if [ -f "$md_file" ]; then
+            if grep -q "$start_marker" "$md_file" 2>/dev/null; then
+                UPDATED+=("$label AFX section (would update)")
+            elif [[ "$label" == "CLAUDE.md" ]] && grep -q "## Documentation References\|## AgenticFlow" "$md_file" 2>/dev/null; then
+                SKIPPED+=("$label (has old AFX section - run with --force to migrate)")
+            else
+                INSTALLED+=("$label AFX section (would append)")
+            fi
+        else
+            INSTALLED+=("$label (would create)")
+        fi
+        return 0
+    fi
+
+    if [ -f "$md_file" ]; then
+        if grep -q "$start_marker" "$md_file"; then
+            # Has boundary markers — replace the section
+            awk -v start="$start_marker" '$0 == start { exit } { print }' "$md_file" > "$md_file.tmp"
+            echo "$section" >> "$md_file.tmp"
+            awk -v end="$end_marker" 'BEGIN { skip=1 } $0 == end { skip=0; next } !skip { print }' "$md_file" >> "$md_file.tmp"
+            mv "$md_file.tmp" "$md_file"
+            UPDATED+=("$label AFX section")
+        elif [[ "$label" == "CLAUDE.md" ]] && grep -q "## Documentation References\|## AgenticFlow" "$md_file"; then
+            # Old-style section without markers
+            if [ "$FORCE" = "true" ]; then
+                echo -e "${YELLOW}Warning: Migrating old AFX section to use boundary markers${NC}"
+                echo "" >> "$md_file"
+                echo "$section" >> "$md_file"
+                UPDATED+=("$label (migrated - please remove old AFX section manually)")
+            else
+                SKIPPED+=("$label (has old AFX section - use --force to migrate)")
+            fi
+        else
+            # No AFX section — append
+            echo "" >> "$md_file"
+            echo "$section" >> "$md_file"
+            INSTALLED+=("$label AFX section")
+        fi
+    else
+        # Create new file
+        mkdir -p "$(dirname "$md_file")"
+        echo "$header_content" > "$md_file"
+        echo "" >> "$md_file"
+        echo "$section" >> "$md_file"
+        INSTALLED+=("$label (created)")
+    fi
+}
+
+# Ensure a pattern is in .gitignore
+# @see docs/specs/afx-packs/design.md#310-helper-functions
+ensure_gitignore() {
+    local pattern="$1"
+    local gitignore="$TARGET_DIR/.gitignore"
+    [[ "$DRY_RUN" == "true" ]] && return 0
+    if [[ -f "$gitignore" ]]; then
+        grep -qF "$pattern" "$gitignore" || echo "$pattern" >> "$gitignore"
+    else
+        echo "$pattern" > "$gitignore"
+    fi
+}
+
+# Write minimal user-facing .afx.yaml (version + packs + override guide)
+# All defaults live in .afx/.afx.yaml — user only adds overrides here.
+write_minimal_user_config() {
+    cat > "$TARGET_DIR/.afx.yaml" <<'YAMLEOF'
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │  AFX Configuration                                                      │
+# │                                                                         │
+# │  Defaults are in .afx/.afx.yaml (managed by AFX — do not edit).         │
+# │  Add overrides below — they take precedence over defaults.              │
+# │                                                                         │
+# │  Docs: docs/agenticflowx/agenticflowx.md                                │
+# │  Help: /afx-help (Claude) or afx-help (Codex)                           │
+# └─────────────────────────────────────────────────────────────────────────┘
+
+# AFX version — controls which branch/tag afx-cli fetches from.
+# Accepts: semver (e.g. '1.5.3' → tag v1.5.3), branch name, or 'main'.
+version: main
+
+# ── Installed Packs & Skills ─────────────────────────────────────────────
+# Managed by afx-cli. Add packs with:
+#   ./afx-cli install afx-pack-qa
+#   ./afx-cli install afx-pack-security
+
+skills:
+packs:
+
+# ── Your Overrides ───────────────────────────────────────────────────────
+# Override any value from .afx/.afx.yaml here. Examples:
+#
+#   paths:
+#     specs: my-specs          # Custom spec directory
+#
+#   features:
+#     - user-auth              # Active features
+#
+#   quality_gates:
+#     require_path_check: false
+YAMLEOF
+}
+
+# ============================================================================
+# Section 5: Pack Management Functions
+# @see docs/specs/afx-packs/design.md#3-installsh-architecture
+# @see docs/specs/afx-packs/tasks.md#phase-3-installsh--download--detection
+# ============================================================================
+
+# Resolve the git ref for AFX repo fetches
+# @see docs/specs/afx-packs/design.md#34-download-strategy
+resolve_ref() {
+    if [[ -n "$VERSION" && -n "$BRANCH" ]]; then
+        echo -e "${RED}Error: --version and --branch are mutually exclusive${NC}" >&2
+        return 1
+    fi
+    if [[ -n "$VERSION" ]]; then
+        [[ "$VERSION" == v* ]] && echo "$VERSION" || echo "v$VERSION"
+    elif [[ -n "$BRANCH" ]]; then
+        echo "$BRANCH"
+    else
+        local yaml_version=""
+        if [[ -f "$TARGET_DIR/.afx.yaml" ]]; then
+            yaml_version=$(grep '^version:' "$TARGET_DIR/.afx.yaml" 2>/dev/null | awk '{print $2}' | tr -d "'\"")
+        fi
+        if [[ -n "$yaml_version" && "$yaml_version" != "main" ]]; then
+            if [[ "$yaml_version" =~ ^[0-9] ]]; then
+                [[ "$yaml_version" == v* ]] && echo "$yaml_version" || echo "v$yaml_version"
+            else
+                echo "$yaml_version"
+            fi
+        else
+            echo "main"
+        fi
+    fi
+}
+
+# Fetch a pack manifest YAML from raw.githubusercontent.com
+# @see docs/specs/afx-packs/design.md#34-download-strategy
+fetch_manifest() {
+    local pack_name="$1"
+    local ref="$2"
+    local temp_manifest=$(mktemp)
+
+    # Prefer local manifest when running from the AFX repo (dev/testing)
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "")"
+    if [[ -n "$script_dir" && -f "$script_dir/packs/${pack_name}.yaml" ]]; then
+        cp "$script_dir/packs/${pack_name}.yaml" "$temp_manifest"
+        echo "$temp_manifest"
+        return 0
+    fi
+
+    curl -sfL "https://raw.githubusercontent.com/${AFX_REPO}/${ref}/packs/${pack_name}.yaml" \
+        -o "$temp_manifest" 2>/dev/null
+
+    if [[ ! -s "$temp_manifest" ]]; then
+        rm -f "$temp_manifest"
+        echo -e "${RED}Error: Failed to fetch manifest for '${pack_name}' (ref: ${ref})${NC}" >&2
+        echo "Check pack name and try again." >&2
+        return 1
+    fi
+
+    echo "$temp_manifest"
+}
+
+# Download and extract specific paths from a GitHub repo tarball
+# @see docs/specs/afx-packs/design.md#34-download-strategy
+download_items() {
+    local repo="$1"
+    local ref="$2"
+    local base_path="$3"
+    shift 3
+    local items=("$@")
+
+    local url="https://codeload.github.com/${repo}/tar.gz/${ref}"
+    local temp_dir=$(mktemp -d)
+
+    curl -sL "$url" | tar xz -C "$temp_dir" --strip-components=1 2>/dev/null
+    echo "$temp_dir"
+}
+
+# Parse manifest includes[] — outputs one line per include block: "repo path item1 item2 ..."
+# @see docs/specs/afx-packs/design.md#35-yaml-parsing
+for_each_include() {
+    local manifest="$1"
+    local in_includes=false
+    local current_repo="" current_path=""
+    local items=()
+
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        if [[ "$line" == "includes:" ]]; then
+            in_includes=true; continue
+        fi
+        if $in_includes && [[ "$line" =~ ^[a-z] ]]; then
+            [[ -n "$current_repo" ]] && echo "$current_repo $current_path ${items[*]}"
+            break
+        fi
+
+        if $in_includes; then
+            if [[ "$line" =~ ^\ \ -\ repo:\ (.+) ]]; then
+                [[ -n "$current_repo" ]] && echo "$current_repo $current_path ${items[*]}"
+                current_repo="${BASH_REMATCH[1]}"
+                current_path="" ; items=()
+            elif [[ "$line" =~ ^\ \ \ \ path:\ (.+) ]]; then
+                current_path="${BASH_REMATCH[1]}"
+            elif [[ "$line" =~ ^\ \ \ \ \ \ -\ ([^#]+) ]]; then
+                local item_name="${BASH_REMATCH[1]}"
+                item_name="${item_name%%#*}"
+                item_name="${item_name%% }"
+                item_name="${item_name%% }"
+                items+=("$item_name")
+            fi
+        fi
+    done < "$manifest"
+
+    [[ -n "$current_repo" ]] && echo "$current_repo $current_path ${items[*]}"
+}
+
+# Detect skill type
+# @see docs/specs/afx-packs/design.md#36-type-detection--routing
+detect_type() {
+    local item_dir="$1"
+    local source_repo="$2"
+
+    if [[ "$source_repo" == "${AFX_REPO}" ]]; then
+        echo "afx"
+    elif [[ -d "$item_dir/.claude-plugin" ]]; then
+        echo "plugin"
+    elif [[ -f "$item_dir/agents/openai.yaml" ]]; then
+        echo "openai"
+    elif [[ -f "$item_dir/SKILL.md" ]]; then
+        echo "skill"
+    else
+        echo "unknown"
+    fi
+}
+
+# Route a detected item to .afx/skills/{category}/{name}/ (canonical storage)
+# @see docs/specs/afx-packs/design.md#36-type-detection--routing
+route_item() {
+    local item_dir="$1"
+    local item_name="$2"
+    local type="$3"
+    local category="$4"
+
+    local canonical_dir="$TARGET_DIR/.afx/skills/$category/$item_name"
+
+    case "$type" in
+        skill|openai)
+            mkdir -p "$canonical_dir"
+            cp -r "$item_dir"/. "$canonical_dir/"
+            ;;
+        plugin)
+            mkdir -p "$canonical_dir"
+            cp -r "$item_dir"/. "$canonical_dir/"
+            ;;
+        afx)
+            if [[ ! -f "$item_dir/SKILL.md" ]]; then
+                echo -e "${YELLOW}Warning: No SKILL.md in AFX skill '$item_name' — skipping${NC}"
+                return 1
+            fi
+            mkdir -p "$canonical_dir"
+            cp -r "$item_dir"/. "$canonical_dir/"
+            ;;
+        *)
+            echo -e "${YELLOW}Warning: Unknown skill type for '$item_name' — skipping${NC}"
+            return 1
+            ;;
+    esac
+}
+
+# Derive category from pack name: afx-pack-dev → dev, afx-pack-agenticflowx → agenticflowx
+category_from_pack() {
+    local pack_name="$1"
+    echo "${pack_name#afx-pack-}"
+}
+
+# Check name collision in canonical skills store
+# @see docs/specs/afx-packs/design.md#38-name-collision-detection
+check_collision() {
+    local item_name="$1"
+    local category="$2"
+    local current_pack="$3"
+
+    local canonical="$TARGET_DIR/.afx/skills/$category/$item_name"
+    if [[ -d "$canonical" ]] && [[ "$FORCE" != "true" ]]; then
+        echo -e "${RED}Error: '$item_name' already installed in category '$category'${NC}"
+        echo "Use --force to overwrite."
+        return 1
+    fi
+    return 0
+}
+
+# ============================================================================
+# Section 6: .afx.yaml Read/Write Helpers
+# @see docs/specs/afx-packs/design.md#311-afxyaml-readwrite
+# ============================================================================
+
+# List all installed packs (name:ref format)
+afx_yaml_all_packs() {
+    local yaml="$TARGET_DIR/.afx.yaml"
+    [[ -f "$yaml" ]] || return 0
+
+    local name="" ref="" in_packs=false
+
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        if [[ "$line" == "packs:" ]]; then
+            in_packs=true; continue
+        fi
+        if $in_packs && [[ -n "$line" ]] && [[ ! "$line" =~ ^\ \  ]]; then
+            [[ -n "$name" ]] && echo "$name:$ref"
+            name=""
+            break
+        fi
+        if $in_packs; then
+            if [[ "$line" =~ ^\ \ -\ name:\ (.+) ]]; then
+                [[ -n "$name" ]] && echo "$name:$ref"
+                name="${BASH_REMATCH[1]}"
+                ref="main"
+            elif [[ "$line" =~ ^\ \ \ \ installed_ref:\ (.+) ]]; then
+                ref="${BASH_REMATCH[1]}"
+            fi
+        fi
+    done < "$yaml"
+
+    [[ -n "$name" ]] && echo "$name:$ref"
+}
+
+afx_yaml_pack_ref() {
+    local pack_name="$1"
+    local yaml="$TARGET_DIR/.afx.yaml"
+    [[ -f "$yaml" ]] || { echo "main"; return 0; }
+
+    local found_pack=false
+    while IFS= read -r line; do
+        if [[ "$line" =~ name:\ $pack_name$ ]]; then
+            found_pack=true; continue
+        fi
+        if $found_pack && [[ "$line" =~ ^\ \ -\ name: ]]; then break; fi
+        if $found_pack && [[ "$line" =~ ^\ \ \ \ installed_ref:\ (.+) ]]; then
+            echo "${BASH_REMATCH[1]}"; return 0
+        fi
+    done < "$yaml"
+    echo "main"
+}
+
+# Add or update a pack entry in .afx.yaml
+afx_yaml_set_pack() {
+    local pack_name="$1"
+    local ref="${2:-main}"
+    local yaml="$TARGET_DIR/.afx.yaml"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo -e "  ${CYAN}(would update .afx.yaml: pack $pack_name ref=$ref)${NC}"
+        return 0
+    fi
+
+    if [[ ! -f "$yaml" ]]; then
+        echo "packs:" > "$yaml"
+    fi
+
+    if grep -q "name: $pack_name" "$yaml" 2>/dev/null; then
+        # Update existing entry
+        local temp=$(mktemp)
+        local in_target=false
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            if [[ "$line" =~ ^\ \ -\ name:\ $pack_name$ ]]; then
+                in_target=true
+                echo "$line" >> "$temp"
+            elif $in_target && [[ "$line" =~ ^\ \ -\ name: || ! "$line" =~ ^\ \  ]]; then
+                in_target=false
+                echo "$line" >> "$temp"
+            elif $in_target && [[ "$line" =~ ^\ \ \ \ installed_ref: ]]; then
+                echo "    installed_ref: $ref" >> "$temp"
+            elif $in_target && [[ "$line" =~ ^\ \ \ \ installed_at: ]]; then
+                echo "    installed_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$temp"
+            else
+                echo "$line" >> "$temp"
+            fi
+        done < "$yaml"
+        mv "$temp" "$yaml"
+    else
+        if ! grep -q "^packs:" "$yaml" 2>/dev/null; then
+            echo "" >> "$yaml"
+            echo "packs:" >> "$yaml"
+        fi
+
+        # Insert into packs: section (after existing pack entries, before next section)
+        local entry
+        entry=$(cat <<PACKEOF
+  - name: $pack_name
+    installed_ref: $ref
+    installed_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+PACKEOF
+)
+        local temp=$(mktemp)
+        local inserted=false
+        local in_packs=false
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            if [[ "$line" == "packs:" ]]; then
+                in_packs=true
+                echo "$line" >> "$temp"
+                continue
+            fi
+            if $in_packs && ! $inserted; then
+                # Still in packs section if line is indented or empty
+                if [[ -z "$line" ]] || [[ "$line" =~ ^\ \  ]]; then
+                    echo "$line" >> "$temp"
+                else
+                    # Leaving packs section — insert entry before this line
+                    echo "$entry" >> "$temp"
+                    echo "$line" >> "$temp"
+                    inserted=true
+                    in_packs=false
+                fi
+            else
+                echo "$line" >> "$temp"
+            fi
+        done < "$yaml"
+        if ! $inserted; then
+            echo "$entry" >> "$temp"
+        fi
+        mv "$temp" "$yaml"
+    fi
+}
+
+# Remove a pack entry from .afx.yaml
+afx_yaml_remove_pack() {
+    local pack_name="$1"
+    local yaml="$TARGET_DIR/.afx.yaml"
+    [[ -f "$yaml" ]] || return 0
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo -e "  ${CYAN}(would remove pack $pack_name from .afx.yaml)${NC}"
+        return 0
+    fi
+
+    local temp=$(mktemp)
+    local skip=false
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        if [[ "$line" =~ ^\ \ -\ name:\ $pack_name$ ]]; then skip=true; continue; fi
+        if $skip && [[ "$line" =~ ^\ \ -\ name: ]]; then skip=false; fi
+        if $skip && [[ -n "$line" ]] && [[ ! "$line" =~ ^\ \  ]]; then skip=false; fi
+        $skip || echo "$line"
+    done < "$yaml" > "$temp"
+    mv "$temp" "$yaml"
+}
+
+# Add a skill entry to .afx.yaml skills[] section
+afx_yaml_add_skill() {
+    local skill_name="$1"
+    local category="$2"
+    local source="$3"
+    local item_type="$4"
+    local yaml="$TARGET_DIR/.afx.yaml"
+    [[ "$DRY_RUN" == "true" ]] && return 0
+
+    # Skip if skill already exists (idempotent)
+    if grep -q "^  - name: ${skill_name}$" "$yaml" 2>/dev/null; then
+        return 0
+    fi
+
+    # Ensure skills: section exists
+    if ! grep -q "^skills:" "$yaml" 2>/dev/null; then
+        # Insert skills: before packs: if it exists, else append
+        if grep -q "^packs:" "$yaml" 2>/dev/null; then
+            sed -i.bak '/^packs:/i\
+skills:\
+' "$yaml"
+            rm -f "$yaml.bak"
+        else
+            echo "" >> "$yaml"
+            echo "skills:" >> "$yaml"
+        fi
+    fi
+
+    # Insert into skills: section (after existing skill entries, before next section)
+    local entry
+    entry=$(cat <<EOF
+  - name: $skill_name
+    category: $category
+    source: $source
+    item_type: $item_type
+EOF
+)
+    local temp=$(mktemp)
+    local inserted=false
+    local in_skills=false
+    local pending_line=""
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        if [[ "$line" == "skills:" ]]; then
+            in_skills=true
+            echo "$line" >> "$temp"
+            continue
+        fi
+        if $in_skills && ! $inserted; then
+            # Still in skills section if line is indented or empty
+            if [[ -z "$line" ]] || [[ "$line" =~ ^\ \  ]]; then
+                echo "$line" >> "$temp"
+            else
+                # Leaving skills section — insert entry before this line
+                echo "$entry" >> "$temp"
+                echo "$line" >> "$temp"
+                inserted=true
+                in_skills=false
+            fi
+        else
+            echo "$line" >> "$temp"
+        fi
+    done < "$yaml"
+    if ! $inserted; then
+        echo "$entry" >> "$temp"
+    fi
+    mv "$temp" "$yaml"
+}
+
+# Remove a skill entry from .afx.yaml skills[] section
+afx_yaml_remove_skill() {
+    local skill_name="$1"
+    local yaml="$TARGET_DIR/.afx.yaml"
+    [[ -f "$yaml" ]] || return 0
+    [[ "$DRY_RUN" == "true" ]] && return 0
+
+    local temp=$(mktemp)
+    local skip=false
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        if [[ "$line" =~ ^\ \ -\ name:\ $skill_name$ ]]; then skip=true; continue; fi
+        if $skip && [[ "$line" =~ ^\ \ -\ name: ]]; then skip=false; fi
+        if $skip && [[ -n "$line" ]] && [[ ! "$line" =~ ^\ \  ]]; then skip=false; fi
+        $skip || echo "$line"
+    done < "$yaml" > "$temp"
+    mv "$temp" "$yaml"
+}
+
+# Read skills for a given source pack from .afx.yaml
+afx_yaml_skills_for_pack() {
+    local source_pack="$1"
+    local yaml="$TARGET_DIR/.afx.yaml"
+    [[ -f "$yaml" ]] || return 0
+
+    local name="" source="" category="" in_skills=false
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        if [[ "$line" == "skills:" ]]; then
+            in_skills=true; continue
+        fi
+        if $in_skills && [[ -n "$line" ]] && [[ ! "$line" =~ ^\ \  ]]; then
+            [[ -n "$name" && "$source" == "$source_pack" ]] && echo "$name:$category"
+            name=""
+            break
+        fi
+        if $in_skills; then
+            if [[ "$line" =~ ^\ \ -\ name:\ (.+) ]]; then
+                [[ -n "$name" && "$source" == "$source_pack" ]] && echo "$name:$category"
+                name="${BASH_REMATCH[1]}"
+                source="" ; category=""
+            elif [[ "$line" =~ ^\ \ \ \ source:\ (.+) ]]; then
+                source="${BASH_REMATCH[1]}"
+            elif [[ "$line" =~ ^\ \ \ \ category:\ (.+) ]]; then
+                category="${BASH_REMATCH[1]}"
+            fi
+        fi
+    done < "$yaml"
+    [[ -n "$name" && "$source" == "$source_pack" ]] && echo "$name:$category"
+}
+
+# ============================================================================
+# Section 7: Pack Lifecycle Functions
+# @see docs/specs/afx-packs/design.md#39-state-transitions
+# ============================================================================
+
+# Sync a single skill from canonical store to .agents/skills/ and .claude/skills/
+# Reads from .afx/skills/{category}/{name}/ and copies to both targets
+skill_sync() {
+    local skill_name="$1"
+    local category="$2"
+    local item_type="$3"
+    local canonical_dir="$TARGET_DIR/.afx/skills/$category/$skill_name"
+
+    [[ -d "$canonical_dir" ]] || return 0
+
+    # Build target list based on agent selection
+    local targets=()
+    [[ "$NO_CLAUDE_MD" != "true" ]] && targets+=(".claude/skills")
+    [[ "$NO_AGENTS_MD" != "true" ]] && targets+=(".agents/skills")
+    [[ ${#targets[@]} -eq 0 ]] && return 0
+
+    local target_labels=""
+    for target in "${targets[@]}"; do
+        local target_dir="$TARGET_DIR/$target/$skill_name"
+        if [[ "$DRY_RUN" == "true" ]]; then
+            INSTALLED+=("  → $target/$skill_name (would create)")
+        else
+            mkdir -p "$target_dir"
+            if [[ "$item_type" == "afx" && -f "$canonical_dir/SKILL.md" ]]; then
+                # Strip provider-command markers from SKILL.md
+                sed \
+                    -e '/<!-- @afx:provider-commands -->/d' \
+                    -e '/<!-- @afx:\/provider-commands -->/d' \
+                    "$canonical_dir/SKILL.md" > "$target_dir/SKILL.md"
+                # Copy references/ if present
+                [[ -d "$canonical_dir/references" ]] && cp -r "$canonical_dir/references" "$target_dir/"
+            else
+                cp -r "$canonical_dir"/. "$target_dir/"
+            fi
+        fi
+        [[ -n "$target_labels" ]] && target_labels+=" + "
+        target_labels+="$target/$skill_name"
+    done
+    INSTALLED+=("  → $target_labels")
+}
+
+# Sync all skills from a pack to .agents/skills/ and .claude/skills/
+pack_sync() {
+    local pack_name="$1"
+    local category
+    category=$(category_from_pack "$pack_name")
+    local skills_dir="$TARGET_DIR/.afx/skills/$category"
+
+    [[ -d "$skills_dir" ]] || return 0
+
+    for skill_dir in "$skills_dir"/*/; do
+        [[ -d "$skill_dir" ]] || continue
+        local name=$(basename "$skill_dir")
+        local item_type
+        if [[ -f "$skill_dir/.claude-plugin/plugin.json" ]]; then
+            item_type="plugin"
+        else
+            item_type="afx"
+        fi
+        skill_sync "$name" "$category" "$item_type"
+    done
+}
+
+# Remove all skill copies from .agents/skills/ and .claude/skills/ for a given pack
+pack_remove_from_agents() {
+    local pack_name="$1"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo -e "  ${CYAN}(would remove skill copies for $pack_name)${NC}"
+        return 0
+    fi
+
+    # Read skill names from .afx.yaml for this pack
+    while IFS=: read -r name category; do
+        [[ -z "$name" ]] && continue
+        rm -rf "$TARGET_DIR/.agents/skills/$name"
+        rm -rf "$TARGET_DIR/.claude/skills/$name"
+    done < <(afx_yaml_skills_for_pack "$pack_name")
+}
+
+normalize_pack_name() {
+    local input="$1"
+    if [[ "$input" == afx-pack-* ]]; then
+        echo "$input"
+    else
+        echo "afx-pack-$input"
+    fi
+}
+
+# Install a pack: fetch manifest → download → detect → route → copy → state
+pack_install() {
+    local input_name="$1"
+    local ref_override="${2:-}"
+    local pack_name
+    pack_name=$(normalize_pack_name "$input_name")
+    local ref
+    if [[ -n "$ref_override" ]]; then
+        ref="$ref_override"
+    else
+        ref=$(resolve_ref) || exit 1
+    fi
+    local pack_dir="$TARGET_DIR/.afx/packs/$pack_name"
+
+    echo -e "${BLUE}Installing pack '$pack_name' (ref: $ref)...${NC}"
+
+    if [[ "$DRY_RUN" != "true" ]]; then
+        mkdir -p "$TARGET_DIR/.afx/.cache"
+    fi
+    ensure_gitignore ".afx/"
+
+    local category
+    category=$(category_from_pack "$pack_name")
+
+    # ── Local source path (--source) ──────────────────────────────────────
+    if [[ -n "$SOURCE_DIR" ]]; then
+        local local_skills_dir="$SOURCE_DIR/skills/$category"
+        if [[ ! -d "$local_skills_dir" ]]; then
+            echo -e "${RED}Error: Category '$category' not found in source: $local_skills_dir${NC}"
+            return 1
+        fi
+
+        echo -e "  ${CYAN}Reading from local source: $local_skills_dir${NC}"
+
+        for item_dir in "$local_skills_dir"/*/; do
+            [[ -d "$item_dir" ]] || continue
+            local item_name=$(basename "$item_dir")
+
+            local type
+            type=$(detect_type "$item_dir" "${AFX_REPO}")
+            echo -e "  ${GREEN}Found: $item_name (type: $type)${NC}"
+
+            if [[ "$DRY_RUN" != "true" ]]; then
+                route_item "$item_dir" "$item_name" "$type" "$category"
+                afx_yaml_add_skill "$item_name" "$category" "$pack_name" "$type"
+                skill_sync "$item_name" "$category" "$type"
+            else
+                INSTALLED+=("  ↓ $item_name ($type)")
+            fi
+        done
+
+        afx_yaml_set_pack "$pack_name" "$ref"
+        echo -e "${GREEN}Pack '$pack_name' installed from local source.${NC}"
+        return
+    fi
+
+    # ── Remote path (default) ─────────────────────────────────────────────
+    local manifest
+    manifest=$(fetch_manifest "$pack_name" "$ref") || exit 1
+
+    while IFS= read -r include_line; do
+        [[ -z "$include_line" ]] && continue
+
+        local repo path
+        repo=$(echo "$include_line" | awk '{print $1}')
+        path=$(echo "$include_line" | awk '{print $2}')
+        local items_str
+        items_str=$(echo "$include_line" | cut -d' ' -f3-)
+
+        local item_ref="main"
+        if [[ "$repo" == "${AFX_REPO}" ]]; then
+            item_ref="$ref"
+        fi
+
+        echo -e "  ${CYAN}Downloading from ${repo} (ref: ${item_ref})...${NC}"
+
+        local temp
+        temp=$(download_items "$repo" "$item_ref" "$path" $items_str)
+
+        for item_name in $items_str; do
+            local item_dir="$temp/${path}${item_name}"
+            if [[ ! -d "$item_dir" ]]; then
+                echo -e "  ${YELLOW}Warning: '$item_name' not found in download — skipping${NC}"
+                continue
+            fi
+
+            local type
+            type=$(detect_type "$item_dir" "$repo")
+            echo -e "  ${GREEN}Found: $item_name (type: $type)${NC}"
+
+            if [[ "$DRY_RUN" != "true" ]]; then
+                route_item "$item_dir" "$item_name" "$type" "$category"
+                afx_yaml_add_skill "$item_name" "$category" "$pack_name" "$type"
+                skill_sync "$item_name" "$category" "$type"
+            else
+                INSTALLED+=("  ↓ $item_name ($type)")
+            fi
+        done
+
+        rm -rf "$temp"
+    done < <(for_each_include "$manifest")
+
+    afx_yaml_set_pack "$pack_name" "$ref"
+    rm -f "$manifest"
+
+    echo -e "${GREEN}Pack '$pack_name' installed (ref: $ref).${NC}"
+    echo ""
+}
+
+pack_remove() {
+    local input_name="$1"
+    local pack_name
+    pack_name=$(normalize_pack_name "$input_name")
+    local category
+    category=$(category_from_pack "$pack_name")
+
+    # Remove skill copies from .agents/skills/
+    pack_remove_from_agents "$pack_name"
+
+    # Remove canonical skills
+    if [[ "$DRY_RUN" != "true" ]]; then
+        while IFS=: read -r name cat; do
+            [[ -z "$name" ]] && continue
+            rm -rf "$TARGET_DIR/.afx/skills/$cat/$name"
+            afx_yaml_remove_skill "$name"
+        done < <(afx_yaml_skills_for_pack "$pack_name")
+
+        # Clean up empty category dir
+        [[ -d "$TARGET_DIR/.afx/skills/$category" ]] && \
+            rmdir "$TARGET_DIR/.afx/skills/$category" 2>/dev/null || true
+    fi
+
+    afx_yaml_remove_pack "$pack_name"
+    echo -e "${YELLOW}Pack '$pack_name' removed entirely.${NC}"
+}
+
+# Toggle a skill on or off (enable/disable in .agents/skills/)
+cmd_skill_toggle() {
+    local skill_name="$1"
+    local value="$2"   # "on" or "off"
+
+    # Find skill's category and type from .afx.yaml
+    local yaml="$TARGET_DIR/.afx.yaml"
+    local category="" item_type="" in_skill=false
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^\ \ -\ name:\ $skill_name$ ]]; then in_skill=true; continue; fi
+        if $in_skill && [[ "$line" =~ ^\ \ -\ name: ]]; then break; fi
+        if $in_skill && [[ "$line" =~ ^\ \ \ \ category:\ (.+) ]]; then category="${BASH_REMATCH[1]}"; fi
+        if $in_skill && [[ "$line" =~ ^\ \ \ \ item_type:\ (.+) ]]; then item_type="${BASH_REMATCH[1]}"; fi
+    done < "$yaml"
+
+    if [[ -z "$category" ]]; then
+        echo -e "${RED}Error: Skill '$skill_name' not found in .afx.yaml${NC}"
+        exit 1
+    fi
+
+    if [[ "$value" == "on" ]]; then
+        # Re-sync this skill to .agents/skills/
+        skill_sync "$skill_name" "$category" "$item_type"
+        echo -e "${GREEN}Skill '$skill_name' enabled.${NC}"
+    else
+        # Remove from .agents/skills/ and .claude/skills/
+        if [[ "$DRY_RUN" != "true" ]]; then
+            rm -rf "$TARGET_DIR/.agents/skills/$skill_name"
+            rm -rf "$TARGET_DIR/.claude/skills/$skill_name"
+        fi
+        echo -e "${YELLOW}Skill '$skill_name' disabled.${NC}"
+    fi
+}
+
+# Delete a custom skill entirely
+cmd_skill_delete() {
+    local skill_name="$1"
+
+    # Remove from .agents/skills/, .claude/skills/, and canonical store
+    if [[ "$DRY_RUN" != "true" ]]; then
+        rm -rf "$TARGET_DIR/.agents/skills/$skill_name"
+        rm -rf "$TARGET_DIR/.claude/skills/$skill_name"
+        rm -rf "$TARGET_DIR/.afx/skills/custom/$skill_name"
+    fi
+
+    afx_yaml_remove_skill "$skill_name"
+    echo -e "${YELLOW}Skill '$skill_name' deleted.${NC}"
+}
+
+pack_list() {
+    local has_packs=false
+
+    echo -e "${BLUE}Installed packs:${NC}"
+    echo ""
+
+    while IFS=: read -r name ref; do
+        has_packs=true
+        echo -e "  ${GREEN}●${NC} $name (ref: $ref)"
+
+        # Show skills for this pack
+        while IFS=: read -r skill_name category; do
+            echo -e "    ${DIM}$skill_name${NC}"
+        done < <(afx_yaml_skills_for_pack "$name")
+    done < <(afx_yaml_all_packs)
+
+    if [[ "$has_packs" == "false" ]]; then
+        echo "  (none)"
+        echo ""
+        echo "Install a pack:"
+        echo "  ./afx-cli install afx-pack-qa"
+    fi
+}
+
+pack_update_all() {
+    echo -e "${BLUE}Updating installed packs...${NC}"
+    echo ""
+
+    local index_ref
+    index_ref=$(resolve_ref) || exit 1
+    if [[ "$DRY_RUN" != "true" ]]; then
+        mkdir -p "$TARGET_DIR/.afx/.cache"
+        curl -sL "https://raw.githubusercontent.com/${AFX_REPO}/${index_ref}/skills.json" \
+            > "$TARGET_DIR/.afx/.cache/lastIndex.json" 2>/dev/null
+    fi
+
+    local updated=0
+    while IFS=: read -r pack_name pack_ref; do
+        [[ -z "$pack_name" ]] && continue
+        echo -e "${BLUE}Updating $pack_name (ref: $pack_ref)...${NC}"
+        pack_remove "$pack_name"
+        pack_install "$pack_name" "$pack_ref"
+        ((updated++))
+    done < <(afx_yaml_all_packs)
+
+    if [[ "$updated" -eq 0 ]]; then
+        echo "  No installed packs to update."
+    fi
+}
+
+add_skill() {
+    local spec="$1"
+    local repo="${spec%%:*}"
+    local full_path="${spec#*:}"
+    local skill_name=$(basename "$full_path")
+    local base_path="$(dirname "$full_path")/"
+
+    echo -e "${BLUE}Installing skill '$skill_name' from $repo...${NC}"
+
+    local temp
+    temp=$(download_items "$repo" "main" "$base_path" "$skill_name")
+
+    local item_dir="$temp/${base_path}${skill_name}"
+    if [[ ! -d "$item_dir" ]]; then
+        echo -e "${RED}Error: Skill '$skill_name' not found in $repo${NC}"
+        rm -rf "$temp"
+        exit 1
+    fi
+
+    local type
+    type=$(detect_type "$item_dir" "$repo")
+
+    if [[ "$DRY_RUN" != "true" ]]; then
+        route_item "$item_dir" "$skill_name" "$type" "custom"
+        afx_yaml_add_skill "$skill_name" "custom" "custom" "$type"
+        skill_sync "$skill_name" "custom" "$type"
+    fi
+
+    rm -rf "$temp"
+    echo -e "${GREEN}Skill '$skill_name' installed from $repo.${NC}"
+}
+
+# ============================================================================
+# Section 8: Install Step Functions (modular)
+# ============================================================================
+
+DEFAULT_PACKS=("afx-pack-starter" "afx-pack-agenticflowx")
+
+step_skills() {
+    echo -e "${BLUE}Syncing skills to .agents/skills/ (+ .claude/skills/ if Claude enabled)...${NC}"
+
+    local canonical_root="$TARGET_DIR/.afx/skills"
+
+    # Collect configured packs
+    local configured_packs=()
+    while IFS=: read -r pack_name pack_ref; do
+        [[ -z "$pack_name" ]] && continue
+        configured_packs+=("$pack_name:$pack_ref")
+    done < <(afx_yaml_all_packs)
+
+    # No packs configured — install defaults (fresh install or v1 upgrade)
+    if [[ ${#configured_packs[@]} -eq 0 ]]; then
+        echo -e "  ${CYAN}No packs configured — installing defaults...${NC}"
+        for default_pack in "${DEFAULT_PACKS[@]}"; do
+            pack_install "$default_pack"
+        done
+    else
+        # Re-install any packs whose category dir is missing from the canonical store
+        for entry in "${configured_packs[@]}"; do
+            local pack_name="${entry%%:*}"
+            local pack_ref="${entry#*:}"
+            local category
+            category=$(category_from_pack "$pack_name")
+            if [ ! -d "$canonical_root/$category" ]; then
+                echo -e "  ${CYAN}Installing pack '$pack_name' into canonical store...${NC}"
+                pack_install "$pack_name" "$pack_ref"
+            fi
+        done
+    fi
+
+    # Sync all canonical skills to .agents/skills/ (+ .claude/skills/ if Claude enabled)
+    if [ ! -d "$canonical_root" ]; then
+        echo -e "${DIM}  No skills to sync.${NC}"
+        return
+    fi
+
+    local synced=0
+    for category_dir in "$canonical_root"/*/; do
+        [ -d "$category_dir" ] || continue
+        local category=$(basename "$category_dir")
+        for skill_dir in "$category_dir"*/; do
+            [ -d "$skill_dir" ] || continue
+            local skill_name=$(basename "$skill_dir")
+            skill_sync "$skill_name" "$category"
+            ((synced++))
+        done
+    done
+
+    echo -e "${DIM}  Synced $synced skill(s) to .agents/skills/ (+ .claude/skills/ if Claude enabled).${NC}"
+}
+
+step_templates() {
+    echo -e "${BLUE}Installing templates...${NC}"
+    local dir="$TARGET_DIR/docs/agenticflowx/templates"
+
+    if [ -d "$AFX_DIR/templates" ]; then
+        for tpl in "$AFX_DIR"/templates/*.md; do
+            if [ -f "$tpl" ]; then
+                local filename=$(basename "$tpl")
+                install_file "$tpl" "$dir/$filename" "Template: $filename" "$UPDATE_MODE"
+            fi
+        done
+    fi
+}
+
+step_config() {
+    echo -e "${BLUE}Managing configuration...${NC}"
+
+    # Ensure .afx/ folder exists
+    [[ "$DRY_RUN" != "true" ]] && mkdir -p "$TARGET_DIR/.afx/.cache"
+    ensure_gitignore ".afx/"
+
+    # Managed defaults — always written/overwritten in .afx/.afx.yaml
+    install_file "$AFX_DIR/.afx.yaml.template" "$TARGET_DIR/.afx/.afx.yaml" ".afx/.afx.yaml" "true"
+
+    # User config — never overwritten (unless --force)
+    if [ -f "$TARGET_DIR/.afx.yaml" ]; then
+        if [ "$FORCE" = "true" ]; then
+            if [[ "$DRY_RUN" == "true" ]]; then
+                UPDATED+=(".afx.yaml (would reset to minimal)")
+            else
+                write_minimal_user_config
+                UPDATED+=(".afx.yaml (reset to minimal)")
+            fi
+        else
+            SKIPPED+=(".afx.yaml (preserved - user config)")
+        fi
+    else
+        if [[ "$DRY_RUN" == "true" ]]; then
+            INSTALLED+=(".afx.yaml (would create)")
+        else
+            write_minimal_user_config
+            INSTALLED+=(".afx.yaml (created with guide)")
+        fi
+    fi
+}
+
+step_claude_md() {
+    echo -e "${BLUE}Updating CLAUDE.md...${NC}"
+    local snippet_file="$AFX_DIR/prompts/complete.md"
+    if [ -f "$snippet_file" ]; then
+        local snippet_content
+        snippet_content=$(sed -n '/^---$/,$p' "$snippet_file" | tail -n +2)
+        update_md_with_markers \
+            "$TARGET_DIR/CLAUDE.md" \
+            "$AFX_START_MARKER" \
+            "$AFX_END_MARKER" \
+            "$snippet_content" \
+            "CLAUDE.md" \
+            "$(printf '# CLAUDE.md\n\nThis file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.\n')"
+    fi
+}
+
+step_agents_md() {
+    echo -e "${BLUE}Updating AGENTS.md...${NC}"
+    local snippet_file="$AFX_DIR/prompts/agents.md"
+    if [ -f "$snippet_file" ]; then
+        local snippet_content
+        snippet_content=$(sed -n '/^---$/,$p' "$snippet_file" | tail -n +2)
+        update_md_with_markers \
+            "$TARGET_DIR/AGENTS.md" \
+            "$AFX_AGENTS_START_MARKER" \
+            "$AFX_AGENTS_END_MARKER" \
+            "$snippet_content" \
+            "AGENTS.md" \
+            "$(printf '# AGENTS.md\n\nProject instructions for Codex and compatible coding agents.\n')"
+    fi
+}
+
+step_gemini_md() {
+    echo -e "${BLUE}Updating GEMINI.md...${NC}"
+    local snippet_file="$AFX_DIR/prompts/gemini.md"
+    if [ -f "$snippet_file" ]; then
+        local snippet_content
+        snippet_content=$(sed -n '/^---$/,$p' "$snippet_file" | tail -n +2)
+        update_md_with_markers \
+            "$TARGET_DIR/GEMINI.md" \
+            "$AFX_GEMINI_START_MARKER" \
+            "$AFX_GEMINI_END_MARKER" \
+            "$snippet_content" \
+            "GEMINI.md" \
+            "$(printf '# GEMINI.md\n\nProject context for Gemini CLI when working with code in this repository.\n')"
+    fi
+}
+
+step_docs() {
+    echo -e "${BLUE}Installing AFX documentation...${NC}"
+    local dir="$TARGET_DIR/docs/agenticflowx"
+    [[ "$DRY_RUN" != "true" ]] && mkdir -p "$dir"
+
+    for doc in "agenticflowx.md" "guide.md" "cheatsheet.md" "multi-agent.md"; do
+        if [ -f "$AFX_DIR/docs/agenticflowx/$doc" ]; then
+            install_file "$AFX_DIR/docs/agenticflowx/$doc" "$dir/$doc" "AFX Doc: $doc" "$UPDATE_MODE"
+        fi
+    done
+}
+
+# Strip AFX boundary-marked section from a markdown file.
+# If the file becomes empty (only whitespace) after stripping, delete it.
+# Usage: strip_afx_section <file> <start_marker> <end_marker> <label>
+strip_afx_section() {
+    local file="$1"
+    local start_marker="$2"
+    local end_marker="$3"
+    local label="$4"
+
+    [[ -f "$file" ]] || return 0
+
+    if ! grep -q "$start_marker" "$file" 2>/dev/null; then
+        return 0
+    fi
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        REMOVED+=("$label (would strip AFX section)")
+        return 0
+    fi
+
+    # Remove the AFX section (start marker through end marker, inclusive)
+    awk -v start="$start_marker" -v end="$end_marker" '
+        $0 == start { skip=1; next }
+        $0 == end { skip=0; next }
+        !skip { print }
+    ' "$file" > "$file.tmp"
+
+    # Check if file is now empty (only whitespace)
+    if [[ ! -s "$file.tmp" ]] || ! grep -q '[^[:space:]]' "$file.tmp" 2>/dev/null; then
+        rm -f "$file" "$file.tmp"
+        REMOVED+=("$label (deleted — empty after stripping)")
+    else
+        mv "$file.tmp" "$file"
+        REMOVED+=("$label (AFX section stripped)")
+    fi
+}
+
+# Count files matching a glob pattern (returns 0 if none)
+count_glob() {
+    local pattern="$1"
+    local count=0
+    for f in $pattern; do
+        [[ -e "$f" ]] && ((count++))
+    done
+    echo "$count"
+}
+
+# Remove files/dirs matching a glob, with summary
+# Usage: remove_glob <pattern> <label> <type> (type: "file" or "dir")
+remove_glob() {
+    local pattern="$1"
+    local label="$2"
+    local type="$3"
+    local count=$(count_glob "$pattern")
+
+    if [[ "$count" -eq 0 ]]; then
+        return 0
+    fi
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        REMOVED+=("$label ($count items would be removed)")
+        return 0
+    fi
+
+    if [[ "$type" == "dir" ]]; then
+        rm -rf $pattern
+    else
+        rm -f $pattern
+    fi
+    REMOVED+=("$label ($count items removed)")
+}
+
+step_reset() {
+    local REMOVED=()
+    local step=0
+    local total=6
+
+    # ── Step 1: Agent commands/skills ──
+    ((step++))
+    echo -e "${DIM}[${step}/${total}]${NC} ${BOLD}Remove AFX agent commands and skills${NC}"
+
+    local has_items=false
+    local items_preview=""
+    # Current skills target dirs
+    for check in \
+        ".agents/skills/*" \
+        ".claude/skills/*"; do
+        local c=$(count_glob "$TARGET_DIR/$check")
+        if [[ "$c" -gt 0 ]]; then
+            has_items=true
+            items_preview+="      ${DIM}$check ($c items)${NC}\n"
+        fi
+    done
+    # Legacy paths (v1 cleanup)
+    for check in \
+        ".claude/commands/afx-*.md" \
+        ".claude/plugins/*" \
+        ".codex/skills/afx-*" \
+        ".gemini/commands/afx-*.toml" \
+        ".github/prompts/afx-*.prompt.md"; do
+        local c=$(count_glob "$TARGET_DIR/$check")
+        if [[ "$c" -gt 0 ]]; then
+            has_items=true
+            items_preview+="      ${DIM}$check ($c items, legacy)${NC}\n"
+        fi
+    done
+
+    if [[ "$has_items" == "true" ]]; then
+        echo -e "$items_preview"
+        if confirm "  Remove these?"; then
+            # Skills targets
+            remove_glob "$TARGET_DIR/.agents/skills/*" ".agents/skills/" "dir"
+            remove_glob "$TARGET_DIR/.claude/skills/*" ".claude/skills/" "dir"
+            # Legacy v1 paths
+            remove_glob "$TARGET_DIR/.claude/commands/afx-*.md" ".claude/commands/afx-*.md (legacy)" "file"
+            remove_glob "$TARGET_DIR/.claude/plugins/*" ".claude/plugins/ (legacy)" "dir"
+            remove_glob "$TARGET_DIR/.codex/skills/afx-*" ".codex/skills/ (legacy)" "dir"
+            remove_glob "$TARGET_DIR/.gemini/commands/afx-*.toml" ".gemini/commands/ (legacy)" "file"
+            remove_glob "$TARGET_DIR/.github/prompts/afx-*.prompt.md" ".github/prompts/ (legacy)" "file"
+            remove_glob "$TARGET_DIR/.github/prompts/README.md" ".github/prompts/README.md (legacy)" "file"
+        else
+            echo -e "  ${YELLOW}Skipped${NC}"
+        fi
+    else
+        echo -e "  ${DIM}(no AFX commands/skills found)${NC}"
+    fi
+    echo ""
+
+    # ── Step 2: Strip AFX sections from MD files ──
+    ((step++))
+    echo -e "${DIM}[${step}/${total}]${NC} ${BOLD}Strip AFX sections from MD files${NC}"
+
+    local md_targets=()
+    [[ -f "$TARGET_DIR/CLAUDE.md" ]] && grep -q "$AFX_START_MARKER" "$TARGET_DIR/CLAUDE.md" 2>/dev/null && md_targets+=("CLAUDE.md")
+    [[ -f "$TARGET_DIR/AGENTS.md" ]] && grep -q "$AFX_AGENTS_START_MARKER" "$TARGET_DIR/AGENTS.md" 2>/dev/null && md_targets+=("AGENTS.md")
+    [[ -f "$TARGET_DIR/GEMINI.md" ]] && grep -q "$AFX_GEMINI_START_MARKER" "$TARGET_DIR/GEMINI.md" 2>/dev/null && md_targets+=("GEMINI.md")
+
+    if [[ ${#md_targets[@]} -gt 0 ]]; then
+        echo -e "      ${DIM}${md_targets[*]}${NC}"
+        if confirm "  Strip AFX sections? (user content preserved)"; then
+            strip_afx_section "$TARGET_DIR/CLAUDE.md" "$AFX_START_MARKER" "$AFX_END_MARKER" "CLAUDE.md"
+            strip_afx_section "$TARGET_DIR/AGENTS.md" "$AFX_AGENTS_START_MARKER" "$AFX_AGENTS_END_MARKER" "AGENTS.md"
+            strip_afx_section "$TARGET_DIR/GEMINI.md" "$AFX_GEMINI_START_MARKER" "$AFX_GEMINI_END_MARKER" "GEMINI.md"
+        else
+            echo -e "  ${YELLOW}Skipped${NC}"
+        fi
+    else
+        echo -e "  ${DIM}(no AFX sections found in MD files)${NC}"
+    fi
+    echo ""
+
+    # ── Step 3: AFX documentation ──
+    ((step++))
+    echo -e "${DIM}[${step}/${total}]${NC} ${BOLD}Remove AFX documentation${NC}"
+    if [[ -d "$TARGET_DIR/docs/agenticflowx" ]]; then
+        echo -e "      ${DIM}docs/agenticflowx/ (docs + templates)${NC}"
+        if confirm "  Remove?"; then
+            if [[ "$DRY_RUN" == "true" ]]; then
+                REMOVED+=("docs/agenticflowx/ (would remove)")
+            else
+                rm -rf "$TARGET_DIR/docs/agenticflowx"
+                REMOVED+=("docs/agenticflowx/")
+            fi
+        else
+            echo -e "  ${YELLOW}Skipped${NC}"
+        fi
+    else
+        echo -e "  ${DIM}(not found)${NC}"
+    fi
+    echo ""
+
+    # ── Step 4: .afx/ folder ──
+    ((step++))
+    echo -e "${DIM}[${step}/${total}]${NC} ${BOLD}Remove .afx/ folder${NC}"
+    if [[ -d "$TARGET_DIR/.afx" ]]; then
+        echo -e "      ${DIM}.afx/ (skills, cache, managed config)${NC}"
+        if confirm "  Remove?"; then
+            if [[ "$DRY_RUN" == "true" ]]; then
+                REMOVED+=(".afx/ folder (would remove)")
+            else
+                rm -rf "$TARGET_DIR/.afx"
+                REMOVED+=(".afx/ folder")
+            fi
+        else
+            echo -e "  ${YELLOW}Skipped${NC}"
+        fi
+    else
+        echo -e "  ${DIM}(not found)${NC}"
+    fi
+    echo ""
+
+    # ── Step 5: .afx.yaml ──
+    ((step++))
+    echo -e "${DIM}[${step}/${total}]${NC} ${BOLD}Remove .afx.yaml${NC}"
+    if [[ -f "$TARGET_DIR/.afx.yaml" ]]; then
+        echo -e "      ${DIM}.afx.yaml (user config)${NC}"
+        if confirm "  Remove?"; then
+            if [[ "$DRY_RUN" == "true" ]]; then
+                REMOVED+=(".afx.yaml (would remove)")
+            else
+                rm -f "$TARGET_DIR/.afx.yaml"
+                REMOVED+=(".afx.yaml")
+            fi
+        else
+            echo -e "  ${YELLOW}Skipped${NC}"
+        fi
+    else
+        echo -e "  ${DIM}(not found)${NC}"
+    fi
+    echo ""
+
+    # ── Step 6: .gitignore cleanup ──
+    ((step++))
+    echo -e "${DIM}[${step}/${total}]${NC} ${BOLD}Clean .gitignore${NC}"
+    if [[ -f "$TARGET_DIR/.gitignore" ]] && grep -q "^\.afx/" "$TARGET_DIR/.gitignore" 2>/dev/null; then
+        if confirm "  Remove '.afx/' entry from .gitignore?"; then
+            if [[ "$DRY_RUN" != "true" ]]; then
+                sed -i.bak '/^\.afx\/$/d' "$TARGET_DIR/.gitignore"
+                rm -f "$TARGET_DIR/.gitignore.bak"
+            fi
+            REMOVED+=(".gitignore (.afx/ entry)")
+        else
+            echo -e "  ${YELLOW}Skipped${NC}"
+        fi
+    else
+        echo -e "  ${DIM}(no .afx/ entry)${NC}"
+    fi
+    echo ""
+
+    # ── Summary ──
+    if [[ ${#REMOVED[@]} -gt 0 ]]; then
+        echo -e "${YELLOW}Removed:${NC}"
+        for item in "${REMOVED[@]}"; do
+            echo "  - $item"
+        done
+    fi
+}
+
+step_directories() {
+    echo -e "${BLUE}Creating directory structure...${NC}"
+    if [ "$DRY_RUN" != "true" ]; then
+        mkdir -p "$TARGET_DIR/docs/specs"
+        mkdir -p "$TARGET_DIR/docs/adr"
+        mkdir -p "$TARGET_DIR/docs/research"
+    fi
+    if [ ! -d "$TARGET_DIR/docs/specs" ]; then INSTALLED+=("docs/specs/ directory"); fi
+    if [ ! -d "$TARGET_DIR/docs/adr" ]; then INSTALLED+=("docs/adr/ directory"); fi
+    if [ ! -d "$TARGET_DIR/docs/research" ]; then INSTALLED+=("docs/research/ directory"); fi
+}
+
+# ============================================================================
+# Section 9: Main Flow
+# ============================================================================
+
+# Validate target directory
+if [ -z "$TARGET_DIR" ]; then
+    echo -e "${RED}Error: Target project path required${NC}"
+    echo "Usage: ./afx-cli [--update] /path/to/project"
+    exit 1
+fi
+
+TARGET_DIR=$(cd "$TARGET_DIR" 2>/dev/null && pwd || echo "$TARGET_DIR")
+
+if [ ! -d "$TARGET_DIR" ]; then
+    echo -e "${RED}Error: Directory does not exist: $TARGET_DIR${NC}"
+    exit 1
+fi
+
+# Resolve AFX version
+_afx_ref="main"
+if [[ -n "$VERSION" ]]; then
+    _afx_ref=$([[ "$VERSION" == v* ]] && echo "$VERSION" || echo "v$VERSION")
+elif [[ -n "$BRANCH" ]]; then
+    _afx_ref="$BRANCH"
+elif [[ -f "$TARGET_DIR/.afx.yaml" ]]; then
+    _yaml_ver=$(grep '^version:' "$TARGET_DIR/.afx.yaml" 2>/dev/null | awk '{print $2}' | tr -d "'\"")
+    if [[ -n "$_yaml_ver" && "$_yaml_ver" != "main" ]]; then
+        if [[ "$_yaml_ver" =~ ^[0-9] ]]; then
+            _afx_ref=$([[ "$_yaml_ver" == v* ]] && echo "$_yaml_ver" || echo "v$_yaml_ver")
+        else
+            _afx_ref="$_yaml_ver"
+        fi
+    fi
+fi
+AFX_VERSION=$(curl -sL "https://raw.githubusercontent.com/${AFX_REPO}/${_afx_ref}/CHANGELOG.md" | awk '/^## \[/ {print substr($2, 2, length($2)-2); exit}')
+if [ -z "$AFX_VERSION" ]; then
+    AFX_VERSION="Unknown"
+fi
+
+# Header
+echo ""
+if [ "$UPDATE_MODE" = "true" ]; then
+    echo -e "${BLUE}${BOLD}AFX Updater v${AFX_VERSION}${NC}"
+else
+    echo -e "${BLUE}${BOLD}AFX Installer v${AFX_VERSION}${NC}"
+fi
+echo -e "${DIM}Target: $TARGET_DIR${NC}"
+if [ "$DRY_RUN" = "true" ]; then
+    echo -e "${YELLOW}(Dry run — no changes will be made)${NC}"
+fi
+echo ""
+
+# ── Pack-only operations (dispatch and exit) ──────────────────────────────
+
+_pack_only=false
+if [[ -n "$PACK_REMOVE" || "$PACK_LIST" == "true" \
+    || -n "$SKILL_DISABLE" || -n "$SKILL_ENABLE" || ${#PACK_NAMES[@]} -gt 0 \
+    || ( "$UPDATE_PACKS" == "true" && "$UPDATE_MODE" == "true" ) \
+    || -n "$ADD_SKILL" ]]; then
+    _pack_only=true
+fi
+
+PACK_OPERATION=false
+
+
+if [[ ${#PACK_NAMES[@]} -gt 0 && -z "$SKILL_DISABLE" && -z "$SKILL_ENABLE" ]]; then
+    PACK_OPERATION=true
+    for name in "${PACK_NAMES[@]}"; do
+        pack_install "$name"
+    done
+fi
+
+if [[ -n "$PACK_REMOVE" ]]; then
+    PACK_OPERATION=true
+    pack_remove "$PACK_REMOVE"
+fi
+
+if [[ "$PACK_LIST" == "true" ]]; then
+    PACK_OPERATION=true
+    pack_list
+fi
+
+if [[ -n "$SKILL_DISABLE" ]]; then
+    PACK_OPERATION=true
+    cmd_skill_toggle "$SKILL_DISABLE" "off"
+fi
+
+if [[ -n "$SKILL_ENABLE" ]]; then
+    PACK_OPERATION=true
+    cmd_skill_toggle "$SKILL_ENABLE" "on"
+fi
+
+if [[ "$UPDATE_MODE" == "true" && "$UPDATE_PACKS" == "true" ]]; then
+    PACK_OPERATION=true
+    pack_update_all
+fi
+
+if [[ -n "$ADD_SKILL" ]]; then
+    PACK_OPERATION=true
+    add_skill "$ADD_SKILL"
+fi
+
+if [[ "$PACK_OPERATION" == "true" ]]; then
+    echo ""
+    echo -e "${GREEN}Done!${NC}"
+    [ ${#INSTALLED[@]} -gt 0 ] && echo "" && echo "Installed:" && printf '  + %s\n' "${INSTALLED[@]}"
+    [ ${#UPDATED[@]} -gt 0 ] && echo "" && echo "Updated:" && printf '  ~ %s\n' "${UPDATED[@]}"
+    exit 0
+fi
+
+# ── Core Install / Update ────────────────────────────────────────────────
+
+# Determine AFX source directory
+if [[ -n "$SOURCE_DIR" ]]; then
+    # --source flag: use local AFX checkout
+    SOURCE_DIR="$(cd "$SOURCE_DIR" 2>/dev/null && pwd || echo "$SOURCE_DIR")"
+    if [ ! -f "$SOURCE_DIR/.afx.yaml.template" ] && [ ! -f "$SOURCE_DIR/skills.json" ]; then
+        echo -e "${RED}Error: --source path does not look like an AFX checkout: $SOURCE_DIR${NC}"
+        echo "Expected to find .afx.yaml.template or skills.json"
+        exit 1
+    fi
+    AFX_DIR="$SOURCE_DIR"
+    echo -e "${DIM}Using local source: $AFX_DIR${NC}"
+else
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "")"
+
+    if [ -z "$SCRIPT_DIR" ] || [ ! -f "$SCRIPT_DIR/.afx.yaml.template" ]; then
+        echo -e "${YELLOW}Downloading AFX from GitHub...${NC}"
+        TEMP_DIR=$(mktemp -d)
+        trap "rm -rf $TEMP_DIR" EXIT
+
+        clone_branch="${_afx_ref:-main}"
+        git clone --depth 1 --branch "$clone_branch" --quiet https://github.com/${AFX_REPO}.git "$TEMP_DIR/afx" 2>/dev/null || {
+            echo -e "${RED}Error: Failed to clone AFX repository${NC}"
+            echo "Check your internet connection or clone manually:"
+            echo "  git clone https://github.com/${AFX_REPO}.git"
+            exit 1
+        }
+        AFX_DIR="$TEMP_DIR/afx"
+    else
+        AFX_DIR="$SCRIPT_DIR"
+    fi
+fi
+
+# Handle --reset (full uninstall)
+if [[ "$RESET" == "true" ]]; then
+    echo -e "${YELLOW}${BOLD}AFX Reset — Full Uninstall${NC}"
+    echo -e "${DIM}This will remove all AFX-installed files from your project.${NC}"
+    echo ""
+
+    step_reset
+
+    echo ""
+    echo -e "${GREEN}${BOLD}AFX has been fully removed.${NC}"
+    echo ""
+    echo -e "${BLUE}To re-install:${NC}"
+    echo "  ./afx-cli ."
+    echo "  # or"
+    echo "  curl -sL https://raw.githubusercontent.com/${AFX_REPO}/main/afx-cli | bash -s -- ."
+    echo ""
+    exit 0
+fi
+
+# Existing install without --update — confirm before proceeding
+if [[ "$UPDATE_MODE" != "true" && -f "$TARGET_DIR/.afx.yaml" ]]; then
+    if [[ "$YES" != "true" ]]; then
+        echo ""
+        echo -e "${YELLOW}AFX is already installed in this project.${NC}"
+        echo -e "  Use ${BOLD}--update${NC} to update, or ${BOLD}--force${NC} to overwrite."
+        echo ""
+        confirm=""
+        read -r -p "Continue anyway? [y/N] " confirm < /dev/tty 2>/dev/null || confirm="y"
+        if [[ ! "$confirm" =~ ^[Yy] ]]; then
+            echo "Aborted."
+            exit 0
+        fi
+    fi
+fi
+
+# ── Agent selection ────────────────────────────────────────────────────────
+# Determines which skill targets and context files to install:
+#   Claude Code:               .claude/skills/ + CLAUDE.md  (ask, default Y)
+#   Codex/Copilot/Antigravity: .agents/skills/ + AGENTS.md  (ask, default Y)
+#   Gemini CLI:                GEMINI.md                    (ask, default N)
+#
+# Skipped with --yes or --skills-only (use defaults).
+# Explicit flags take precedence over prompts.
+
+if [[ "$YES" != "true" && "$SKILLS_ONLY" != "true" ]]; then
+    echo ""
+    echo -e "${BOLD}Which AI coding agents do you use?${NC}"
+
+    # Claude Code: .claude/skills/ + CLAUDE.md
+    if [[ -z "$NO_CLAUDE_MD" ]]; then
+        echo -en "  Claude Code ${DIM}→ .claude/skills/ + CLAUDE.md${NC} [Y/n] "
+        read -r answer </dev/tty
+        case "$answer" in
+            [nN]|[nN][oO]) NO_CLAUDE_MD=true ;;
+            *) NO_CLAUDE_MD=false ;;
+        esac
+    fi
+
+    # Codex/Copilot/Antigravity: .agents/skills/ + AGENTS.md
+    if [[ -z "$NO_AGENTS_MD" ]]; then
+        echo -en "  Codex / Copilot / Antigravity ${DIM}→ .agents/skills/ + AGENTS.md${NC} [Y/n] "
+        read -r answer </dev/tty
+        case "$answer" in
+            [nN]|[nN][oO]) NO_AGENTS_MD=true ;;
+            *) NO_AGENTS_MD=false ;;
+        esac
+    fi
+
+    # Gemini CLI: GEMINI.md (partial .agents/skills/ support)
+    if [[ -z "$NO_GEMINI_MD" ]]; then
+        echo -en "  Gemini CLI ${DIM}→ GEMINI.md${NC} [y/N] "
+        read -r answer </dev/tty
+        case "$answer" in
+            [yY]|[yY][eE][sS]) NO_GEMINI_MD=false ;;
+            *) NO_GEMINI_MD=true ;;
+        esac
+    fi
+    echo ""
+fi
+
+# Apply defaults for non-interactive mode (--yes, --skills-only)
+[[ -z "$NO_CLAUDE_MD" ]] && NO_CLAUDE_MD=false
+[[ -z "$NO_AGENTS_MD" ]] && NO_AGENTS_MD=false
+[[ -z "$NO_GEMINI_MD" ]] && NO_GEMINI_MD=true
+
+# Bail if no agents selected — nothing to install
+if [[ "$NO_CLAUDE_MD" == "true" && "$NO_AGENTS_MD" == "true" && "$NO_GEMINI_MD" == "true" ]]; then
+    echo -e "${YELLOW}No AI agents selected. At least one is required to install AFX.${NC}"
+    echo -e "${DIM}Re-run and select at least one agent, or use --yes for defaults.${NC}"
+    exit 1
+fi
+
+# ── Step execution ─────────────────────────────────────────────────────────
+# Each step checks --no-* flags.
+
+STEP=0
+total_steps() {
+    local count=1  # step_skills (always runs)
+    ((count+=2))   # templates + config (always)
+    [[ "$NO_CLAUDE_MD" != "true" ]] && ((count++))
+    [[ "$NO_AGENTS_MD" != "true" ]] && ((count++))
+    [[ "$NO_GEMINI_MD" != "true" ]] && ((count++))
+    [[ "$NO_DOCS" != "true" ]] && ((count++))
+    ((count++))  # directory structure
+    echo "$count"
+}
+
+TOTAL=$(total_steps)
+
+run_step() {
+    local label="$1"
+    local func="$2"
+    ((STEP++))
+    echo -e "${DIM}[${STEP}/${TOTAL}]${NC} ${label}"
+    "$func"
+    echo ""
+}
+
+# Sync skills to .agents/skills/
+run_step "Skills → .agents/skills/ (+ .claude/skills/ if Claude enabled)" step_skills
+
+# Skills-only exit
+if [ "$SKILLS_ONLY" = "true" ]; then
+    echo ""
+    echo -e "${GREEN}Skills synced!${NC}"
+    echo ""
+    [ ${#INSTALLED[@]} -gt 0 ] && echo "Installed: ${#INSTALLED[@]}" && printf '  + %s\n' "${INSTALLED[@]}"
+    [ ${#UPDATED[@]} -gt 0 ] && echo "Updated: ${#UPDATED[@]}" && printf '  ~ %s\n' "${UPDATED[@]}"
+    [ ${#SKIPPED[@]} -gt 0 ] && echo "Skipped: ${#SKIPPED[@]}" && printf '  - %s\n' "${SKIPPED[@]}"
+    exit 0
+fi
+
+# Always-available steps
+run_step "Templates" step_templates
+run_step "Configuration (.afx.yaml)" step_config
+
+# MD integration steps (gated by --no-* flags)
+if [[ "$NO_CLAUDE_MD" != "true" ]]; then
+    run_step "CLAUDE.md integration" step_claude_md
+fi
+
+if [[ "$NO_AGENTS_MD" != "true" ]]; then
+    run_step "AGENTS.md integration" step_agents_md
+fi
+
+if [[ "$NO_GEMINI_MD" != "true" ]]; then
+    run_step "GEMINI.md integration" step_gemini_md
+fi
+
+if [[ "$NO_DOCS" != "true" ]]; then
+    run_step "AFX documentation" step_docs
+fi
+
+run_step "Directory structure" step_directories
+
+# ============================================================================
+# Summary
+# ============================================================================
+
+echo ""
+if [ "$UPDATE_MODE" = "true" ]; then
+    echo -e "${GREEN}${BOLD}AFX Update Complete! (v${AFX_VERSION})${NC}"
+else
+    echo -e "${GREEN}${BOLD}AFX Installation Complete! (v${AFX_VERSION})${NC}"
+fi
+echo ""
+
+if [ ${#INSTALLED[@]} -gt 0 ]; then
+    echo -e "${GREEN}Installed:${NC}"
+    for item in "${INSTALLED[@]}"; do
+        echo "  + $item"
+    done
+fi
+
+if [ ${#UPDATED[@]} -gt 0 ]; then
+    echo ""
+    echo -e "${CYAN}Updated:${NC}"
+    for item in "${UPDATED[@]}"; do
+        echo "  ~ $item"
+    done
+fi
+
+if [ ${#SKIPPED[@]} -gt 0 ]; then
+    echo ""
+    echo -e "${YELLOW}Skipped:${NC}"
+    for item in "${SKIPPED[@]}"; do
+        echo "  - $item"
+    done
+fi
+
+echo ""
+if [ "$UPDATE_MODE" = "true" ]; then
+    echo -e "${BLUE}Update notes:${NC}"
+    echo "  - Skills and templates were updated in .agents/skills/"
+    echo "  - .afx/.afx.yaml was updated (managed defaults)"
+    echo "  - .afx.yaml was preserved (your config overrides)"
+    echo "  - MD integration files were replaced (your content preserved)"
+else
+    echo -e "${BLUE}Next steps:${NC}"
+    echo "  1. Edit .afx.yaml to configure your project"
+    echo "  2. Run /afx-init feature <name> (Claude) or ask Codex to run afx-init"
+    echo "  3. See docs/agenticflowx/ for AFX reference documentation"
+    echo "  4. Run /afx-help (Claude) or afx-help (Codex) for command reference"
+fi
+echo ""
+update_ref=$(resolve_ref)
+echo -e "${CYAN}To update AFX later:${NC}"
+echo "  ./afx-cli --update ."
+echo "  # or"
+echo "  curl -sL https://raw.githubusercontent.com/${AFX_REPO}/${update_ref}/afx-cli | bash -s -- --update ."
+echo ""

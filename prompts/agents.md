@@ -16,20 +16,20 @@ Use `afx-xxx` command names to run the matching AFX workflow:
 
 ### Gemini CLI Commands
 
-Use `/afx:xxx` slash commands to run AFX workflows:
+Use `/afx-xxx` slash commands to run AFX workflows:
 
-- `/afx:next`, `/afx:discover`, `/afx:work`, `/afx:dev`, `/afx:check`, `/afx:task`, `/afx:session`, `/afx:init`, `/afx:context`, `/afx:spec`, `/afx:report`, `/afx:help`, `/afx:update`.
+- `/afx-next`, `/afx-discover`, `/afx-work`, `/afx-dev`, `/afx-check`, `/afx-task`, `/afx-session`, `/afx-init`, `/afx-context`, `/afx-spec`, `/afx-report`, `/afx-help`, `/afx-update`.
 
 ### GitHub Copilot Prompts
 
-Use `afx-xxx` prompt files in `.github/prompts/`:
+Use `afx-xxx` prompt files in `.github/agents/`:
 
 - `afx-next`, `afx-discover`, `afx-work`, `afx-dev`, `afx-check`, `afx-task`, `afx-session`, `afx-init`, `afx-context`, `afx-spec`, `afx-report`, `afx-help`, `afx-update`.
 
 ### Source of Truth
 
-Commands and skills delegate to canonical AFX command definitions in:
+All agent platforms delegate to canonical skill definitions in:
 
-- `.claude/commands/afx-*.md`
-- `.gemini/commands/afx-*.md` (Gemini CLI)
-- `.github/prompts/afx-*.prompt.md` (GitHub Copilot)
+- `skills/agenticflowx/` (canonical workflow skills)
+- `.claude/skills/` (Claude Code skill target)
+- `.agents/skills/` (Codex, Copilot, Antigravity skill target)

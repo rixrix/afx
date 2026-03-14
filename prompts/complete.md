@@ -143,77 +143,77 @@ When starting or resuming work on a ticket:
 
 **Discovery**
 
-- `/afx:discover capabilities` - High-level project overview (what exists)
-- `/afx:discover infra [type]` - Find infrastructure provisioning scripts
-- `/afx:discover scripts [keyword]` - Find automation/deployment scripts
-- `/afx:discover tools` - List dev/deployment tools
+- `/afx-discover capabilities` - High-level project overview (what exists)
+- `/afx-discover infra [type]` - Find infrastructure provisioning scripts
+- `/afx-discover scripts [keyword]` - Find automation/deployment scripts
+- `/afx-discover tools` - List dev/deployment tools
 
 **Work Orchestration**
 
-- `/afx:work status` - Quick state check after interruption
-- `/afx:work next <spec-path>` - Pick next task from spec
-- `/afx:work resume [spec|num]` - Continue in-progress work
-- `/afx:work sync [spec] [issue]` - Bidirectional GitHub sync
-- `/afx:work plan [instruction]` - Generate tickets from specs
+- `/afx-work status` - Quick state check after interruption
+- `/afx-work next <spec-path>` - Pick next task from spec
+- `/afx-work resume [spec|num]` - Continue in-progress work
+- `/afx-work sync [spec] [issue]` - Bidirectional GitHub sync
+- `/afx-work plan [instruction]` - Generate tickets from specs
 
 **Task Verification**
 
-- `/afx:task verify <task-id>` - Verify task implementation vs spec
-- `/afx:task summary <task-id>` - Get implementation summary
-- `/afx:task list [phase]` - List tasks by phase
-- `/afx:task status` - Overall task completion
+- `/afx-task verify <task-id>` - Verify task implementation vs spec
+- `/afx-task summary <task-id>` - Get implementation summary
+- `/afx-task list [phase]` - List tasks by phase
+- `/afx-task status` - Overall task completion
 
 **Quality Checks**
 
-- `/afx:check path <feature-path>` - Trace execution path UI → DB (Gate 1)
-- `/afx:check lint [path]` - Audit annotations for PRD compliance
-- `/afx:check links <spec-path>` - Verify cross-references
-- `/afx:check all <feature-path>` - Run all checks
+- `/afx-check path <feature-path>` - Trace execution path UI → DB (Gate 1)
+- `/afx-check lint [path]` - Audit annotations for PRD compliance
+- `/afx-check links <spec-path>` - Verify cross-references
+- `/afx-check all <feature-path>` - Run all checks
 
 **Development Actions**
 
-- `/afx:dev code [instruction]` - Implement with @see traceability
-- `/afx:dev debug [error]` - Debug with spec trace
-- `/afx:dev refactor [scope]` - Refactor maintaining spec alignment
-- `/afx:dev review [scope]` - Code review against specs
-- `/afx:dev test [scope]` - Run/generate tests
+- `/afx-dev code [instruction]` - Implement with @see traceability
+- `/afx-dev debug [error]` - Debug with spec trace
+- `/afx-dev refactor [scope]` - Refactor maintaining spec alignment
+- `/afx-dev review [scope]` - Code review against specs
+- `/afx-dev test [scope]` - Run/generate tests
 
 **Session Capture**
 
-- `/afx:session note "content" [tags]` - Smart note (unifies capture/append)
-- `/afx:session save [feature]` - Save session to log
-- `/afx:session show [feature|all]` - Show recent discussions
-- `/afx:session search "query"` - Search notes across journals
-- `/afx:session recap [feature|all]` - Recap for resumption
-- `/afx:session promote <id>` - Promote discussion to ADR
-- `/afx:next` - Context-aware "Golden Thread" guidance
+- `/afx-session note "content" [tags]` - Smart note (unifies capture/append)
+- `/afx-session save [feature]` - Save session to log
+- `/afx-session show [feature|all]` - Show recent discussions
+- `/afx-session search "query"` - Search notes across journals
+- `/afx-session recap [feature|all]` - Recap for resumption
+- `/afx-session promote <id>` - Promote discussion to ADR
+- `/afx-next` - Context-aware "Golden Thread" guidance
 
 **Reporting**
 
-- `/afx:report health [spec]` - Overall traceability metrics
-- `/afx:report orphans [path]` - Code without @see links
-- `/afx:report coverage <spec>` - Spec → Code coverage map
+- `/afx-report health [spec]` - Overall traceability metrics
+- `/afx-report orphans [path]` - Code without @see links
+- `/afx-report coverage <spec>` - Spec → Code coverage map
 
 **Setup & Context**
 
-- `/afx:init feature <name>` - Create new feature spec
-- `/afx:init adr <title>` - Create global ADR in `docs/adr/`
-- `/afx:context save [feature]` - Generate context bundle
-- `/afx:context load` - Load context from previous context
-- `/afx:help` - Show command reference
+- `/afx-init feature <name>` - Create new feature spec
+- `/afx-init adr <title>` - Create global ADR in `docs/adr/`
+- `/afx-context save [feature]` - Generate context bundle
+- `/afx-context load` - Load context from previous context
+- `/afx-help` - Show command reference
 
 ### Session Discussion Capture
 
-Use `/afx:session` to capture important discussions with AI agents:
+Use `/afx-session` to capture important discussions with AI agents:
 
 ```bash
-/afx:next                                  # "What do I do now?"
-/afx:session note "content"                # Smart note (auto-tags)
-/afx:session note --ref UA-D001 "content"  # Append to discussion
-/afx:session save [feature]                # Summarize session to log
-/afx:session show [feature|all]            # Show recent discussions
-/afx:session search "query"                # Search notes
-/afx:session promote <id>                  # Promote to ADR
+/afx-next                                  # "What do I do now?"
+/afx-session note "content"                # Smart note (auto-tags)
+/afx-session note --ref UA-D001 "content"  # Append to discussion
+/afx-session save [feature]                # Summarize session to log
+/afx-session show [feature|all]            # Show recent discussions
+/afx-session search "query"                # Search notes
+/afx-session promote <id>                  # Promote to ADR
 ```
 
 Discussions are stored in `docs/specs/{feature}/journal.md` with auto-generated tags for filtering.

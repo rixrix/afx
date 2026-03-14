@@ -5,6 +5,30 @@ All notable changes to AFX will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-03-15
+
+### Breaking Changes
+
+- **Script renamed**: `install.sh` → `afx-cli`
+- **Skill targets**: Two targets replace the old 5-provider model:
+  - `.claude/skills/` — Claude Code
+  - `.agents/skills/` — Codex, Copilot, Antigravity
+- **Canonical skill store**: `.afx/skills/{category}/{name}/` replaces `.afx/packs/{pack}/{provider}/skills/`
+- **Removed flags**: `--commands-only`, `--no-copilot-md`, `--pack-enable`, `--pack-disable`
+- **New flags**: `--skills-only`, `--with-gemini-md`, `--yes`
+- **GEMINI.md**: Changed from opt-out to opt-in (`--with-gemini-md`)
+- **copilot-instructions.md**: Removed — Copilot now reads AGENTS.md
+
+### Added
+
+- **Interactive Agent Selection**: Install and update now prompt users to select which AI agents they use (Claude Code, Codex/Copilot/Antigravity, Gemini CLI). Skills and context files are only created for selected agents.
+
+### Changed
+
+- **Dual skill sync**: `skill_sync()` conditionally syncs to both `.claude/skills/` and `.agents/skills/` based on user selection.
+- **Documentation**: Updated all references to reflect new skill targets and agent selection model.
+- **Removed `prompts/copilot.md`**: Copilot now shares AGENTS.md, separate snippet file deleted.
+
 ## [1.7.0] - 2026-03-14
 
 ### Added
@@ -87,7 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Gemini CLI Support**: First-class support for Gemini CLI via proxy commands in `.gemini/commands/`.
-- **ADR Command Awareness**: Global ADRs are now surfaced in `/afx:next`, `/afx:context`, and `/afx:discover`.
+- **ADR Command Awareness**: Global ADRs are now surfaced in `/afx-next`, `/afx-context`, and `/afx-discover`.
 - **Multi-Agent Documentation**: Consolidated agent parity guides into `docs/agenticflowx/multi-agent.md`.
 
 ### Changed
@@ -109,7 +133,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- New AFX framework maintenance command `/afx:update` with:
+- New AFX framework maintenance command `/afx-update` with:
   - `check` subcommand to compare local AFX version against upstream release.
   - `apply` subcommand to execute installer update flow (`--update`) with pass-through safety flags.
 - New Codex skill parity for updates:
@@ -131,7 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Corrected `/afx:update check` behavior when local marker is `AFX Version: Unknown` to return `Status: UNKNOWN` instead of `LOCAL AHEAD`.
+- Corrected `/afx-update check` behavior when local marker is `AFX Version: Unknown` to return `Status: UNKNOWN` instead of `LOCAL AHEAD`.
 
 ## [1.2.0] - 2026-02-25
 
@@ -166,7 +190,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Global Architecture Decision Records (ADRs)** — First-class `docs/adr/` support for project-wide architectural decisions not tied to individual feature specs.
-  - New `/afx:init adr <title>` subcommand generates real ADR content (not placeholder templates) with auto-increment numbering (`ADR-NNNN-kebab-slug.md`).
+  - New `/afx-init adr <title>` subcommand generates real ADR content (not placeholder templates) with auto-increment numbering (`ADR-NNNN-kebab-slug.md`).
   - `install.sh` now creates `docs/adr/` directory in target projects.
   - `.afx.yaml.template` includes new `paths.adr` configuration field.
 - **AFX Dogfooding** — AFX now manages its own development using the spec-driven workflow. Added `.afx.yaml` config and full feature spec at `docs/specs/global-adr/`.
@@ -180,7 +204,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `docs/agenticflowx/cheatsheet.md` — Phase 1 table, file layout.
   - `CLAUDE.md` — Repository structure, command descriptions.
   - `prompts/complete.md`, `prompts/workflow-commands.md`, `prompts/yaml-frontmatter.md` — CLAUDE.md snippets for target project installation.
-- `/afx:init` command now supports both `feature` and `adr` subcommands.
+- `/afx-init` command now supports both `feature` and `adr` subcommands.
 
 ## [1.0.8] - 2026-02-22
 
@@ -205,7 +229,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Inserted a definitive **Global vs Local Context** section in `README.md` and `docs/agenticflowx/agenticflowx.md` to explicitly define how `CLAUDE.md` houses system-wide design tokens (Global Brain), whereas `docs/specs/*/design.md` defines specific component layouts (Feature Brain). Added Mermaid diagrams to visually map this relationship.
 - Added a dedicated **User Interface & UX** section to both `templates/design.md` files so new feature scaffolding properly captures visual requirements.
-- Implemented a new core rule inside `prompts/complete.md` enforcing agents to ingest the global UI parameters from `CLAUDE.md` before composing local `/afx:init` specifications.
+- Implemented a new core rule inside `prompts/complete.md` enforcing agents to ingest the global UI parameters from `CLAUDE.md` before composing local `/afx-init` specifications.
 
 ## [1.0.5] - 2026-02-22
 
@@ -242,9 +266,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Comprehensively updated `README.md` to be less verbose, and highlight the `research/` directory.
-- Renamed the agent `/afx:handoff` command to `/afx:context` for better terminology alignment.
+- Renamed the agent `/afx-handoff` command to `/afx-context` for better terminology alignment.
 - Renamed context subcommands from `prepare/resume` to `save/load`.
-- Updated data retention logic in `/afx:context load` to preserve the context file during load operations rather than immediately clearing it, protecting against accidental window closes.
+- Updated data retention logic in `/afx-context load` to preserve the context file during load operations rather than immediately clearing it, protecting against accidental window closes.
 - Unified and scrubbed legacy `(formerly X)` historical command references from living documentation.
 
 ### Removed
@@ -272,16 +296,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Commands Included
 
-- `/afx:next` - Context-aware guidance
-- `/afx:work` - Workflow orchestration
-- `/afx:dev` - Development with traceability
-- `/afx:check` - Quality gates
-- `/afx:task` - Task verification
-- `/afx:session` - Discussion capture
-- `/afx:report` - Traceability metrics
-- `/afx:init` - Feature scaffolding
-- `/afx:handoff` - Agent session handoff
-- `/afx:help` - Command reference
+- `/afx-next` - Context-aware guidance
+- `/afx-work` - Workflow orchestration
+- `/afx-dev` - Development with traceability
+- `/afx-check` - Quality gates
+- `/afx-task` - Task verification
+- `/afx-session` - Discussion capture
+- `/afx-report` - Traceability metrics
+- `/afx-init` - Feature scaffolding
+- `/afx-handoff` - Agent session handoff
+- `/afx-help` - Command reference
 
 ## [Unreleased]
 

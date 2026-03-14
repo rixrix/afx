@@ -68,7 +68,7 @@ tags: [example]
 
 ## Work Sessions
 
-<!-- Task execution log - updated by /afx:work next, /afx:dev code -->
+<!-- Task execution log - updated by /afx-work next, /afx-dev code -->
 
 | Date       | Task | Action                 | Files Modified               | Agent | Human  |
 | ---------- | ---- | ---------------------- | ---------------------------- | ----- | ------ |

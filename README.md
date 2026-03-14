@@ -65,7 +65,7 @@ graph LR
 
 **2. Execution Verification**
 
-Code isn't done just because it exists. `/afx:check path` traces logic from the UI down to the database to cryptographically prove the path works.
+Code isn't done just because it exists. `/afx-check path` traces logic from the UI down to the database to cryptographically prove the path works.
 
 ```mermaid
 graph TD
@@ -95,7 +95,7 @@ stateDiagram-v2
 
 **4. Stateful Session Contexts & Continuity**
 
-Close your laptop without losing context. `/afx:session save` records your train of thought, and `/afx:context save` bundles it so another agent can instantly resume tomorrow.
+Close your laptop without losing context. `/afx-session save` records your train of thought, and `/afx-context save` bundles it so another agent can instantly resume tomorrow.
 
 ```mermaid
 sequenceDiagram
@@ -103,22 +103,22 @@ sequenceDiagram
     participant H as afx-context.md
     participant B as Agent 2 (Day 2)
 
-    A->>H: /afx:context save
+    A->>H: /afx-context save
     Note over A,H: Saves tasks, decisions, uncommitted files
-    B->>H: /afx:context load
+    B->>H: /afx-context load
     Note over H,B: Loads exact mental state
-    B->>B: /afx:dev code (Continues work)
+    B->>B: /afx-dev code (Continues work)
 ```
 
 ## Why AFX?
 
 | Problem           | Without AFX                                                                            | With AFX                                                                         |
 | :---------------- | :------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------- |
-| **Context**       | "Claude, can you continue from yesterday?" → _Spends 10 minutes re-explaining context_ | `/afx:work resume` → _Claude reads journal, picks up exactly where you left off_ |
+| **Context**       | "Claude, can you continue from yesterday?" → _Spends 10 minutes re-explaining context_ | `/afx-work resume` → _Claude reads journal, picks up exactly where you left off_ |
 | **Scope**         | Claude "fixes a bug" → _Refactors 3 unrelated files you didn't ask for_                | Claude follows specs → _Only implements what's approved, no scope creep_         |
 | **Understanding** | "Why does this function exist?" → _No idea, Claude wrote it 2 weeks ago_               | Every function has a `@see` link → _Instant understanding of why code exists_    |
 | **Completion**    | Task says "Done" → _Code exists but isn't actually called anywhere_                    | Task requires verification → _Both agent AND human must approve before closing_  |
-| **Verification**  | Need to prove feature works → _Manually click through UI hoping nothing breaks_        | `/afx:check path` → _Automated trace from UI → business logic → database_        |
+| **Verification**  | Need to prove feature works → _Manually click through UI hoping nothing breaks_        | `/afx-check path` → _Automated trace from UI → business logic → database_        |
 
 ## The Four-File Structure
 
@@ -155,7 +155,7 @@ docs/specs/user-authentication/
 
 **`journal.md`** - Append-only historical log of all discussions and decisions.
 
-- `/afx:session save` appends entries with timestamps
+- `/afx-session save` appends entries with timestamps
 - **Event log**: All historical context, abandoned ideas, and chronological narrative belong here.
 - Records context: what was discussed, why decisions were made, blockers encountered
 - Makes sessions resumable days/weeks later
@@ -210,11 +210,11 @@ docs/specs/{feature}/research/     # Feature-local ADRs
 **Global ADRs** (`docs/adr/`) are for decisions that affect the entire project — database choice, API versioning strategy, deployment architecture, coding standards. These are created with:
 
 ```bash
-/afx:init adr "database choice"
+/afx-init adr "database choice"
 # Creates: docs/adr/ADR-0001-database-choice.md
 ```
 
-**Feature-local ADRs** (`docs/specs/{feature}/research/`) are scoped to a single feature — which auth provider to use, pagination strategy for a specific API, etc. These are promoted from discussions via `/afx:session promote`.
+**Feature-local ADRs** (`docs/specs/{feature}/research/`) are scoped to a single feature — which auth provider to use, pagination strategy for a specific API, etc. These are promoted from discussions via `/afx-session promote`.
 
 Each ADR follows a standard lifecycle:
 
@@ -259,20 +259,20 @@ By splitting context, your individual feature specs don't have to redefine what 
 
 ### Context & Navigation
 
-**`/afx:next`** - Context-aware guidance
+**`/afx-next`** - Context-aware guidance
 Analyzes your project state and tells you exactly what to work on next. Checks for unapproved specs, incomplete tasks, pending verifications, and stale sessions.
 
-**`/afx:discover [capabilities|scripts|tools|project]`** - Project intelligence
+**`/afx-discover [capabilities|scripts|tools|project]`** - Project intelligence
 Scans your codebase to understand build systems, test runners, package managers, and available tooling. Claude learns how to build, test, and deploy your project.
 
-**`/afx:work status|next|resume|sync`** - Workflow orchestration
+**`/afx-work status|next|resume|sync`** - Workflow orchestration
 
 - `status` - Current work state across all features
 - `next <spec>` - Pick and start the next task from a spec
 - `resume` - Continue interrupted work with full context restoration
 - `sync` - Sync task completion states between code and specs
 
-**`/afx:spec list|show|validate|review|approve`** - Specification management
+**`/afx-spec list|show|validate|review|approve`** - Specification management
 
 - `list` - Show all specs with status, owner, and progress
 - `show <name>` - Display spec overview with phase completion and recent journal entries
@@ -287,23 +287,23 @@ Scans your codebase to understand build systems, test runners, package managers,
 
 ### Development
 
-**`/afx:dev code|refactor|fix`** - Traced development
+**`/afx-dev code|refactor|fix`** - Traced development
 Write code with automatic `@see` annotation insertion. Claude links every function back to the spec section or task that required it. No orphaned code.
 
-**`/afx:init feature|adr <name>`** - Scaffold new work
+**`/afx-init feature|adr <name>`** - Scaffold new work
 
 - `feature <name>` - Creates the four-file spec structure (spec.md, design.md, tasks.md, journal.md)
 - `adr <title>` - Creates a global ADR in `docs/adr/` with auto-incrementing numbering
 
 ### Verification
 
-**`/afx:check path|lint|links`** - Quality gates
+**`/afx-check path|lint|links`** - Quality gates
 
 - `path` - **BLOCKING GATE**: Trace execution from UI → business logic → database
 - `lint` - Verify all code has valid `@see` annotations
 - `links` - Check spec integrity and cross-references
 
-**`/afx:task verify|audit|close`** - Task management
+**`/afx-task verify|audit|close`** - Task management
 
 - `verify <task-id>` - Confirm implementation matches task requirements
 - `audit` - Review all tasks for completion criteria
@@ -311,18 +311,18 @@ Write code with automatic `@see` annotation insertion. Claude links every functi
 
 ### Session Management
 
-**`/afx:session save|recall|list`** - Context preservation
+**`/afx-session save|recall|list`** - Context preservation
 
 - `save` - Capture current discussion into journal.md with structured metadata
 - `recall <session-id>` - Restore previous session context
 - `list` - Browse all recorded sessions across features
 
-**`/afx:context save|load`** - Context transitions
+**`/afx-context save|load`** - Context transitions
 Package current context for transfer to another agent or future session. Includes spec state, task progress, verification status, and discussion history.
 
 ### Reporting
 
-**`/afx:report traceability|health|coverage`** - Project metrics
+**`/afx-report traceability|health|coverage`** - Project metrics
 
 - `traceability` - Code-to-spec coverage analysis
 - `health` - Spec quality and task completion rates
@@ -330,29 +330,29 @@ Package current context for transfer to another agent or future session. Include
 
 ### Framework Maintenance
 
-**`/afx:update check|apply`** - Keep AFX assets current
+**`/afx-update check|apply`** - Keep AFX assets current
 
 - `check` - Compare local AFX version to upstream latest release
-- `apply` - Run installer update flow with optional safety flags (`--dry-run`, `--commands-only`, etc.)
+- `apply` - Run installer update flow with optional safety flags (`--dry-run`, `--skills-only`, etc.)
 
 ## Project Intelligence
 
 AFX doesn't just track specs - it learns how your project works:
 
 ```bash
-/afx:discover capabilities
+/afx-discover capabilities
 ```
 
 **What it discovers:**
 
 | Category          | Examples                                | Used By                                  |
 | ----------------- | --------------------------------------- | ---------------------------------------- |
-| Build systems     | npm/yarn/pnpm scripts, Makefile, gradle | `/afx:check`, `/afx:work`                |
-| Test runners      | jest, pytest, cargo test, go test       | `/afx:dev code` (auto-run after changes) |
+| Build systems     | npm/yarn/pnpm scripts, Makefile, gradle | `/afx-check`, `/afx-work`                |
+| Test runners      | jest, pytest, cargo test, go test       | `/afx-dev code` (auto-run after changes) |
 | Package managers  | npm, yarn, pnpm, pip, cargo             | Dependency installation                  |
-| Development tools | eslint, prettier, tsc, mypy             | `/afx:check lint`                        |
-| Database tools    | Migrations, seeders, schema management  | `/afx:dev` database tasks                |
-| Deployment        | Docker, CI/CD configs, deploy scripts   | `/afx:work` deployment integration       |
+| Development tools | eslint, prettier, tsc, mypy             | `/afx-check lint`                        |
+| Database tools    | Migrations, seeders, schema management  | `/afx-dev` database tasks                |
+| Deployment        | Docker, CI/CD configs, deploy scripts   | `/afx-work` deployment integration       |
 
 **Why this matters:** Claude learns your project's commands and can automatically run tests, linters, and builds without asking how.
 
@@ -388,57 +388,57 @@ stateDiagram-v2
 **Day 1: Starting a new feature**
 
 ```bash
-/afx:init feature user-authentication
+/afx-init feature user-authentication
 # Creates docs/specs/user-authentication/ with all templates
 
 # Edit spec.md with requirements, get approval
-/afx:work next user-authentication
+/afx-work next user-authentication
 # Claude reads tasks.md, picks task 1.1
 
-/afx:dev code
+/afx-dev code
 # Implement login endpoint with @see annotations
 
-/afx:check path
+/afx-check path
 # Trace: LoginButton.onClick() → authService.login() → db.users.findOne()
 # ✓ Gate 1 passed
 
-/afx:session save "Implemented login endpoint, discussed token strategy"
+/afx-session save "Implemented login endpoint, discussed token strategy"
 # Context saved to journal.md
 ```
 
 **Day 2: After lunch (new session)**
 
 ```bash
-/afx:next
+/afx-next
 # AFX: "Resume user-authentication task 1.2 (Password hashing).
 #       Last session saved 2 hours ago. Gate 1 passed for task 1.1."
 
-/afx:work resume
+/afx-work resume
 # Context restored: reads journal, understands token strategy decision
 
-/afx:dev code
+/afx-dev code
 # Implement password hashing with @see annotations
 
-/afx:check path
+/afx-check path
 # Trace password hashing in registration flow
 # ✓ Gate 1 passed
 
-/afx:task verify 1.2
+/afx-task verify 1.2
 # Agent marks [x] in tasks.md
 
 # Human reviews, marks [x]
-/afx:task close 1.2
+/afx-task close 1.2
 # Task closed with both verifications
 ```
 
 **Day 3: Transfer to another developer**
 
 ```bash
-/afx:context save
+/afx-context save
 # Packages: spec state, completed tasks, open discussions, verification status
 
 # Other developer:
-/afx:context load
+/afx-context load
 # Full context restored, continues from task 1.3 without explanation needed
 ```
 
@@ -483,8 +483,8 @@ graph LR
 
 **What this enables:**
 
-- **Impact analysis**: `/afx:report traceability` shows which code will be affected by spec changes
-- **Orphan detection**: `/afx:check lint` finds code without spec justification
+- **Impact analysis**: `/afx-report traceability` shows which code will be affected by spec changes
+- **Orphan detection**: `/afx-check lint` finds code without spec justification
 - **Audit trail**: Understand why every function exists and what requirement it fulfills
 - **Agent guidance**: Claude reads `@see` links to understand context when modifying code
 
@@ -497,28 +497,25 @@ graph LR
 
 ## How It Works Across Agents
 
-AFX maintains a single source of truth for all command definitions, with platform-specific wrappers that delegate to the canonical specs.
+AFX skills are the single source of truth for all agent behavior. Each skill is a standard-compliant `SKILL.md` file under `skills/`. The installer copies skills to the appropriate provider target directory for each agent platform.
 
 ```mermaid
 graph TD
-    A[".claude/commands/afx-*.md<br/>(Source of Truth)"] --> B[".codex/skills/afx-*<br/>(Codex Skills)"]
-    A --> C[".gemini/commands/afx-*.md<br/>(Gemini Commands)"]
-    A --> D[".github/prompts/afx-*.prompt.md<br/>(Copilot Prompts)"]
+    A["skills/<br/>(Source of Truth)"] --> B[".claude/skills/<br/>(Claude Code)"]
+    A --> C[".agents/skills/<br/>(Codex + Copilot + Antigravity)"]
 
     style A fill:#fff3cd
     style B fill:#d1e7dd
-    style C fill:#cfe2ff
-    style D fill:#f8d7da
+    style C fill:#f8d7da
 ```
 
-| Platform           | Command Format        | Files                             |
-| ------------------ | --------------------- | --------------------------------- |
-| **Claude Code**    | `/afx:work next auth` | `.claude/commands/afx-*.md`       |
-| **Codex**          | `afx-work next auth`  | `.codex/skills/afx-*`             |
-| **Gemini CLI**     | `/afx:work next auth` | `.gemini/commands/afx-*.md`       |
-| **GitHub Copilot** | `afx-work next auth`  | `.github/prompts/afx-*.prompt.md` |
+| Skill Target       | Agents                            | Context File |
+| ------------------- | --------------------------------- | ------------ |
+| `.claude/skills/`   | Claude Code                       | CLAUDE.md    |
+| `.agents/skills/`   | Codex, Copilot, Antigravity       | AGENTS.md    |
+| _(none)_            | Gemini CLI (opt-in)               | GEMINI.md    |
 
-**Why `.claude/commands/` is canonical**: Claude command files contain the full behavioral specification — subcommands, validation rules, output formats, and traceability requirements. Other platforms read and delegate to these files rather than duplicating the logic, ensuring all agents behave identically regardless of which one you use.
+**Why `skills/` is canonical**: Skill files contain the full behavioral specification — subcommands, validation rules, output formats, and traceability requirements. Skill target directories receive copies during installation, ensuring all agents behave identically regardless of which one you use.
 
 See [Multi-Agent Commands](docs/agenticflowx/multi-agent.md) for the full parity mapping.
 
@@ -528,31 +525,33 @@ See [Multi-Agent Commands](docs/agenticflowx/multi-agent.md) for the full parity
 
 ```
 afx/
-├── .claude/commands/     # AFX slash commands for Claude Code
-├── .codex/skills/        # AFX skills for Codex
-├── .gemini/commands/     # AFX commands for Gemini CLI
-├── .github/prompts/      # AFX prompts for GitHub Copilot
+├── skills.json              # Standard manifest (pack catalog + version)
+├── skills/                  # All skills (standard SKILL.md format)
+│   ├── dev/                 # Developer skills (clean-code, tdd, debugging, git, patterns)
+│   ├── qa/                  # QA skills (methodology, test-planning)
+│   ├── security/            # Security skills (owasp, audit)
+│   ├── architect/           # Architect skills (architect, research)
+│   ├── product-owner/       # Product owner skills
+│   ├── starter/             # Starter skills (hello)
+│   └── agenticflowx/       # Workflow skills (next, work, dev, check, task, session, etc.)
+├── packs/                   # Pack manifests (afx-pack-*.yaml)
 ├── docs/
-│   ├── adr/             # Global Architecture Decision Records
-│   ├── agenticflowx/    # Framework documentation
-│   └── specs/           # Feature specifications
-├── templates/            # Spec templates (spec, design, tasks, journal, adr)
-├── prompts/              # Integration snippets (CLAUDE.md, AGENTS.md, GEMINI.md, copilot-instructions.md)
-├── examples/             # Example project setup
-├── install.sh            # One-line installer script
-└── .afx.yaml.template    # Configuration template
+│   ├── adr/                 # Global Architecture Decision Records
+│   ├── agenticflowx/        # Framework documentation
+│   └── specs/               # Feature specifications
+├── templates/               # Spec templates (spec, design, tasks, journal, adr)
+├── prompts/                 # Integration snippets (CLAUDE.md, AGENTS.md, GEMINI.md)
+├── examples/                # Example project setup
+├── afx-cli                  # CLI installer/manager script
+└── .afx.yaml.template       # Configuration template
 ```
 
 **Your Project (after install):**
 
 ```
 your-project/
-├── .claude/commands/     # AFX slash commands
-├── .codex/skills/        # AFX Codex skills
-├── .gemini/commands/     # AFX Gemini CLI commands
-├── .github/
-│   ├── prompts/          # AFX Copilot prompts
-│   └── copilot-instructions.md  # Copilot project instructions (with AFX section)
+├── .claude/skills/       # AFX skills for Claude Code
+├── .agents/skills/       # AFX skills for Codex + Copilot + Antigravity
 ├── docs/
 │   ├── adr/              # Global Architecture Decision Records
 │   ├── agenticflowx/     # AFX reference documentation
@@ -573,8 +572,8 @@ your-project/
 │           └── journal.md
 ├── .afx.yaml             # Project configuration
 ├── CLAUDE.md             # Claude Code instructions (with AFX section)
-├── AGENTS.md             # Codex/agent instructions (with AFX section)
-└── GEMINI.md             # Gemini CLI instructions (with AFX section)
+├── AGENTS.md             # Codex/Copilot/Antigravity instructions (with AFX section)
+└── GEMINI.md             # Gemini CLI instructions (opt-in, with AFX section)
 ```
 
 ## Configuration
@@ -631,7 +630,7 @@ graph LR
 
 ### Gate 1: Path Verification (BLOCKING)
 
-**Command**: `/afx:check path`
+**Command**: `/afx-check path`
 
 Traces code execution through the stack to prove the feature actually works:
 
@@ -646,7 +645,7 @@ Traces code execution through the stack to prove the feature actually works:
 
 ### Gate 2: Annotation Compliance
 
-**Command**: `/afx:check lint`
+**Command**: `/afx-check lint`
 
 Verifies every function has valid `@see` annotations linking to specs. Finds:
 
@@ -669,7 +668,7 @@ export function calculateTax(amount) { ... }
 
 ### Gate 3: Spec Integrity
 
-**Command**: `/afx:check links`
+**Command**: `/afx-check links`
 
 Validates spec document cross-references:
 
@@ -686,7 +685,7 @@ Validates spec document cross-references:
 
 ### Gate 4: Requirements Alignment
 
-**Command**: `/afx:task audit`
+**Command**: `/afx-task audit`
 
 Compares implementation against task acceptance criteria:
 
@@ -697,7 +696,7 @@ Compares implementation against task acceptance criteria:
 **Example:**
 
 ```markdown
-# Failure Report from /afx:task audit
+# Failure Report from /afx-task audit
 
 Task: 1.2 Implement JWT token generation
 Status: REJECTED ❌
@@ -727,7 +726,7 @@ Reason: Spec requires 24-hour expiry, but implementation hardcodes 1-hour expiry
 - **Two-Stage Verification**
   - Agents implement; humans verify. Both columns must show `[x]` before tasks close.
 - **Execution Proof over Promises**
-  - Don't trust that code works just because it exists. `/afx:check path` traces execution from the entry point to the database to prove the path is wired up.
+  - Don't trust that code works just because it exists. `/afx-check path` traces execution from the entry point to the database to prove the path is wired up.
 
 ## Best Used For
 
@@ -774,25 +773,25 @@ tags: [auth, security, api] # Categorization
 
 **Why this matters:**
 
-- `/afx:next` scans frontmatter to find unapproved specs (status: Draft)
-- `/afx:work status` groups features by tags
-- `/afx:report health` tracks approval rates and ownership
+- `/afx-next` scans frontmatter to find unapproved specs (status: Draft)
+- `/afx-work status` groups features by tags
+- `/afx-report health` tracks approval rates and ownership
 - Claude knows which documents are authoritative (afx: true)
 
 ## Common Scenarios
 
 | Problem                                       | Solution                                                 | Command                      |
 | --------------------------------------------- | -------------------------------------------------------- | ---------------------------- |
-| Need to step away mid-task                    | Save context, resume later with full memory              | `/afx:session save → resume` |
-| Claude added features I didn't ask for        | Claude reads approved spec, only implements listed tasks | `/afx:work next <spec>`      |
-| Need to prove feature actually works          | Trace execution from UI → logic → database               | `/afx:check path`            |
-| Can't remember why we made a design decision  | Recall saved session with full context                   | `/afx:session recall`        |
-| New developer needs to take over              | Package context, transfer with zero explanation needed   | `/afx:context save → load`   |
-| Refactor broke something but tests still pass | Path verification catches missing execution links        | `/afx:check path`            |
-| Which code breaks if I change this spec?      | Impact analysis shows all `@see` links to that section   | `/afx:report traceability`   |
-| Lost in codebase, what should I work on?      | Context-aware guidance based on project state            | `/afx:next`                  |
+| Need to step away mid-task                    | Save context, resume later with full memory              | `/afx-session save → resume` |
+| Claude added features I didn't ask for        | Claude reads approved spec, only implements listed tasks | `/afx-work next <spec>`      |
+| Need to prove feature actually works          | Trace execution from UI → logic → database               | `/afx-check path`            |
+| Can't remember why we made a design decision  | Recall saved session with full context                   | `/afx-session recall`        |
+| New developer needs to take over              | Package context, transfer with zero explanation needed   | `/afx-context save → load`   |
+| Refactor broke something but tests still pass | Path verification catches missing execution links        | `/afx-check path`            |
+| Which code breaks if I change this spec?      | Impact analysis shows all `@see` links to that section   | `/afx-report traceability`   |
+| Lost in codebase, what should I work on?      | Context-aware guidance based on project state            | `/afx-next`                  |
 | Need to understand what this function does    | Read `@see` annotation to jump to spec                   | Check JSDoc in code          |
-| Task marked done but not actually complete    | Two-stage verification: agent + human both must approve  | `/afx:task verify → close`   |
+| Task marked done but not actually complete    | Two-stage verification: agent + human both must approve  | `/afx-task verify → close`   |
 
 ## Quick Start
 
@@ -800,28 +799,23 @@ tags: [auth, security, api] # Categorization
 
 ```bash
 # From your project directory
-curl -sL https://raw.githubusercontent.com/rixrix/afx/main/install.sh | bash -s -- .
+curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- .
 ```
 
 Or if you have AFX cloned locally:
 
 ```bash
-./path/to/afx/install.sh /path/to/your/project
+./path/to/afx/afx-cli /path/to/your/project
 ```
 
-This installs:
+The installer prompts you to select which AI agents you use, then installs:
 
-- Claude Code slash commands to `.claude/commands/`
-- Codex skills to `.codex/skills/`
-- Gemini CLI commands to `.gemini/commands/`
-- GitHub Copilot prompts to `.github/prompts/`
+- AFX skills to selected skill targets (`.claude/skills/` and/or `.agents/skills/`)
 - Templates to `docs/agenticflowx/templates/`
 - Configuration file `.afx.yaml`
 - AFX documentation to `docs/agenticflowx/`
-- AFX snippets to `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, and `.github/copilot-instructions.md`
+- Context files for selected agents (`CLAUDE.md`, `AGENTS.md`, and optionally `GEMINI.md`)
 - Directory structure: `docs/specs/` and `docs/adr/`
-
-Dogfooding this repository with Codex, Gemini CLI, and GitHub Copilot uses the same versioned paths.
 
 ## How to create your first specs
 

@@ -118,7 +118,7 @@ Phase N: {Continue as needed}
 
 ## Work Sessions
 
-<!-- Task execution log — updated by /afx:work, /afx:dev -->
+<!-- Task execution log — updated by /afx-work, /afx-dev -->
 
 | Date | Task | Action | Files Modified | Agent | Human |
 | ---- | ---- | ------ | -------------- | ----- | ----- |

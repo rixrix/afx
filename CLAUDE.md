@@ -8,10 +8,8 @@ AFX (AgenticFlowX) is a **spec-driven development framework** for AI-assisted co
 
 This is a **documentation and tooling repository** - it contains:
 
-- Claude Code slash commands (`.claude/commands/`)
-- Codex skills (`.codex/skills/`)
-- Gemini CLI commands (`.gemini/commands/`)
-- GitHub Copilot prompts (`.github/prompts/`)
+- Standard-compliant skills (`skills/`) — SKILL.md format with 4-field frontmatter
+- Pack manifests (`packs/`) — grouping skills into installable role/workflow packs
 - Spec templates (`templates/`)
 - Framework documentation (`docs/`)
 - CLAUDE.md snippets for integration (`prompts/`)
@@ -20,37 +18,38 @@ This is a **documentation and tooling repository** - it contains:
 
 ```
 afx/
-├── .agent/skills/        # AFX Antigravity skills (afx-*)
-├── .claude/commands/     # AFX slash commands (/afx:*)
-├── .codex/skills/        # AFX Codex skills (afx-*)
-├── .gemini/commands/     # AFX Gemini CLI commands (/afx:*)
-├── .github/prompts/      # AFX GitHub Copilot prompts
-├── packs/                # Pack manifests + index (afx-pack-*.yaml)
-├── skills/               # AFX-built skills (guardrails baked in)
-├── scripts/              # Utility scripts (sync, install support)
+├── skills.json              # Standard manifest (pack catalog + version)
+├── skills/                  # All skills (standard SKILL.md format)
+│   ├── dev/                 # Developer skills (clean-code, tdd, debugging, git, patterns)
+│   ├── qa/                  # QA skills (methodology, test-planning)
+│   ├── security/            # Security skills (owasp, audit)
+│   ├── architect/           # Architect skills (architect, research)
+│   ├── product-owner/       # Product owner skills
+│   ├── starter/             # Starter skills (hello)
+│   └── agenticflowx/       # Workflow skills (next, work, dev, check, task, session, etc.)
+├── packs/                   # Pack manifests (afx-pack-*.yaml)
+├── scripts/                 # Utility scripts
 ├── docs/
-│   ├── adr/             # Global Architecture Decision Records
+│   ├── adr/                # Global Architecture Decision Records
 │   ├── agenticflowx/
-│   │   ├── agenticflowx.md  # Full framework manual
-│   │   ├── guide.md         # SDD methodology guide
-│   │   └── cheatsheet.md    # Quick reference
-│   └── specs/           # Feature specs (spec.md, design.md, tasks.md, journal.md)
-├── templates/           # Spec templates (spec.md, design.md, tasks.md, adr.md, etc.)
-├── prompts/             # Snippets to add to target project CLAUDE.md
-├── examples/            # Example project setup
-└── .afx.yaml.template   # Configuration template
+│   │   ├── agenticflowx.md # Full framework manual
+│   │   ├── guide.md        # SDD methodology guide
+│   │   └── cheatsheet.md   # Quick reference
+│   └── specs/              # Feature specs (spec.md, design.md, tasks.md, journal.md)
+├── templates/              # Spec templates
+├── prompts/                # Snippets to add to target project CLAUDE.md
+├── examples/               # Example project setup
+└── .afx.yaml.template      # Configuration template
 ```
 
 ## Development
 
 This is a documentation-only repo with no build or test commands. Changes are verified by:
 
-1. Testing commands in a real project (copy to `.claude/commands/`)
-2. Testing Codex skills in a real project (copy to `.codex/skills/`)
-3. Testing Antigravity skills in a real project (copy to `.agent/skills/`)
-4. Testing Copilot prompts in a real project (copy to `.github/prompts/`)
-5. Reviewing markdown rendering
-6. Verifying YAML frontmatter syntax
+1. Testing skills in a real project (install via `afx-cli`)
+2. Reviewing markdown rendering
+3. Verifying YAML/SKILL.md frontmatter syntax
+4. Validating skills against `skills-ref validate <path>`
 
 ## Key Concepts
 
@@ -78,33 +77,33 @@ Code MUST link back to specs via JSDoc `@see` annotations:
 
 | Command         | Purpose                                             |
 | --------------- | --------------------------------------------------- |
-| `/afx:next`     | Context-aware "What should I do now?"               |
-| `/afx:discover` | Project discovery (scripts, tools, capabilities)    |
-| `/afx:work`     | Workflow orchestration (status, next, resume, sync) |
-| `/afx:dev`      | Development with @see traceability                  |
-| `/afx:check`    | Quality gates (path, lint, links)                   |
-| `/afx:task`     | Task verification and auditing                      |
-| `/afx:session`  | Discussion capture and recall                       |
-| `/afx:init`     | Feature scaffolding + ADR creation                  |
-| `/afx:context`  | Agent session context                               |
-| `/afx:update`   | Framework update check and apply                    |
+| `/afx-next`     | Context-aware "What should I do now?"               |
+| `/afx-discover` | Project discovery (scripts, tools, capabilities)    |
+| `/afx-work`     | Workflow orchestration (status, next, resume, sync) |
+| `/afx-dev`      | Development with @see traceability                  |
+| `/afx-check`    | Quality gates (path, lint, links)                   |
+| `/afx-task`     | Task verification and auditing                      |
+| `/afx-session`  | Discussion capture and recall                       |
+| `/afx-init`     | Feature scaffolding + ADR creation                  |
+| `/afx-context`  | Agent session context                               |
+| `/afx-update`   | Framework update check and apply                    |
 
 ### Standard Workflow
 
 ```
-/afx:next                      # What do I do now?
-/afx:discover capabilities     # Understand project setup
-/afx:work status               # Check current state
-/afx:work next <spec>          # Pick next task
-/afx:dev code                  # Implement with @see links
-/afx:check path                # Trace execution flow (BLOCKING)
-/afx:task audit                # Verify against spec
-/afx:session save              # Save discussion to journal
+/afx-next                      # What do I do now?
+/afx-discover capabilities     # Understand project setup
+/afx-work status               # Check current state
+/afx-work next <spec>          # Pick next task
+/afx-dev code                  # Implement with @see links
+/afx-check path                # Trace execution flow (BLOCKING)
+/afx-task audit                # Verify against spec
+/afx-session save              # Save discussion to journal
 ```
 
 ### Quality Gates
 
-Gate 1 (`/afx:check path`) is **blocking** - tasks cannot be closed without path verification that traces execution from UI to DB.
+Gate 1 (`/afx-check path`) is **blocking** - tasks cannot be closed without path verification that traces execution from UI to DB.
 
 ### Two-Stage Verification
 
@@ -150,29 +149,29 @@ Use only the line matching the agent that assisted with the commit.
 **One-line install** (from target project directory):
 
 ```bash
-curl -sL https://raw.githubusercontent.com/rix/afx/main/install.sh | bash -s -- .
+curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- .
 ```
 
 **Local install** (if AFX is cloned):
 
 ```bash
-./install.sh /path/to/target/project
+./afx-cli /path/to/target/project
 ```
 
 **Update existing installation**:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/rix/afx/main/install.sh | bash -s -- --update .
+curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- --update .
 ```
 
 **Options**:
 
 - `--update` - Update existing installation (preserves user config)
-- `--commands-only` - Only install command assets (`.claude` + `.codex` + `.gemini` + `.github/prompts`)
-- `--no-claude-md` - Skip CLAUDE.md snippet integration
-- `--no-agents-md` - Skip AGENTS.md snippet integration
-- `--no-gemini-md` - Skip GEMINI.md snippet integration
-- `--no-copilot-md` - Skip copilot-instructions.md snippet integration
+- `--skills-only` - Only install skill assets (`.claude/skills/` + `.agents/skills/`)
+- `--no-claude-md` - Skip Claude Code setup (`.claude/skills/` + CLAUDE.md)
+- `--no-agents-md` - Skip Codex/Copilot/Antigravity setup (`.agents/skills/` + AGENTS.md)
+- `--with-gemini-md` - Opt-in to Gemini CLI setup (GEMINI.md)
 - `--no-docs` - Skip copying AFX documentation to docs/agenticflowx/
 - `--dry-run` - Preview changes without applying
 - `--force` - Overwrite all files (fresh install)
+- `--yes` - Non-interactive mode (accept defaults)

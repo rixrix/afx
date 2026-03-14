@@ -7,22 +7,16 @@ name: afx-pack-security
 description: Security review and audit pack — OWASP, dependency scanning, code hardening
 category: role
 
-platforms:
-  claude: true
-  codex: true
-  antigravity: true
-  copilot: partial # Only AFX-built skills — no external SKILL.md conversion
-
 includes:
-  # Claude Code plugins (pristine — .claude-plugin/ format → Claude only)
+  # AFX-built skills (guardrails baked in, hosted in AFX repo)
+  - repo: rixrix/afx
+    path: skills/security/
+    items:
+      - afx-owasp-top-10 # OWASP top 10 checklist with @see tracing
+      - afx-security-audit # Security audit workflow
+
+  # Claude Code plugins (pristine — .claude-plugin/ format)
   - repo: anthropics/claude-code
     path: plugins/
     items:
       - security-guidance
-
-  # AFX-built skills (guardrails baked in, hosted in AFX repo)
-  - repo: rixrix/afx
-    path: skills/
-    items:
-      - afx-owasp-top-10 # OWASP top 10 checklist with @see tracing
-      - afx-security-audit # Security audit workflow

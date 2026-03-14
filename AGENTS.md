@@ -8,47 +8,35 @@ AFX (AgenticFlowX) provides spec-driven workflows for AI coding agents.
 
 This repository contains:
 
-- Claude command specs in `.claude/commands/`
-- Codex skills in `.codex/skills/`
-- Gemini CLI commands in `.gemini/commands/`
-- GitHub Copilot prompts in `.github/prompts/`
+- Standard-compliant skills in `skills/` (SKILL.md format)
+- Pack manifests in `packs/` (grouping skills into installable packs)
 - Framework docs in `docs/`
 - Installer and prompt snippets for downstream projects
 
-## AFX AI Commands
+## AFX Skills
 
-This project supports multiple AI agents. Use the appropriate format:
+All skills use the Agent Skills standard format (SKILL.md with 4-field frontmatter). Skills are organized by category:
 
-### Codex Skills
+- `skills/dev/` — Developer skills (clean-code, tdd, debugging, git, patterns)
+- `skills/qa/` — QA skills (methodology, test-planning)
+- `skills/security/` — Security skills (owasp, audit)
+- `skills/architect/` — Architect skills (architect, research)
+- `skills/product-owner/` — Product owner skills
+- `skills/starter/` — Starter skills (hello)
+- `skills/agenticflowx/` — Workflow skills (next, work, dev, check, task, session, etc.)
 
-Use `afx-xxx` command names:
+## Provider Targets
 
-- `afx-next`, `afx-discover`, `afx-work`, `afx-dev`, `afx-check`, `afx-task`, `afx-session`, `afx-init`, `afx-context`, `afx-spec`, `afx-report`, `afx-help`, `afx-update`.
+Skills are installed to provider-specific directories by `afx-cli`:
 
-### Gemini CLI Commands
-
-Use `/afx:xxx` slash commands:
-
-- `/afx:next`, `/afx:discover`, `/afx:work`, `/afx:dev`, `/afx:check`, `/afx:task`, `/afx:session`, `/afx:init`, `/afx:context`, `/afx:spec`, `/afx:report`, `/afx:help`, `/afx:update`.
-
-### GitHub Copilot Prompts
-
-Use `afx-xxx` prompt files in `.github/prompts/`:
-
-- `afx-next`, `afx-discover`, `afx-work`, `afx-dev`, `afx-check`, `afx-task`, `afx-session`, `afx-init`, `afx-context`, `afx-spec`, `afx-report`, `afx-help`, `afx-update`.
-
-## Command Compatibility
-
-- Claude/Gemini: `/afx:work next user-auth`
-- Codex: `afx-work next user-auth`
-- Copilot: `afx-work next user-auth` (via `.github/prompts/`)
+| Provider | Target Directory  | Agents                          |
+| -------- | ----------------- | ------------------------------- |
+| agents   | `.agents/skills/` | Claude Code, Codex, Antigravity |
+| copilot  | `.github/agents/` | GitHub Copilot                  |
 
 ## Source of Truth
 
-Agent-specific commands and skills delegate to canonical definitions in:
-
-- `.claude/commands/afx-*.md`
-- `.gemini/commands/afx-*.md` (Gemini CLI)
+Canonical skill definitions live in `skills/` (standard SKILL.md format).
 - `.github/prompts/afx-*.prompt.md` (GitHub Copilot)
 
 See [Multi-Agent Commands](docs/agenticflowx/multi-agent.md) for parity mapping.

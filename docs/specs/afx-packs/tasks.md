@@ -21,8 +21,8 @@ Tasks use hierarchical numbering for cross-referencing:
 
 - **1.x** - Phase 1: Manifests & Index (static files in AFX repo)
 - **2.x** - Phase 2: AFX-Built Skills (guardrails skills in AFX repo)
-- **3.x** - Phase 3: install.sh — Download & Detection (new functions)
-- **4.x** - Phase 4: install.sh — State Management (lifecycle commands)
+- **3.x** - Phase 3: afx-cli — Download & Detection (new functions)
+- **4.x** - Phase 4: afx-cli — State Management (lifecycle commands)
 
 References:
 
@@ -125,17 +125,17 @@ References:
 
 ---
 
-## Phase 3: install.sh — Download & Detection
+## Phase 3: afx-cli — Download & Detection
 
 > Ref: [DESIGN-3.1] through [DESIGN-3.8], [FR-13], [FR-24a/b], [FR-34], [FR-25] through [FR-31], [FR-44], [FR-45]
 
 ### 3.1 Argument Parsing
 
-> File: `install.sh`
+> File: `afx-cli`
 
 - [x] Add `--pack NAME` flag (repeatable for multiple packs) `[FR-13] [FR-14]`
-- [x] Add `--pack-disable NAME` flag `[FR-15]`
-- [x] Add `--pack-enable NAME` flag `[FR-16]`
+- [x] ~~Add `--pack-disable NAME` flag `[FR-15]`~~ — Removed
+- [x] ~~Add `--pack-enable NAME` flag `[FR-16]`~~ — Removed
 - [x] Add `--pack-remove NAME` flag `[FR-17]`
 - [x] Add `--pack-list` flag `[FR-18]`
 - [x] Add `--skill-disable NAME --pack PACK` flag combination `[FR-19]`
@@ -150,7 +150,7 @@ References:
 
 ### 3.2 Manifest Fetch
 
-> File: `install.sh` — `fetch_manifest()` function
+> File: `afx-cli` — `fetch_manifest()` function
 
 - [x] Implement `fetch_manifest()` — fetch YAML manifest from `raw.githubusercontent.com` `[DESIGN-3.4]`
 - [x] Resolve ref: `--version` → `v{tag}`, `--branch` → `{branch}`, default → `main`
@@ -159,7 +159,7 @@ References:
 
 ### 3.3 Download Items
 
-> File: `install.sh` — `download_items()` function
+> File: `afx-cli` — `download_items()` function
 
 - [x] Implement `download_items()` — download via `codeload.github.com` tarballs `[NFR-2]`
 - [x] Extract specific `path/items[]` from tarball using `tar --strip-components` `[DESIGN-3.5]`
@@ -169,7 +169,7 @@ References:
 
 ### 3.4 Skill Type Detection
 
-> File: `install.sh` — `detect_type()` function
+> File: `afx-cli` — `detect_type()` function
 
 - [x] Implement `detect_type()` with detection rules `[DESIGN-3.6]`
 - [x] Detect Simple Skill: `SKILL.md` at root, no `.claude-plugin/` → Claude + Codex + Antigravity `[FR-34]`
@@ -180,7 +180,7 @@ References:
 
 ### 3.5 Item Routing
 
-> File: `install.sh` — `route_item()` function
+> File: `afx-cli` — `route_item()` function
 
 - [x] Implement `route_item()` — route detected items to `.afx/packs/{pack}/{provider}/` `[DESIGN-3.7]`
 - [x] Simple Skills → `claude/skills/{name}/` AND `codex/skills/{name}/` AND `antigravity/skills/{name}/` `[FR-39]`
@@ -193,7 +193,7 @@ References:
 
 ### 3.6 Name Collision Detection
 
-> File: `install.sh` — `check_collision()` function
+> File: `afx-cli` — `check_collision()` function
 
 - [x] Implement `check_collision()` — check if destination already owned by another pack `[FR-44]`
 - [x] Scan provider directories for existing items before copy `[DESIGN-3.8]`
@@ -202,7 +202,7 @@ References:
 
 ### 3.7 Gitignore Management
 
-> File: `install.sh` — `ensure_gitignore()` function
+> File: `afx-cli` — `ensure_gitignore()` function
 
 - [x] Implement `ensure_gitignore()` — add `.afx/` to `.gitignore` `[FR-31] [NFR-7]`
 - [x] Only add if not already present `[NFR-6]`
@@ -210,13 +210,13 @@ References:
 
 ---
 
-## Phase 4: install.sh — State Management
+## Phase 4: afx-cli — State Management
 
 > Ref: [DESIGN-3.10] through [DESIGN-3.13], [FR-14] through [FR-23], [FR-32], [FR-33]
 
 ### 4.1 YAML Read/Write Helpers
 
-> File: `install.sh`
+> File: `afx-cli`
 
 - [x] Implement `afx_yaml_get_pack()` — read pack status from `.afx.yaml` `[DESIGN-3.11]`
 - [x] Implement `afx_yaml_set_pack()` — write/update pack entry with name, status, installed_ref `[DESIGN-3.11]`
@@ -227,7 +227,7 @@ References:
 
 ### 4.2 Pack Install Flow
 
-> File: `install.sh` — `pack_install()` function
+> File: `afx-cli` — `pack_install()` function
 
 - [x] Implement `pack_install()` orchestrating: fetch manifest → download → detect → route → copy → state `[FR-13]`
 - [x] Support multiple packs in one command (`--pack qa --pack security`) `[FR-14]`
@@ -237,7 +237,7 @@ References:
 
 ### 4.3 Provider Copy Management
 
-> File: `install.sh` — `pack_copy_to_providers()` / `pack_remove_from_providers()` functions
+> File: `afx-cli` — `pack_copy_to_providers()` / `pack_remove_from_providers()` functions
 
 - [x] Implement `pack_copy_to_providers()` — `cp -r` from `.afx/` master to provider dirs `[FR-16] [DESIGN-3.12]`
 - [x] Copy to `.claude/skills/`, `.claude/plugins/`, `.agents/skills/`, `.github/agents/` as appropriate `[FR-39] [FR-40] [FR-41] [FR-43]`
@@ -246,7 +246,7 @@ References:
 
 ### 4.4 Pack Enable / Disable / Remove
 
-> File: `install.sh`
+> File: `afx-cli`
 
 - [x] Implement `pack_disable()` — remove provider copies, keep `.afx/` master, update status to `disabled` `[FR-15]`
 - [x] Implement `pack_enable()` — copy from `.afx/` master to providers, update status to `enabled` `[FR-16]`
@@ -255,7 +255,7 @@ References:
 
 ### 4.5 Skill Disable / Enable
 
-> File: `install.sh`
+> File: `afx-cli`
 
 - [x] Implement `skill_disable()` — remove skill from provider dirs, add to `disabled_items` `[FR-19]`
 - [x] Implement `skill_enable()` — restore from `.afx/` master, remove from `disabled_items` `[FR-20]`
@@ -263,14 +263,14 @@ References:
 
 ### 4.6 Pack List
 
-> File: `install.sh` — `pack_list()` function
+> File: `afx-cli` — `pack_list()` function
 
 - [x] Implement `pack_list()` — read `.afx.yaml` and output packs with status `[FR-18]`
 - [x] Show: name, status (enabled/disabled), installed ref, disabled item count
 
 ### 4.7 Pack Update
 
-> File: `install.sh` — `pack_update_all()` function
+> File: `afx-cli` — `pack_update_all()` function
 
 - [x] Implement `pack_update_all()` — re-download and replace items for all enabled packs `[FR-21]`
 - [x] Preserve `disabled_items[]` across update `[FR-21]`
@@ -279,7 +279,7 @@ References:
 
 ### 4.8 One-Off Skill Install
 
-> File: `install.sh`
+> File: `afx-cli`
 
 - [x] Parse `--add-skill REPO:PATH/SKILL` format `[FR-23]`
 - [x] Download single skill via tarball extraction `[FR-23]`
@@ -289,21 +289,21 @@ References:
 
 ### 4.9 Dry Run
 
-> File: `install.sh`
+> File: `afx-cli`
 
 - [x] Implement dry-run mode for all pack operations `[FR-22]`
 - [x] Print what would be changed without writing any files `[FR-22]`
-- [x] Support `--dry-run --pack`, `--dry-run --pack-disable`, etc.
+- [x] Support `--dry-run --pack`, `--dry-run --pack-remove`, etc.
 
 ### 4.10 Main Dispatch & Help
 
-> File: `install.sh`
+> File: `afx-cli`
 
 - [x] Add main dispatch logic routing pack flags to functions `[DESIGN-3.13]`
 - [x] Update `--help` output with pack management section `[DESIGN-5.3]`
-- [x] Ensure `./install.sh .` (no pack flags) works exactly as before `[NFR-1]`
-- [x] Ensure `./install.sh --update .` works exactly as before `[NFR-1]`
-- [x] Ensure all existing flags (`--commands-only`, `--no-claude-md`, `--force`, etc.) continue to work `[NFR-1]`
+- [x] Ensure `./afx-cli .` (no pack flags) works exactly as before `[NFR-1]`
+- [x] Ensure `./afx-cli --update .` works exactly as before `[NFR-1]`
+- [x] Ensure all existing flags (`--skills-only`, `--no-claude-md`, `--force`, etc.) continue to work `[NFR-1]`
 - [x] Verify all pack operations are idempotent `[NFR-6]`
 - [ ] Replace `git clone` fallback with `curl` + `tar` for remote execution `[DESIGN-7]`
 
@@ -316,9 +316,9 @@ Phase 1: Manifests & Index (static YAML/JSON files)
     ↓
 Phase 2: AFX-Built Skills (SKILL.md / .agent.md files)
     ↓
-Phase 3: install.sh — Download & Detection (new functions)
+Phase 3: afx-cli — Download & Detection (new functions)
     ↓
-Phase 4: install.sh — State Management (lifecycle commands)
+Phase 4: afx-cli — State Management (lifecycle commands)
 ```
 
 ---
@@ -366,39 +366,39 @@ Phase 4: install.sh — State Management (lifecycle commands)
 
 ## Work Sessions
 
-<!-- Task execution log - updated by /afx:work next, /afx:dev code -->
+<!-- Task execution log - updated by /afx-work next, /afx-dev code -->
 
 | Date       | Task    | Action            | Files Modified                                                                   | Agent | Human |
 | ---------- | ------- | ----------------- | -------------------------------------------------------------------------------- | ----- | ----- |
-| 2026-02-28 | 1.1     | /afx:dev code     | packs/afx-pack-qa.yaml                                                           | [x]  |      |
-| 2026-02-28 | 1.2     | /afx:dev code     | packs/afx-pack-security.yaml                                                     | [x]  |      |
-| 2026-02-28 | 1.3     | /afx:dev code     | packs/index.json                                                                 | [x]  |      |
-| 2026-02-28 | 2.1     | /afx:dev code     | skills/ (4 skill dirs × 4 providers)                                             | [x]  |      |
-| 2026-02-28 | 2.2     | /afx:dev code     | skills/afx-qa-methodology/ (4 variants)                                          | [x]  |      |
-| 2026-02-28 | 2.3     | /afx:dev code     | skills/afx-spec-test-planning/ (4 variants)                                      | [x]  |      |
-| 2026-02-28 | 2.4     | /afx:dev code     | skills/afx-owasp-top-10/ (4 variants)                                            | [x]  |      |
-| 2026-02-28 | 2.5     | /afx:dev code     | skills/afx-security-audit/ (4 variants)                                          | [x]  |      |
-| 2026-02-28 | —       | /afx:dev code     | .agent/skills/ (13 core AFX skills)                                              | [x]  |      |
-| 2026-02-28 | —       | /afx:dev code     | install.sh (add Antigravity step 3/12)                                           | [x]  |      |
-| 2026-02-28 | —       | /afx:dev code     | CLAUDE.md (.agent/ + packs/ + skills/)                                           | [x]  |      |
-| 2026-02-28 | 3.1     | /afx:dev code     | install.sh (14 new case entries, help text)                                      | [x]  |      |
-| 2026-02-28 | 3.2     | /afx:dev code     | install.sh (resolve_ref, fetch_manifest)                                         | [x]  |      |
-| 2026-02-28 | 3.3     | /afx:dev code     | install.sh (download_items, for_each_include)                                    | [x]  |      |
-| 2026-02-28 | 3.4     | /afx:dev code     | install.sh (detect_type — 5 type rules)                                          | [x]  |      |
-| 2026-02-28 | 3.5     | /afx:dev code     | install.sh (route_item, platform_enabled)                                        | [x]  |      |
-| 2026-02-28 | 3.6     | /afx:dev code     | install.sh (check_collision)                                                     | [x]  |      |
-| 2026-02-28 | 3.7     | /afx:dev code     | install.sh (ensure_gitignore)                                                    | [x]  |      |
-| 2026-02-28 | 4.1     | /afx:dev code     | install.sh (6 afx_yaml_* helpers)                                                | [x]  |      |
-| 2026-02-28 | 4.2     | /afx:dev code     | install.sh (pack_install orchestrator)                                           | [x]  |      |
-| 2026-02-28 | 4.3     | /afx:dev code     | install.sh (pack_copy/remove_from_providers)                                     | [x]  |      |
-| 2026-02-28 | 4.4     | /afx:dev code     | install.sh (pack_enable, pack_disable, pack_remove)                              | [x]  |      |
-| 2026-02-28 | 4.5     | /afx:dev code     | install.sh (skill_disable, skill_enable)                                         | [x]  |      |
-| 2026-02-28 | 4.6     | /afx:dev code     | install.sh (pack_list)                                                           | [x]  |      |
-| 2026-02-28 | 4.7     | /afx:dev code     | install.sh (pack_update_all)                                                     | [x]  |      |
-| 2026-02-28 | 4.8     | /afx:dev code     | install.sh (add_skill — one-off install)                                         | [x]  |      |
-| 2026-02-28 | 4.9     | /afx:dev code     | install.sh (dry-run for all pack ops)                                            | [x]  |      |
-| 2026-02-28 | 4.10    | /afx:dev code     | install.sh (main dispatch, help, bash -n pass)                                   | [x]  |      |
-| 2026-02-28 | 2.1–2.5 | /afx:dev refactor | skills/ (4×4 provider dirs → 4 canonical SKILL.md)                               | [x]  |      |
-| 2026-02-28 | 3.5     | /afx:dev refactor | install.sh (transform_for_provider, generate_copilot_agent, route_item afx case) | [x]  |      |
-| 2026-02-28 | —       | /afx:dev code     | design.md (Section 3.7 rewrite: canonical + transform docs)                      | [x]  |      |
-| 2026-02-28 | —       | /afx:dev test     | install.sh (8 test suites, 27 transform tests, 3 bugs fixed)                     | [x]  |      |
+| 2026-02-28 | 1.1     | /afx-dev code     | packs/afx-pack-qa.yaml                                                           | [x]  |      |
+| 2026-02-28 | 1.2     | /afx-dev code     | packs/afx-pack-security.yaml                                                     | [x]  |      |
+| 2026-02-28 | 1.3     | /afx-dev code     | packs/index.json                                                                 | [x]  |      |
+| 2026-02-28 | 2.1     | /afx-dev code     | skills/ (4 skill dirs × 4 providers)                                             | [x]  |      |
+| 2026-02-28 | 2.2     | /afx-dev code     | skills/afx-qa-methodology/ (4 variants)                                          | [x]  |      |
+| 2026-02-28 | 2.3     | /afx-dev code     | skills/afx-spec-test-planning/ (4 variants)                                      | [x]  |      |
+| 2026-02-28 | 2.4     | /afx-dev code     | skills/afx-owasp-top-10/ (4 variants)                                            | [x]  |      |
+| 2026-02-28 | 2.5     | /afx-dev code     | skills/afx-security-audit/ (4 variants)                                          | [x]  |      |
+| 2026-02-28 | —       | /afx-dev code     | .agent/skills/ (13 core AFX skills)                                              | [x]  |      |
+| 2026-02-28 | —       | /afx-dev code     | afx-cli (add Antigravity step 3/12)                                           | [x]  |      |
+| 2026-02-28 | —       | /afx-dev code     | CLAUDE.md (.agent/ + packs/ + skills/)                                           | [x]  |      |
+| 2026-02-28 | 3.1     | /afx-dev code     | afx-cli (14 new case entries, help text)                                      | [x]  |      |
+| 2026-02-28 | 3.2     | /afx-dev code     | afx-cli (resolve_ref, fetch_manifest)                                         | [x]  |      |
+| 2026-02-28 | 3.3     | /afx-dev code     | afx-cli (download_items, for_each_include)                                    | [x]  |      |
+| 2026-02-28 | 3.4     | /afx-dev code     | afx-cli (detect_type — 5 type rules)                                          | [x]  |      |
+| 2026-02-28 | 3.5     | /afx-dev code     | afx-cli (route_item, platform_enabled)                                        | [x]  |      |
+| 2026-02-28 | 3.6     | /afx-dev code     | afx-cli (check_collision)                                                     | [x]  |      |
+| 2026-02-28 | 3.7     | /afx-dev code     | afx-cli (ensure_gitignore)                                                    | [x]  |      |
+| 2026-02-28 | 4.1     | /afx-dev code     | afx-cli (6 afx_yaml_* helpers)                                                | [x]  |      |
+| 2026-02-28 | 4.2     | /afx-dev code     | afx-cli (pack_install orchestrator)                                           | [x]  |      |
+| 2026-02-28 | 4.3     | /afx-dev code     | afx-cli (pack_copy/remove_from_providers)                                     | [x]  |      |
+| 2026-02-28 | 4.4     | /afx-dev code     | afx-cli (pack_enable, pack_disable, pack_remove)                              | [x]  |      |
+| 2026-02-28 | 4.5     | /afx-dev code     | afx-cli (skill_disable, skill_enable)                                         | [x]  |      |
+| 2026-02-28 | 4.6     | /afx-dev code     | afx-cli (pack_list)                                                           | [x]  |      |
+| 2026-02-28 | 4.7     | /afx-dev code     | afx-cli (pack_update_all)                                                     | [x]  |      |
+| 2026-02-28 | 4.8     | /afx-dev code     | afx-cli (add_skill — one-off install)                                         | [x]  |      |
+| 2026-02-28 | 4.9     | /afx-dev code     | afx-cli (dry-run for all pack ops)                                            | [x]  |      |
+| 2026-02-28 | 4.10    | /afx-dev code     | afx-cli (main dispatch, help, bash -n pass)                                   | [x]  |      |
+| 2026-02-28 | 2.1–2.5 | /afx-dev refactor | skills/ (4×4 provider dirs → 4 canonical SKILL.md)                               | [x]  |      |
+| 2026-02-28 | 3.5     | /afx-dev refactor | afx-cli (transform_for_provider, generate_copilot_agent, route_item afx case) | [x]  |      |
+| 2026-02-28 | —       | /afx-dev code     | design.md (Section 3.7 rewrite: canonical + transform docs)                      | [x]  |      |
+| 2026-02-28 | —       | /afx-dev test     | afx-cli (8 test suites, 27 transform tests, 3 bugs fixed)                     | [x]  |      |

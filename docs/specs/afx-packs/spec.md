@@ -26,11 +26,11 @@ tags: [packs, install, skills, ecosystem]
 
 ## Problem Statement
 
-AFX currently installs only core commands (slash commands, Codex skills, Copilot prompts) via `install.sh`. There is no way to install curated bundles of third-party skills, no pack management CLI, no index file for discovery, and no directory structure for managing skill state across providers.
+AFX currently installs only core commands (slash commands, Codex skills, Copilot prompts) via `afx-cli`. There is no way to install curated bundles of third-party skills, no pack management CLI, no index file for discovery, and no directory structure for managing skill state across providers.
 
 The ecosystem has ~1,100 unique skills across Antigravity, OpenAI, Claude Plugins, and Agentic-Flow. AFX's value is in **composing** these — curating packs by role/domain, adding guardrails via AFX-built skills, and managing the lifecycle (install, enable, disable, remove, update) across Claude Code, Codex CLI, and GitHub Copilot.
 
-This spec covers what needs to be built **in the AFX repo itself**: pack manifests, `install.sh` pack management commands, `packs/index.json`, AFX-built skills, `.afx/` directory structure, and `.afx.yaml` pack state tracking.
+This spec covers what needs to be built **in the AFX repo itself**: pack manifests, `afx-cli` pack management commands, `packs/index.json`, AFX-built skills, `.afx/` directory structure, and `.afx.yaml` pack state tracking.
 
 ---
 
@@ -43,7 +43,7 @@ Developers using AFX who want to extend their AI coding assistants with curated 
 ### Stories
 
 **As a** developer
-**I want** to install a curated skill pack with a single command (`install.sh --pack qa .`)
+**I want** to install a curated skill pack with a single command (`afx-cli --pack qa .`)
 **So that** I get a vetted set of skills across all my AI assistants without picking them one by one
 
 **As a** developer
@@ -93,14 +93,14 @@ Developers using AFX who want to extend their AI coding assistants with curated 
 | FR-11 | Index served via `raw.githubusercontent.com` — no auth, no API key                         | Must Have |
 | FR-12 | Index maintained manually alongside pack manifests (updated when packs or upstream change) | Must Have |
 
-#### `install.sh` Pack Management
+#### `afx-cli` Pack Management
 
 | ID     | Requirement                                                                                                             | Priority    |
 | ------ | ----------------------------------------------------------------------------------------------------------------------- | ----------- |
 | FR-13  | `--pack {name}` — install and enable a pack (download items, detect types, store in `.afx/`, copy to providers)         | Must Have   |
 | FR-14  | `--pack {a} --pack {b}` — install multiple packs in one command                                                         | Must Have   |
-| FR-15  | `--pack-disable {name}` — delete provider copies, keep master in `.afx/`, update `.afx.yaml` status                     | Must Have   |
-| FR-16  | `--pack-enable {name}` — `cp -r` from `.afx/` master to provider dirs, update `.afx.yaml` status                        | Must Have   |
+| ~~FR-15~~ | ~~`--pack-disable {name}`~~ — Removed. Use `--pack-remove` instead.                                                   | Removed     |
+| ~~FR-16~~ | ~~`--pack-enable {name}`~~ — Removed. Re-install with `--pack {name}` instead.                                        | Removed     |
 | FR-17  | `--pack-remove {name}` — delete both provider copies and `.afx/packs/{pack}/`, remove from `.afx.yaml`                  | Must Have   |
 | FR-18  | `--pack-list` — list installed packs with status (enabled/disabled)                                                     | Must Have   |
 | FR-19  | `--skill-disable {name} --pack {pack}` — disable single skill within an enabled pack                                    | Must Have   |
@@ -161,11 +161,11 @@ Developers using AFX who want to extend their AI coding assistants with curated 
 
 | ID    | Requirement                                                                               | Target                                                     |
 | ----- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| NFR-1 | Default `install.sh` (without `--pack`) continues to work unchanged                       | Zero breaking changes to existing installations            |
+| NFR-1 | Default `afx-cli` (without `--pack`) continues to work unchanged                       | Zero breaking changes to existing installations            |
 | NFR-2 | Pack install downloads via `codeload.github.com` tarballs and extracts specific paths     | No git dependency, no full repo clones                     |
 | NFR-3 | Enable/disable is instant — `cp -r` / `rm -r` with no network or conversion               | Sub-second for packs with ≤ 20 items                       |
 | NFR-4 | Pack prefix `afx-pack-*` to avoid naming conflicts with AFX core commands                 | Convention enforced in manifest naming                     |
-| NFR-5 | `install.sh` requires only `curl`, `tar`, and `bash` (≥ 4.0) — no git, no node, no python | macOS, Linux, WSL (Windows Subsystem for Linux)            |
+| NFR-5 | `afx-cli` requires only `curl`, `tar`, and `bash` (≥ 4.0) — no git, no node, no python | macOS, Linux, WSL (Windows Subsystem for Linux)            |
 | NFR-6 | All pack operations are idempotent                                                        | Running the same command twice produces the same result    |
 | NFR-7 | `.afx/` directory is gitignored by default (added to `.gitignore` on first pack install)  | Downloaded skills should not be committed to user projects |
 
@@ -187,9 +187,9 @@ Developers using AFX who want to extend their AI coding assistants with curated 
 - [ ] Upstream section lists tracked repos with featured items
 - [ ] Index is fetchable via `raw.githubusercontent.com` without authentication
 
-### install.sh — Pack Install
+### afx-cli — Pack Install
 
-- [ ] `./install.sh --pack qa .` downloads items from manifested repos
+- [ ] `./afx-cli --pack qa .` downloads items from manifested repos
 - [ ] Downloaded items stored pristine in `.afx/packs/afx-pack-qa/{provider}/`
 - [ ] Type detection correctly routes: Simple Skill → Claude + Codex + Antigravity, Claude Plugin → Claude only, OpenAI Skill → Codex only
 - [ ] Provider copies placed in correct directories (`.claude/skills/`, `.claude/plugins/`, `.agents/skills/`, `.agent/skills/`, `.github/agents/`)
@@ -201,10 +201,9 @@ Developers using AFX who want to extend their AI coding assistants with curated 
 - [ ] `--version 1.5.3 --pack qa .` fetches from version tag `v1.5.3` (auto-prefixes `v`)
 - [ ] `--version` and `--branch` are mutually exclusive — error if both provided
 
-### install.sh — Pack Lifecycle
+### afx-cli — Pack Lifecycle
 
-- [ ] `--pack-disable qa` removes provider copies, master in `.afx/` stays, `.afx.yaml` updated to `status: disabled`
-- [ ] `--pack-enable qa` copies from `.afx/` master to provider dirs, `.afx.yaml` updated to `status: enabled`
+- [ ] ~~`--pack-disable`~~ and ~~`--pack-enable`~~ flags removed (use `--pack-remove` and re-install with `--pack` instead)
 - [ ] `--pack-remove qa` deletes both `.afx/packs/afx-pack-qa/` and provider copies, removes from `.afx.yaml`
 - [ ] `--pack-list` outputs installed packs with their status
 - [ ] `--skill-disable tdd --pack qa` removes that skill from provider dirs, adds to `disabled_items`
@@ -212,11 +211,11 @@ Developers using AFX who want to extend their AI coding assistants with curated 
 - [ ] `--update --packs` re-downloads and replaces items for all enabled packs
 - [ ] `--dry-run --pack qa` shows what would be changed without writing any files
 
-### install.sh — Backward Compatibility
+### afx-cli — Backward Compatibility
 
-- [ ] `./install.sh .` (no pack flags) works exactly as before — installs core AFX commands only
-- [ ] `./install.sh --update .` works exactly as before
-- [ ] All existing flags (`--commands-only`, `--no-claude-md`, `--force`, etc.) continue to work
+- [ ] `./afx-cli .` (no pack flags) works exactly as before — installs core AFX commands only
+- [ ] `./afx-cli --update .` works exactly as before
+- [ ] All existing flags (`--skills-only`, `--no-claude-md`, `--force`, etc.) continue to work
 
 ### .afx.yaml State
 
@@ -256,7 +255,7 @@ These constraints are settled — they are not open for re-discussion.
 
 | Constraint                                | Detail                                                                          |
 | ----------------------------------------- | ------------------------------------------------------------------------------- |
-| `install.sh` is the single driver         | All operations go through `install.sh` — no separate CLI tool                   |
+| `afx-cli` is the single driver         | All operations go through `afx-cli` — no separate CLI tool                   |
 | `.afx/packs/{pack}/{provider}/` is master | External skills pristine, AFX-built skills have guardrails baked in             |
 | Provider dirs are derived copies          | `.claude/`, `.agents/`, `.agent/`, `.github/` populated from `.afx/` master     |
 | Disable = delete provider copies          | Master stays in `.afx/`. Re-enable = `cp -r` from master                        |
@@ -280,7 +279,7 @@ These constraints are settled — they are not open for re-discussion.
 - Quality scoring or ranking of ecosystem skills (future task)
 - GUI — pack management UI is in the [vscode-toolbox spec](../vscode-toolbox/spec.md)
 - Commit SHA pinning (packs track `installed_ref` as branch/tag, not exact commit SHAs)
-- Building a separate CLI tool — everything goes through `install.sh`
+- Building a separate CLI tool — everything goes through `afx-cli`
 
 ---
 
@@ -461,38 +460,37 @@ custom_skills:
     path: skills/some-niche-skill
 ```
 
-### install.sh CLI Reference
+### afx-cli CLI Reference
 
 ```bash
 # Core AFX install (unchanged — no packs)
-./install.sh /path/to/project
+./afx-cli /path/to/project
 
 # Pack management
-./install.sh --pack qa /path/to/project               # install + enable
-./install.sh --pack qa --pack security /path/to/project # multiple at once
-./install.sh --pack-disable qa /path/to/project        # disable (rm provider copies)
-./install.sh --pack-enable qa /path/to/project         # re-enable (cp -r from master)
-./install.sh --pack-remove qa /path/to/project         # delete entirely
-./install.sh --pack-list /path/to/project              # list packs + status
+./afx-cli --pack qa /path/to/project               # install + enable
+./afx-cli --pack qa --pack security /path/to/project # multiple at once
+./afx-cli --pack-remove qa /path/to/project           # remove pack entirely
+./afx-cli --pack-remove qa /path/to/project         # delete entirely
+./afx-cli --pack-list /path/to/project              # list packs + status
 
 # Single skill toggle (within a pack)
-./install.sh --skill-disable tdd --pack qa /path/to/project
-./install.sh --skill-enable tdd --pack qa /path/to/project
+./afx-cli --skill-disable tdd --pack qa /path/to/project
+./afx-cli --skill-enable tdd --pack qa /path/to/project
 
 # Update all enabled packs
-./install.sh --update --packs /path/to/project
+./afx-cli --update --packs /path/to/project
 
 # Preview changes
-./install.sh --dry-run --pack qa /path/to/project
+./afx-cli --dry-run --pack qa /path/to/project
 
 # Install from a specific branch
-./install.sh --branch dev --pack qa /path/to/project
+./afx-cli --branch dev --pack qa /path/to/project
 
 # Install from a specific version
-./install.sh --version 1.5.3 --pack qa /path/to/project
+./afx-cli --version 1.5.3 --pack qa /path/to/project
 
 # One-off skill install (no pack)
-./install.sh --add-skill anthropics/antigravity-awesome-skills:skills/some-skill /path/to/project
+./afx-cli --add-skill anthropics/antigravity-awesome-skills:skills/some-skill /path/to/project
 ```
 
 ### Skill Type Detection Matrix

@@ -16,11 +16,11 @@ spec: spec.md
 
 ## Overview
 
-This design defines the architecture for the AFX Pack System, enabling the installation, management, and composition of skill packs across Claude Code, Codex CLI, Google Antigravity, and GitHub Copilot. It centers on `install.sh` as the single driver for state mutations, using `.afx/` as the master storage for pristine external skills and `.afx.yaml` for project state.
+This design defines the architecture for the AFX Pack System, enabling the installation, management, and composition of skill packs across Claude Code, Codex CLI, Google Antigravity, and GitHub Copilot. It centers on `afx-cli` as the single driver for state mutations, using `.afx/` as the master storage for pristine external skills and `.afx.yaml` for project state.
 
 ### Core Principles
 
-1. **Single Driver**: `install.sh` handles all file operations. Extensions (VSCode) delegate to it.
+1. **Single Driver**: `afx-cli` handles all file operations. Extensions (VSCode) delegate to it.
 2. **Pristine Storage**: External skills are downloaded once to `.afx/packs/{pack}/{provider}/` and never modified.
 3. **Derived State**: Provider directories (`.claude/`, `.agents/`, `.agent/`, `.github/`) are ephemeral copies of the master state.
 4. **No Registry Auth**: All metadata and public packs are fetched from public URLs (`raw.githubusercontent.com`, `codeload.github.com`).
@@ -259,10 +259,9 @@ afx/                                    # AFX repo (rixrix/afx)
 │           └── agents/
 │               └── afx-security-audit.agent.md
 │
-├── install.sh                          # MODIFIED — pack management added
+├── afx-cli                          # MODIFIED — pack management added
 ├── .claude/commands/                   # Existing
-├── .codex/skills/                      # Existing
-├── .gemini/commands/                   # Existing
+├── .agents/skills/                     # Existing (Codex/Copilot/Antigravity skill target)
 ├── .github/prompts/                    # Existing
 ├── templates/                          # Existing
 └── docs/                               # Existing
@@ -406,7 +405,7 @@ The `.afx/` directory acts as the local package cache in the user's project. It 
 
 ### 2.3 User Project — Provider Directories (Derived)
 
-`install.sh` copies files from `.afx/packs/` to these locations based on `.afx.yaml` state. These are ephemeral — they can be rebuilt from `.afx/packs/` master at any time.
+`afx-cli` copies files from `.afx/packs/` to these locations based on `.afx.yaml` state. These are ephemeral — they can be rebuilt from `.afx/packs/` master at any time.
 
 ```
 project/
@@ -522,11 +521,11 @@ Each provider has a fixed directory layout that it scans for auto-discovery.
 
 ---
 
-## 3. install.sh Architecture
+## 3. afx-cli Architecture
 
 ### 3.1 Prerequisites
 
-`install.sh` requires only three standard POSIX-available tools:
+`afx-cli` requires only three standard POSIX-available tools:
 
 | Tool   | Purpose                                         | Availability                      |
 | :----- | :---------------------------------------------- | :-------------------------------- |
@@ -538,23 +537,22 @@ Each provider has a fixed directory layout that it scans for auto-discovery.
 
 **Platform support**: macOS, Linux, and WSL (Windows Subsystem for Linux). Native Windows (cmd/PowerShell) is not supported.
 
-### 3.2 Current install.sh Structure
+### 3.2 Current afx-cli Structure
 
-The existing `install.sh` (767 lines) handles core AFX installation only. No pack support exists today.
+The existing `afx-cli` (767 lines) handles core AFX installation only. No pack support exists today.
 
 **Current flow (11 steps):**
 
 ```
-1. Parse arguments (--update, --commands-only, --force, --dry-run, etc.)
+1. Parse arguments (--update, --skills-only, --force, --dry-run, etc.)
 2. Validate target directory
 3. Determine AFX source (local clone or git clone to temp)
 4. [1/11] Install Claude slash commands (.claude/commands/)
-5. [2/11] Install Codex skills (.codex/skills/)
-6. [3/11] Install Gemini CLI commands (.gemini/commands/)
+5. [2/11] Install agent skills (.agents/skills/)
 7. [4/11] Install GitHub Copilot prompts (.github/prompts/)
 8. [5/11] Install templates
 9. [6/11] Create/update .afx.yaml
-10. [7/11]-[10/11] Update CLAUDE.md, AGENTS.md, GEMINI.md, copilot-instructions.md
+10. [7/11]-[9/11] Update CLAUDE.md, AGENTS.md, GEMINI.md
 11. [11/11] Install AFX documentation
 → Print summary
 ```
@@ -565,11 +563,11 @@ The existing `install.sh` (767 lines) handles core AFX installation only. No pac
 while [[ $# -gt 0 ]]; do
     case $1 in
         --update)      UPDATE_MODE=true; shift ;;
-        --commands-only) COMMANDS_ONLY=true; shift ;;
+        --skills-only) COMMANDS_ONLY=true; shift ;;
         --no-claude-md)  NO_CLAUDE_MD=true; shift ;;
         --no-agents-md)  NO_AGENTS_MD=true; shift ;;
         --no-gemini-md)  NO_GEMINI_MD=true; shift ;;
-        --no-copilot-md) NO_COPILOT_MD=true; shift ;;
+        --with-gemini-md) WITH_GEMINI_MD=true; shift ;;
         --no-docs)       NO_DOCS=true; shift ;;
         --force)         FORCE=true; shift ;;
         --dry-run)       DRY_RUN=true; shift ;;
@@ -593,8 +591,7 @@ Pack management adds these flags to the argument parser:
 ```bash
 # New variables (defaults)
 PACK_NAMES=()          # Array — supports --pack qa --pack security
-PACK_DISABLE=""        # Single pack name
-PACK_ENABLE=""         # Single pack name
+# PACK_DISABLE and PACK_ENABLE removed
 PACK_REMOVE=""         # Single pack name
 PACK_LIST=false
 SKILL_DISABLE=""       # Skill name (requires --pack)
@@ -606,8 +603,7 @@ VERSION=""             # Version tag (e.g., v1.5.3, 1.5.3)
 
 # New case entries
 --pack)          PACK_NAMES+=("$2"); shift 2 ;;
---pack-disable)  PACK_DISABLE="$2"; shift 2 ;;
---pack-enable)   PACK_ENABLE="$2"; shift 2 ;;
+# --pack-disable and --pack-enable removed — use --pack-remove and re-install
 --pack-remove)   PACK_REMOVE="$2"; shift 2 ;;
 --pack-list)     PACK_LIST=true; shift ;;
 --skill-disable) SKILL_DISABLE="$2"; shift 2 ;;
@@ -625,7 +621,7 @@ VERSION=""             # Version tag (e.g., v1.5.3, 1.5.3)
 - `--branch` and `--version` are mutually exclusive
 - `--branch` and `--version` only affect AFX repo fetches, not upstream
 - `--dry-run` applies to all pack operations
-- Pack flags are mutually exclusive with each other (can't `--pack-disable` and `--pack-enable` in one call)
+- Pack flags are mutually exclusive with each other (can't combine lifecycle commands in one call)
 
 ### 3.4 Download Strategy
 
@@ -661,10 +657,10 @@ resolve_ref() {
 
 | Invocation                                  | `{ref}` used |
 | :------------------------------------------ | :----------- |
-| `./install.sh --pack qa .`                  | `main`       |
-| `./install.sh --branch dev --pack qa .`     | `dev`        |
-| `./install.sh --version 1.5.3 --pack qa .`  | `v1.5.3`     |
-| `./install.sh --version v1.5.3 --pack qa .` | `v1.5.3`     |
+| `./afx-cli --pack qa .`                  | `main`       |
+| `./afx-cli --branch dev --pack qa .`     | `dev`        |
+| `./afx-cli --version 1.5.3 --pack qa .`  | `v1.5.3`     |
+| `./afx-cli --version v1.5.3 --pack qa .` | `v1.5.3`     |
 
 #### URL Patterns
 
@@ -808,7 +804,7 @@ Manifests that violate these rules will fail to parse. This is intentional — t
 
 ### 3.6 Type Detection & Routing
 
-After download, `install.sh` inspects each item to determine where it belongs.
+After download, `afx-cli` inspects each item to determine where it belongs.
 
 | Signature                                | Type          | Target Providers                                       | Modification |
 | :--------------------------------------- | :------------ | :----------------------------------------------------- | :----------- |
@@ -899,7 +895,7 @@ platform_enabled() {
 
 ### 3.7 AFX-Built Skills
 
-AFX-built skills are hosted in the `rixrix/afx` repo under `skills/`. Each skill ships as a **single canonical SKILL.md** using Claude command syntax. At install time, `install.sh` transforms this file per provider — eliminating 4× file duplication in the source repo.
+AFX-built skills are hosted in the `rixrix/afx` repo under `skills/`. Each skill ships as a **single canonical SKILL.md** using Claude command syntax. At install time, `afx-cli` transforms this file per provider — eliminating 4× file duplication in the source repo.
 
 ```
 skills/afx-qa-methodology/
@@ -913,8 +909,8 @@ The canonical file uses HTML comment markers to delineate provider-specific comm
 
 <!-- @afx:provider-commands -->
 
-- Use `/afx:check path` to verify execution flow from UI to DB
-- Use `/afx:task audit` to verify test coverage against spec
+- Use `/afx-check path` to verify execution flow from UI to DB
+- Use `/afx-task audit` to verify test coverage against spec
 <!-- @afx:/provider-commands -->
 - Follow the spec → design → tasks → code traceability chain
 ```
@@ -924,7 +920,7 @@ The canonical file uses HTML comment markers to delineate provider-specific comm
 | Provider    | Action                                                         |
 | ----------- | -------------------------------------------------------------- |
 | Claude      | Strip markers, keep content as-is (canonical format)           |
-| Codex       | Strip markers, sed `/afx:cmd sub` → `afx-cmd-sub`              |
+| Codex       | Strip markers, sed `/afx-cmd sub` → `afx-cmd-sub`              |
 | Antigravity | Remove markers AND content between them (generic lines remain) |
 | Copilot     | Auto-generate condensed `agent.md` from SKILL.md structure     |
 
@@ -938,7 +934,7 @@ sed -e '/<!-- @afx:provider-commands -->/d' \
 # Codex — strip markers + convert command syntax to kebab-case
 sed -e '/<!-- @afx:provider-commands -->/d' \
     -e '/<!-- @afx:\/provider-commands -->/d' \
-    -e 's|`/afx:\([a-z]*\) \([a-z]*\)`|`afx-\1-\2`|g'
+    -e 's|`/afx-\([a-z]*\) \([a-z]*\)`|`afx-\1-\2`|g'
 
 # Antigravity — remove entire marked block (markers + content between)
 sed '/<!-- @afx:provider-commands -->/,/<!-- @afx:\/provider-commands -->/d'
@@ -946,7 +942,7 @@ sed '/<!-- @afx:provider-commands -->/,/<!-- @afx:\/provider-commands -->/d'
 
 **Copilot generation** extracts the title, description, and instruction items from the canonical SKILL.md and produces a condensed `agent.md` with YAML frontmatter.
 
-`install.sh` routing for AFX-built skills (type `afx`):
+`afx-cli` routing for AFX-built skills (type `afx`):
 
 ```
 skills/{name}/SKILL.md  → transform → .afx/packs/{pack}/claude/skills/{name}/SKILL.md
@@ -959,7 +955,7 @@ The only differentiator from external skills is the **guardrails baked in** — 
 
 ### 3.8 Name Collision Detection
 
-Before copying items to provider directories, `install.sh` checks for name collisions.
+Before copying items to provider directories, `afx-cli` checks for name collisions.
 
 ```bash
 # Check if a skill/plugin already exists in a provider dir from a DIFFERENT pack
@@ -1035,50 +1031,9 @@ pack_install() {
 }
 ```
 
-#### Enable (`--pack-enable {name}`)
+#### ~~Enable (`--pack-enable`)~~ / ~~Disable (`--pack-disable`)~~ — Removed
 
-```bash
-pack_enable() {
-    local pack_name="afx-pack-$1"
-    local pack_dir="$TARGET_DIR/.afx/packs/$pack_name"
-
-    if [[ ! -d "$pack_dir" ]]; then
-        echo -e "${RED}Error: Pack '$1' not found. Install it first with --pack $1${NC}"
-        exit 1
-    fi
-
-    # Copy from .afx/ master to provider dirs (no download)
-    pack_copy_to_providers "$pack_name"
-
-    # Update .afx.yaml
-    afx_yaml_set_pack "$pack_name" "enabled"
-
-    echo -e "${GREEN}Pack '$1' enabled.${NC}"
-}
-```
-
-#### Disable (`--pack-disable {name}`)
-
-```bash
-pack_disable() {
-    local pack_name="afx-pack-$1"
-    local pack_dir="$TARGET_DIR/.afx/packs/$pack_name"
-
-    if [[ ! -d "$pack_dir" ]]; then
-        echo -e "${RED}Error: Pack '$1' not installed.${NC}"
-        exit 1
-    fi
-
-    # Delete provider copies for all items in this pack
-    pack_remove_from_providers "$pack_name"
-
-    # Master stays in .afx/
-    # Update .afx.yaml
-    afx_yaml_set_pack "$pack_name" "disabled"
-
-    echo -e "${YELLOW}Pack '$1' disabled. Master preserved in .afx/${NC}"
-}
-```
+These flags have been removed. To re-enable a pack, re-install with `--pack {name}`. To disable, use `--pack-remove {name}`.
 
 #### Remove (`--pack-remove {name}`)
 
@@ -1419,19 +1374,19 @@ The existing remote install pattern must work for pack operations too:
 
 ```bash
 # Core install (existing — unchanged)
-curl -sL https://raw.githubusercontent.com/rixrix/afx/main/install.sh | bash -s -- .
+curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- .
 
 # Pack install (new)
-curl -sL https://raw.githubusercontent.com/rixrix/afx/main/install.sh | bash -s -- --pack qa .
+curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- --pack qa .
 
 # Pack install from branch (new)
-curl -sL https://raw.githubusercontent.com/rixrix/afx/dev/install.sh | bash -s -- --branch dev --pack qa .
+curl -sL https://raw.githubusercontent.com/rixrix/afx/dev/afx-cli | bash -s -- --branch dev --pack qa .
 
 # Pack install from version (new)
-curl -sL https://raw.githubusercontent.com/rixrix/afx/main/install.sh | bash -s -- --version 1.5.3 --pack qa .
+curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- --version 1.5.3 --pack qa .
 
 # Update packs (new)
-curl -sL https://raw.githubusercontent.com/rixrix/afx/main/install.sh | bash -s -- --update --packs .
+curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- --update --packs .
 ```
 
 **Key change**: The current remote mode uses `git clone --depth 1` to get AFX source (line 173). Pack mode replaces this with `curl` + `tar` from codeload, removing the git dependency entirely. The current `git clone` path remains as a fallback for core-only installs but the preferred path becomes tarball-based.
@@ -1449,15 +1404,7 @@ if [[ ${#PACK_NAMES[@]} -gt 0 ]]; then
     exit 0
 fi
 
-if [[ -n "$PACK_DISABLE" ]]; then
-    pack_disable "$PACK_DISABLE"
-    exit 0
-fi
-
-if [[ -n "$PACK_ENABLE" ]]; then
-    pack_enable "$PACK_ENABLE"
-    exit 0
-fi
+# --pack-disable and --pack-enable removed — use --pack-remove and re-install
 
 if [[ -n "$PACK_REMOVE" ]]; then
     pack_remove "$PACK_REMOVE"
@@ -1534,8 +1481,8 @@ This skill activates when the user asks about:
 
 ### AFX Integration
 
-- Use `/afx:check path` to verify execution flow from UI to DB
-- Use `/afx:task audit` to verify test coverage against spec
+- Use `/afx-check path` to verify execution flow from UI to DB
+- Use `/afx-task audit` to verify test coverage against spec
 - Follow the spec → design → tasks → code traceability chain
 ```
 
@@ -1829,18 +1776,18 @@ When planning tests:
 
 ### 5.1 Core Install Unchanged
 
-When no pack flags are provided, `install.sh` behaves exactly as before:
+When no pack flags are provided, `afx-cli` behaves exactly as before:
 
 ```bash
 # These work identically to today — zero changes
-./install.sh /path/to/project
-./install.sh --update .
-./install.sh --commands-only .
-./install.sh --no-claude-md --no-docs .
-./install.sh --force .
-./install.sh --dry-run .
-curl -sL https://raw.githubusercontent.com/rixrix/afx/main/install.sh | bash -s -- .
-curl -sL https://raw.githubusercontent.com/rixrix/afx/main/install.sh | bash -s -- --update .
+./afx-cli /path/to/project
+./afx-cli --update .
+./afx-cli --skills-only .
+./afx-cli --no-claude-md --no-docs .
+./afx-cli --force .
+./afx-cli --dry-run .
+curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- .
+curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- --update .
 ```
 
 ### 5.2 Existing Flags Preserved
@@ -1850,11 +1797,11 @@ All current flags continue to work:
 | Flag              | Behavior                             | Pack interaction                |
 | :---------------- | :----------------------------------- | :------------------------------ |
 | `--update`        | Update core AFX commands             | Can combine with `--packs`      |
-| `--commands-only` | Only install command assets          | Ignored when pack flags present |
+| `--skills-only` | Only install command assets          | Ignored when pack flags present |
 | `--no-claude-md`  | Skip CLAUDE.md snippet               | N/A for pack ops                |
 | `--no-agents-md`  | Skip AGENTS.md snippet               | N/A for pack ops                |
 | `--no-gemini-md`  | Skip GEMINI.md snippet               | N/A for pack ops                |
-| `--no-copilot-md` | Skip copilot-instructions.md snippet | N/A for pack ops                |
+| `--with-gemini-md` | Opt-in to Gemini CLI setup (GEMINI.md) | N/A for pack ops                |
 | `--no-docs`       | Skip docs copy                       | N/A for pack ops                |
 | `--force`         | Overwrite all files                  | Also forces pack overwrites     |
 | `--dry-run`       | Preview without changes              | Works for all pack ops          |
@@ -1866,15 +1813,15 @@ The `--help` output must be updated to include pack commands:
 ```
 AFX Installer v{VERSION}
 
-Usage: ./install.sh [OPTIONS] <target-project-path>
+Usage: ./afx-cli [OPTIONS] <target-project-path>
 
 Core Options:
   --update          Update existing AFX installation
-  --commands-only   Only install/update command assets
+  --skills-only   Only install/update command assets
   --no-claude-md    Skip CLAUDE.md snippet integration
   --no-agents-md    Skip AGENTS.md snippet integration
   --no-gemini-md    Skip GEMINI.md snippet integration
-  --no-copilot-md   Skip copilot-instructions.md snippet integration
+  --with-gemini-md  Opt-in to Gemini CLI setup (GEMINI.md)
   --no-docs         Skip copying AFX documentation
   --force           Overwrite all files (fresh install)
   --dry-run         Preview changes without applying
@@ -1883,8 +1830,7 @@ Core Options:
 
 Pack Management:
   --pack NAME                     Install and enable a pack
-  --pack-disable NAME             Disable a pack (keep master)
-  --pack-enable NAME              Re-enable a disabled pack
+  # --pack-disable and --pack-enable removed
   --pack-remove NAME              Remove a pack entirely
   --pack-list                     List installed packs
   --skill-disable NAME --pack P   Disable a skill within a pack
@@ -1894,35 +1840,34 @@ Pack Management:
 
 Examples:
   # Core install
-  ./install.sh .
+  ./afx-cli .
 
   # Install QA pack
-  ./install.sh --pack qa .
+  ./afx-cli --pack qa .
 
   # Install from dev branch
-  ./install.sh --branch dev --pack qa .
+  ./afx-cli --branch dev --pack qa .
 
   # Install from version
-  ./install.sh --version 1.5.3 --pack qa .
+  ./afx-cli --version 1.5.3 --pack qa .
 
   # Multiple packs
-  ./install.sh --pack qa --pack security .
+  ./afx-cli --pack qa --pack security .
 
   # Manage packs
-  ./install.sh --pack-disable qa .
-  ./install.sh --pack-enable qa .
-  ./install.sh --pack-remove qa .
-  ./install.sh --pack-list .
+  # --pack-disable and --pack-enable removed — use --pack-remove and re-install
+  ./afx-cli --pack-remove qa .
+  ./afx-cli --pack-list .
 
   # Update all packs
-  ./install.sh --update --packs .
+  ./afx-cli --update --packs .
 ```
 
 ---
 
 ## 6. Security & Safety
 
-- **No Overwrites**: If a user has a manually installed skill with the same name as a pack skill, `install.sh` aborts with an error unless `--force` is used. Name collision detection (Section 3.8) prevents one pack from overwriting another pack's items.
+- **No Overwrites**: If a user has a manually installed skill with the same name as a pack skill, `afx-cli` aborts with an error unless `--force` is used. Name collision detection (Section 3.8) prevents one pack from overwriting another pack's items.
 - **Pristine Source**: We do not modify external code. We only place it. Downloaded files are byte-identical to the source repository.
 - **Gitignore**: `.afx/` is added to `.gitignore` on first pack install to prevent committing external code to the user's repo.
 - **No Auth**: All fetches use public URLs. No credentials, tokens, or API keys are stored or transmitted.
@@ -1948,7 +1893,7 @@ Examples:
 4. Author `skills/afx-owasp-top-10/SKILL.md` (single canonical, with `@afx:provider-commands` markers).
 5. Author `skills/afx-security-audit/SKILL.md` (single canonical, with `@afx:provider-commands` markers).
 
-### Phase 3: install.sh — Download & Detection
+### Phase 3: afx-cli — Download & Detection
 
 1. Add new argument parsing (Section 3.3).
 2. Implement `download_items()` — curl + tar extraction.
@@ -1958,7 +1903,7 @@ Examples:
 6. Implement `check_collision()` — name collision detection.
 7. Implement `ensure_gitignore()` — auto-add `.afx/` to `.gitignore`.
 
-### Phase 4: install.sh — State Management
+### Phase 4: afx-cli — State Management
 
 1. Implement YAML read/write helpers for `.afx.yaml` (Section 3.11).
 2. Implement `pack_install()` — full install + enable flow.

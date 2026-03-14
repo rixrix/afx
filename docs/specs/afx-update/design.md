@@ -17,16 +17,15 @@ This PRD file does **not** execute commands. It defines behavior to be implement
 
 Implementation artifact mapping:
 
-- Claude command definition (runtime behavior source):
-  - `.claude/commands/afx-update.md`
-- Codex skill wrapper (delegates to Claude command definition):
-  - `.codex/skills/afx-update/SKILL.md`
-  - `.codex/skills/afx-update/agents/openai.yaml`
+- Claude skill definition (runtime behavior source):
+  - `.claude/skills/afx-update.md`
+- Agents skill (shared by Codex, Copilot, Antigravity):
+  - `.agents/skills/afx-update/SKILL.md`
 
 Execution model:
 
-- User runs `/afx:update ...` (Claude) or `afx-update ...` (Codex).
-- Agent reads the command markdown (`.claude/commands/afx-update.md`) and executes shell steps (`bash`, `curl`) described there.
+- User runs `/afx-update ...` (Claude) or `afx-update ...` (Codex).
+- Agent reads the skill markdown (`.claude/skills/afx-update.md`) and executes shell steps (`bash`, `curl`) described there.
 - `tasks.md` is a planning/verification checklist only; it does not run shell commands.
 
 ## Command Surface
@@ -34,8 +33,8 @@ Execution model:
 ### Claude
 
 ```bash
-/afx:update check [--repo <owner/repo>] [--ref <branch>]
-/afx:update apply [--repo <owner/repo>] [--ref <branch>] [--commands-only] [--no-docs] [--no-claude-md] [--no-agents-md] [--dry-run] [--force]
+/afx-update check [--repo <owner/repo>] [--ref <branch>]
+/afx-update apply [--repo <owner/repo>] [--ref <branch>] [--skills-only] [--no-docs] [--no-claude-md] [--no-agents-md] [--with-gemini-md] [--dry-run] [--force] [--yes]
 ```
 
 ### Codex
@@ -99,7 +98,7 @@ HIGHEST=$(printf "%s\n%s\n" "$LOCAL_VERSION" "$UPSTREAM_VERSION" | sort -V | tai
 
 1. Resolve upstream source and validated flag set.
 2. Execute:
-   - `curl -fsSL https://raw.githubusercontent.com/<repo>/<ref>/install.sh | bash -s -- --update ... .`
+   - `curl -fsSL https://raw.githubusercontent.com/<repo>/<ref>/afx-cli | bash -s -- --update ... .`
 3. Surface installer output and final status.
 4. Recommend immediate follow-up `check`.
 
@@ -108,14 +107,13 @@ HIGHEST=$(printf "%s\n%s\n" "$LOCAL_VERSION" "$UPSTREAM_VERSION" | sort -V | tai
 - Unknown flag: explicit error and usage reminder.
 - Network failure: fail fast with retry suggestion.
 - Upstream parse failure: fail with explicit repo/ref hint.
-- Installer failure: suggest `--dry-run` and/or scoped update (`--commands-only`).
+- Installer failure: suggest `--dry-run` and/or scoped update (`--skills-only`).
 
 ## Integration Points
 
-- Canonical behavior spec: `.claude/commands/afx-update.md`
-- Codex wrapper skill: `.codex/skills/afx-update/*`
+- Canonical behavior spec: `skills/agenticflowx/afx-update/SKILL.md`
 - Discovery/help/docs updates required:
-  - `.claude/commands/afx-help.md`
+  - `.claude/skills/afx-help.md`
   - `README.md`
   - `CLAUDE.md`
   - `AGENTS.md`

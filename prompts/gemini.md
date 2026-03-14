@@ -28,43 +28,40 @@ Code MUST link back to specs via `@see` annotations:
 
 ### Gemini CLI Commands
 
-Use `/afx:xxx` slash commands via `.gemini/commands/`:
+Use `/afx-xxx` slash commands (skills installed to project):
 
 | Command         | Purpose                                             |
 | --------------- | --------------------------------------------------- |
-| `/afx:next`     | Context-aware "What should I do now?"               |
-| `/afx:discover` | Project discovery (scripts, tools, capabilities)    |
-| `/afx:work`     | Workflow orchestration (status, next, resume, sync) |
-| `/afx:dev`      | Development with @see traceability                  |
-| `/afx:check`    | Quality gates (path, lint, links)                   |
-| `/afx:task`     | Task verification and auditing                      |
-| `/afx:session`  | Discussion capture and recall                       |
-| `/afx:init`     | Feature scaffolding + ADR creation                  |
-| `/afx:context`  | Agent session context                               |
-| `/afx:spec`     | Spec querying/viewing                               |
-| `/afx:report`   | Reporting (health, orphans, coverage)               |
-| `/afx:help`     | Command reference                                   |
-| `/afx:update`   | Framework update check and apply                    |
+| `/afx-next`     | Context-aware "What should I do now?"               |
+| `/afx-discover` | Project discovery (scripts, tools, capabilities)    |
+| `/afx-work`     | Workflow orchestration (status, next, resume, sync) |
+| `/afx-dev`      | Development with @see traceability                  |
+| `/afx-check`    | Quality gates (path, lint, links)                   |
+| `/afx-task`     | Task verification and auditing                      |
+| `/afx-session`  | Discussion capture and recall                       |
+| `/afx-init`     | Feature scaffolding + ADR creation                  |
+| `/afx-context`  | Agent session context                               |
+| `/afx-spec`     | Spec querying/viewing                               |
+| `/afx-report`   | Reporting (health, orphans, coverage)               |
+| `/afx-help`     | Command reference                                   |
+| `/afx-update`   | Framework update check and apply                    |
 
 ### Source of Truth
 
-Gemini commands delegate to canonical AFX command definitions:
-
-- `.claude/commands/afx-*.md` (canonical logic)
-- `.gemini/commands/afx-*.md` (Gemini-specific proxies)
+Canonical skill definitions live in `skills/agenticflowx/` (standard SKILL.md format).
 
 ### Gemini-Specific Tool Guidance
 
 When executing AFX commands, leverage Gemini's specialized tools:
 
-- **`codebase_investigator`** — High-level architectural analysis, dependency mapping, context for `/afx:next` and `/afx:discover`
+- **`codebase_investigator`** — High-level architectural analysis, dependency mapping, context for `/afx-next` and `/afx-discover`
 - **`grep_search`** — Precise context scanning within specs, journals, and task files
 - **`read_file`** — Reading specification documents and command definitions
 - **`run_shell_command`** — Git/GitHub CLI operations for state verification and syncing
 
 ### Quality Gates
 
-Gate 1 (`/afx:check path`) is **blocking** — tasks cannot be closed without path verification that traces execution from UI to DB.
+Gate 1 (`/afx-check path`) is **blocking** — tasks cannot be closed without path verification that traces execution from UI to DB.
 
 Tasks require both Agent verification (`[x]`) AND Human approval (`[x]`) before completion.
 

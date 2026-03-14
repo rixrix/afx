@@ -47,7 +47,7 @@ docs/specs/{feature-name}/
 ├── spec.md          # WHAT to build (requirements)
 ├── design.md        # HOW to build it (architecture)
 ├── tasks.md         # WHEN to build (implementation tasks)
-├── journal.md       # Session discussion capture (via /afx:session)
+├── journal.md       # Session discussion capture (via /afx-session)
 └── research/        # ADRs, RFCs, decision records
 ```
 
@@ -58,7 +58,7 @@ docs/specs/{feature-name}/
 | `spec.md`       | Requirements, user stories, acceptance criteria  | Planning phase     | Stakeholders  |
 | `design.md`     | Architecture, data models, API contracts         | Design phase       | Engineers     |
 | `tasks.md`      | Implementation tasks with cross-references       | Pre-implementation | Engineers     |
-| `journal.md`    | Session discussions, captured via `/afx:session` | During sessions    | Agent         |
+| `journal.md`    | Session discussions, captured via `/afx-session` | During sessions    | Agent         |
 | `research/*.md` | ADRs, RFCs, decision records                     | Design phase       | Human + Agent |
 
 ### Journal Structure
@@ -68,7 +68,7 @@ The `journal.md` file has two sections:
 1. **Captures** - Quick notes during active chat (cleared when recorded)
 2. **Discussions** - Permanent records with IDs (e.g., `UA-D001`)
 
-> **Note:** Work Sessions (task execution log) are stored in `tasks.md`, not `journal.md`. Updated by `/afx:work`.
+> **Note:** Work Sessions (task execution log) are stored in `tasks.md`, not `journal.md`. Updated by `/afx-work`.
 
 #### Discussion Status Keywords
 
@@ -92,7 +92,7 @@ Discussions use inline status tags for tracking ad-hoc work:
 | `status:closed`  | Completed or abandoned              |
 | _(no status)_    | Treated as closed (legacy)          |
 
-Use `/afx:session active` to list all active discussions across features.
+Use `/afx-session active` to list all active discussions across features.
 
 ### Why tasks.md?
 
@@ -283,7 +283,7 @@ docs/
 │   │   ├── spec.md
 │   │   ├── design.md
 │   │   ├── tasks.md
-│   │   ├── journal.md          # Session discussions (via /afx:session)
+│   │   ├── journal.md          # Session discussions (via /afx-session)
 │   │   └── research/           # ADRs, RFCs, decision records
 │
 ├── guides/                     # Tool-specific documentation

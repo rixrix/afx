@@ -28,15 +28,15 @@ tags: [packs, install, skills, ecosystem, journal]
 
 `status:active` `[product, planning, research]`
 
-**Context**: The pack system design in `res-skills-ecosystem-index.md` (Section 8) and the pack management research in `res-vscode-pack-management.md` reached sufficient maturity. The AFX-side infrastructure (install.sh, pack manifests, index, skills directory) was split into its own spec as the counterpart to the vscode-toolbox UI spec.
+**Context**: The pack system design in `res-skills-ecosystem-index.md` (Section 8) and the pack management research in `res-vscode-pack-management.md` reached sufficient maturity. The AFX-side infrastructure (afx-cli, pack manifests, index, skills directory) was split into its own spec as the counterpart to the vscode-toolbox UI spec.
 
-**Summary**: Created spec covering 43 functional requirements across 7 areas: pack manifests, pack index, install.sh CLI commands, skill type detection, .afx/ directory structure, .afx.yaml state management, AFX-built skills, and provider copy routing. This is purely the AFX repo infrastructure — the UI consumer is in the vscode-toolbox spec.
+**Summary**: Created spec covering 43 functional requirements across 7 areas: pack manifests, pack index, afx-cli CLI commands, skill type detection, .afx/ directory structure, .afx.yaml state management, AFX-built skills, and provider copy routing. This is purely the AFX repo infrastructure — the UI consumer is in the vscode-toolbox spec.
 
 **Decisions**:
 
 - Separate spec from vscode-toolbox — this covers AFX repo changes only
-- 7 requirement areas: manifests, index, install.sh, type detection, .afx/ structure, .afx.yaml state, AFX-built skills, provider routing
-- Current install.sh has zero pack support — all pack commands are net new
+- 7 requirement areas: manifests, index, afx-cli, type detection, .afx/ structure, .afx.yaml state, AFX-built skills, provider routing
+- Current afx-cli has zero pack support — all pack commands are net new
 - `packs/` and `skills/` directories don't exist yet — both need to be created
 - Index schema includes version and changelog (richer than the lean research version) per user edits to toolbox spec
 - Open questions: download method (sparse checkout vs tarball), offline install, one-off skill tracking
@@ -44,10 +44,10 @@ tags: [packs, install, skills, ecosystem, journal]
 
 **Notes**:
 
-- **[PK-D001.N1]** **[2026-02-28]** Split from vscode-toolbox spec. AFX-side = install.sh + manifests + index + skills. VSCode-side = Toolbox UI. Both share the same constraints from research. `[product, spec]`
-- **[PK-D001.N2]** **[2026-02-28]** User edited vscode-toolbox spec to add version + changelog to index.json schema, resolve OQ#2 (install.sh not available → "Setup AFX" button), remove .afx.local.yaml references from FR-20/AC, add right-click "Preview Changes" to interaction map. These changes reflected in this spec's index schema. `[sync]`
+- **[PK-D001.N1]** **[2026-02-28]** Split from vscode-toolbox spec. AFX-side = afx-cli + manifests + index + skills. VSCode-side = Toolbox UI. Both share the same constraints from research. `[product, spec]`
+- **[PK-D001.N2]** **[2026-02-28]** User edited vscode-toolbox spec to add version + changelog to index.json schema, resolve OQ#2 (afx-cli not available → "Setup AFX" button), remove .afx.local.yaml references from FR-20/AC, add right-click "Preview Changes" to interaction map. These changes reflected in this spec's index schema. `[sync]`
 
-**Related Files**: docs/research/res-skills-ecosystem-index.md, docs/research/res-vscode-pack-management.md, docs/specs/vscode-toolbox/spec.md, install.sh
+**Related Files**: docs/research/res-skills-ecosystem-index.md, docs/research/res-vscode-pack-management.md, docs/specs/vscode-toolbox/spec.md, afx-cli
 **Participants**: @rix, claude
 
 ### PK-D002 - 2026-02-28 - Phase 1 & 2 Implementation + Antigravity Core Skills
@@ -56,25 +56,25 @@ tags: [packs, install, skills, ecosystem, journal]
 
 **Context**: Implementing Phase 1 (Manifests & Index) and Phase 2 (AFX-Built Skills) from the approved spec. During implementation, discovered that `.agent/skills/` (Google Antigravity core skills) was missing from the AFX repo — we had `.claude/commands/`, `.codex/skills/`, `.gemini/commands/`, `.github/prompts/` but no Antigravity equivalent.
 
-**Summary**: Created 3 pack files (2 manifests + 1 index), 16 AFX-built skill files (4 skills × 4 provider variants), 13 Antigravity core skill files (mirroring `.codex/skills/`), and updated `install.sh` to copy `.agent/skills/` as step 3/12.
+**Summary**: Created 3 pack files (2 manifests + 1 index), 16 AFX-built skill files (4 skills × 4 provider variants), 13 Antigravity core skill files (mirroring `.codex/skills/`), and updated `afx-cli` to copy `.agent/skills/` as step 3/12.
 
 **Decisions**:
 
 - Antigravity core skills follow same pattern as Codex skills: lightweight SKILL.md wrappers pointing to `.claude/commands/` as source of truth
 - No `openai.yaml` equivalent needed for Antigravity (only Codex has that)
-- `install.sh` step count: 11 → 12 (added Antigravity between Codex and Gemini)
-- `--commands-only` help text updated to include `.agent`
+- `afx-cli` step count: 11 → 12 (added Antigravity between Codex and Gemini)
+- `--skills-only` help text updated to include `.agent`
 - CLAUDE.md repo structure updated with `.agent/`, `packs/`, `skills/`
 
 **Participants**: @rix, claude
 
-### PK-D003 - 2026-02-28 - Phase 3 & 4 Implementation (install.sh Pack Management)
+### PK-D003 - 2026-02-28 - Phase 3 & 4 Implementation (afx-cli Pack Management)
 
-`status:completed` `[implementation, install.sh, pack-management]`
+`status:completed` `[implementation, afx-cli, pack-management]`
 
-**Context**: Implementing Phase 3 (Download & Detection) and Phase 4 (State Management) — the full pack management system in install.sh. This is the core CLI infrastructure that the VSCode Toolbox UI will consume.
+**Context**: Implementing Phase 3 (Download & Detection) and Phase 4 (State Management) — the full pack management system in afx-cli. This is the core CLI infrastructure that the VSCode Toolbox UI will consume.
 
-**Summary**: Added ~1100 lines to install.sh (767 → 1865 lines), implementing 30+ functions covering: argument parsing (14 new flags), manifest fetch via raw.githubusercontent.com, tarball download via codeload.github.com, skill type detection (5 types), item routing to `.afx/packs/{pack}/{provider}/`, name collision detection, gitignore management, bash-only YAML read/write for `.afx.yaml`, pack lifecycle (install/enable/disable/remove), individual skill enable/disable, pack list, bulk update, one-off skill install, and dry-run mode. All verified with `bash -n` — no syntax errors.
+**Summary**: Added ~1100 lines to afx-cli (767 → 1865 lines), implementing 30+ functions covering: argument parsing (14 new flags), manifest fetch via raw.githubusercontent.com, tarball download via codeload.github.com, skill type detection (5 types), item routing to `.afx/packs/{pack}/{provider}/`, name collision detection, gitignore management, bash-only YAML read/write for `.afx.yaml`, pack lifecycle (install/enable/disable/remove), individual skill enable/disable, pack list, bulk update, one-off skill install, and dry-run mode. All verified with `bash -n` — no syntax errors.
 
 **Decisions**:
 
@@ -94,27 +94,27 @@ tags: [packs, install, skills, ecosystem, journal]
 
 ### PK-D004 - 2026-02-28 - Canonical SKILL.md Refactor (4× dedup)
 
-`status:completed` `[refactor, skills, install.sh]`
+`status:completed` `[refactor, skills, afx-cli]`
 
 **Context**: User observed that Claude, Codex, Antigravity, and Copilot skill variants were 95% identical — only provider-specific command syntax differed. The 4× file duplication made maintenance harder.
 
-**Summary**: Flattened each skill from 4 provider subdirectories to 1 canonical `SKILL.md` (16 files → 4). Added `transform_for_provider()` and `generate_copilot_agent()` to install.sh with full documentation of sed patterns. Canonical files use `<!-- @afx:provider-commands -->` HTML comment markers to delineate provider-specific command lines. Updated design.md Section 3.7 with transform rules table and sed pattern reference.
+**Summary**: Flattened each skill from 4 provider subdirectories to 1 canonical `SKILL.md` (16 files → 4). Added `transform_for_provider()` and `generate_copilot_agent()` to afx-cli with full documentation of sed patterns. Canonical files use `<!-- @afx:provider-commands -->` HTML comment markers to delineate provider-specific command lines. Updated design.md Section 3.7 with transform rules table and sed pattern reference.
 
 **Decisions**:
 
-- Claude format is canonical (uses `/afx:cmd sub` syntax)
-- Codex: sed converts `/afx:cmd sub` → `afx-cmd-sub` (kebab-case)
+- Claude format is canonical (uses `/afx-cmd sub` syntax)
+- Codex: sed converts `/afx-cmd sub` → `afx-cmd-sub` (kebab-case)
 - Antigravity: sed removes entire marked block (generic traceability lines remain)
 - Copilot: auto-generated condensed `agent.md` from SKILL.md structure (extracts title, description, instruction items)
-- Skills without `/afx:` commands (e.g., afx-spec-test-planning) have no markers — identical across Claude/Codex/Antigravity
+- Skills without `/afx-` commands (e.g., afx-spec-test-planning) have no markers — identical across Claude/Codex/Antigravity
 
 **Participants**: @rix, claude
 
 ### PK-D005 - 2026-02-28 - Full Test Suite + Bug Fixes
 
-`status:completed` `[testing, bugs, install.sh]`
+`status:completed` `[testing, bugs, afx-cli]`
 
-**Context**: Comprehensive testing of install.sh in `tmp/` covering all scenarios: fresh install, update, commands-only, transform functions, pack management, dry-run, help, and argument parsing.
+**Context**: Comprehensive testing of afx-cli in `tmp/` covering all scenarios: fresh install, update, commands-only, transform functions, pack management, dry-run, help, and argument parsing.
 
 **Summary**: Ran 8 test suites with 27 transform assertions (all passing). Found and fixed 3 bugs:
 
