@@ -5,6 +5,14 @@ All notable changes to AFX will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-03-15
+
+### Fixed
+
+- **Agent selection prompt**: Install and update now always prompt for agent selection unless `--yes` or explicit flags (`--no-claude-md`, `--no-agents-md`, `--with-gemini-md`) are provided. Previously, `--update` silently reused saved config without prompting.
+- **BSD sed compatibility**: Rewrote `update_agent_config()` to use awk instead of multiline `sed` insert, fixing failures on macOS (BSD sed).
+- **`.claude` directory tracking**: Added `.claude` to `.gitignore` exclusions so skill assets are properly tracked.
+
 ## [2.0.0] - 2026-03-15
 
 ### Breaking Changes
