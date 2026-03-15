@@ -12,9 +12,7 @@
 <table>
 <tr>
 <td width="100" valign="top"><br/>
-
-![NEW](https://img.shields.io/badge/-NEW-6C5CE7?style=for-the-badge)
-
+<img src="https://img.shields.io/badge/-NEW-6C5CE7?style=for-the-badge" alt="NEW"/>
 </td>
 <td valign="top">
 
@@ -26,10 +24,8 @@ A dedicated visual interface for the AFX workflow. Track your feature pipeline, 
 </td>
 </tr>
 <tr>
-<td valign="top">
-
-![NOTICE](https://img.shields.io/badge/-NOTICE-636e72?style=for-the-badge)
-
+<td valign="top"><br/>
+<img src="https://img.shields.io/badge/-NOTICE-636e72?style=for-the-badge" alt="NOTICE"/>
 </td>
 <td valign="top">
 
@@ -42,10 +38,8 @@ A dedicated visual interface for the AFX workflow. Track your feature pipeline, 
 </td>
 </tr>
 <tr>
-<td valign="top">
-
-![INSTALL](https://img.shields.io/badge/-INSTALL-00b894?style=for-the-badge)
-
+<td valign="top"><br/>
+<img src="https://img.shields.io/badge/-INSTALL-00b894?style=for-the-badge" alt="INSTALL"/>
 </td>
 <td valign="top">
 
