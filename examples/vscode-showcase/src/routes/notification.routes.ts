@@ -7,6 +7,7 @@
 
 import { getNotificationService } from '../services/notification.service';
 import { requireAuth } from '../middleware/auth.middleware';
+import { registerAuthRoutes } from './auth.routes';
 
 export function registerNotificationRoutes(app: unknown, db: unknown) {
   const notificationService = getNotificationService(db);

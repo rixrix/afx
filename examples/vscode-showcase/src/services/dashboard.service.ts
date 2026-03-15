@@ -7,8 +7,10 @@
 
 import { User } from '../models/user.model';
 import { Widget, DashboardLayout, ActivityEntry } from '../models/dashboard.model';
+import { getNotificationService } from './notification.service';
 
 export function getDashboardService(db: unknown) {
+  const notificationService = getNotificationService(db);
   return {
     async getWidgets(userId: string): Promise<Widget[]> {
       // Implementation placeholder

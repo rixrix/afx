@@ -4,6 +4,8 @@
  * @see docs/specs/dashboard/design.md#data-model
  */
 
+import { User } from './user.model';
+
 export interface Widget {
   id: string;
   userId: string;

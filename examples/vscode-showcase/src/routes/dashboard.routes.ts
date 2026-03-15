@@ -7,6 +7,7 @@
 
 import { getDashboardService } from '../services/dashboard.service';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth.middleware';
+import { registerAuthRoutes } from './auth.routes';
 
 export function registerDashboardRoutes(app: unknown, db: unknown) {
   const dashboardService = getDashboardService(db);

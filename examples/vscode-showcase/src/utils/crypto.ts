@@ -5,6 +5,8 @@
  * @see docs/specs/user-auth/design.md#service-layer
  */
 
+import { isStrongPassword } from './validation';
+
 export async function hashPassword(password: string): Promise<string> {
   // NOTE: Uses argon2id as per ADR — see research doc
   // @see docs/specs/user-auth/research/0002-password-hashing.md

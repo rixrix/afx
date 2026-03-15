@@ -5,6 +5,8 @@
  * @see docs/specs/notifications/spec.md#fr-3-notification-preferences
  */
 
+import { User } from './user.model';
+
 export interface Notification {
   id: string;
   userId: string;

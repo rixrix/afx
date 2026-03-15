@@ -7,8 +7,10 @@
 import { User } from '../models/user.model';
 import { Notification, NotificationPreference } from '../models/notification.model';
 import { createLogger } from '../utils/logger';
+import { getAuthService } from './auth.service';
 
 export function getNotificationService(db: unknown) {
+  const authService = getAuthService(db);
   return {
     async getNotifications(userId: string, limit = 20): Promise<Notification[]> {
       // Implementation placeholder
