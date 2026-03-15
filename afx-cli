@@ -1762,6 +1762,7 @@ if [ "$UPDATE_MODE" = "true" ]; then
 else
     echo -e "${BLUE}${BOLD}AFX Installer v${AFX_VERSION}${NC}"
 fi
+echo -e "${DIM}Pause. Think. Plan. Ship.${NC}"
 echo -e "${DIM}Target: $TARGET_DIR${NC}"
 if [ "$DRY_RUN" = "true" ]; then
     echo -e "${YELLOW}(Dry run — no changes will be made)${NC}"
@@ -2003,6 +2004,9 @@ run_step() {
     echo ""
 }
 
+# Configuration must run before skills so .afx.yaml exists before pack install appends to it
+run_step "Configuration (.afx.yaml)" step_config
+
 # Sync skills to .agents/skills/
 run_step "Skills → .agents/skills/ (+ .claude/skills/ if Claude enabled)" step_skills
 
@@ -2019,7 +2023,6 @@ fi
 
 # Always-available steps
 run_step "Templates" step_templates
-run_step "Configuration (.afx.yaml)" step_config
 
 # MD integration steps (gated by --no-* flags)
 if [[ "$NO_CLAUDE_MD" != "true" ]]; then
