@@ -55,6 +55,12 @@ curl -L -o vscode-afx.vsix https://github.com/rixrix/afx/releases/download/v2.1.
 2. In VS Code: `Cmd+Shift+P` → **Extensions: Install from VSIX...**
 3. Select the downloaded file
 
+**See it in action** — Open the [vscode-showcase](https://github.com/rixrix/afx/tree/main/examples/vscode-showcase) example project used in the [screenshots below](#agenticflowx-vscode-extension--screenshots):
+
+```bash
+git clone https://github.com/rixrix/afx.git && code afx/examples/vscode-showcase
+```
+
 </td>
 </tr>
 </table>
