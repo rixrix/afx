@@ -172,6 +172,8 @@ curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- 
 - `--no-agents-md` - Skip Codex/Copilot/Antigravity setup (`.agents/skills/` + AGENTS.md)
 - `--with-gemini-md` - Opt-in to Gemini CLI setup (GEMINI.md)
 - `--no-docs` - Skip copying AFX documentation to docs/agenticflowx/
+- `--source PATH` - Use local AFX checkout instead of downloading from GitHub
+- `--verbose` - Show detailed logging (curl, tar, file copies, git operations)
 - `--dry-run` - Preview changes without applying
 - `--force` - Overwrite all files (fresh install)
 - `--yes` - Non-interactive mode (accept defaults)

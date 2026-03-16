@@ -3,7 +3,7 @@
 # Usage:
 #   Install:  ./afx-cli /path/to/project
 #   Update:   ./afx-cli --update /path/to/project
-#   Local:    ./afx-cli --source /path/to/afx /path/to/project
+#   Local:    ./afx-cli --source /path/to/afx --target /path/to/project
 #   Remote:   curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- .
 #
 # Options:
@@ -72,6 +72,7 @@ ADD_SKILL=""
 BRANCH=""
 VERSION=""
 SOURCE_DIR=""
+VERBOSE=false
 
 # Change tracking
 INSTALLED=()
@@ -105,11 +106,13 @@ while [[ $# -gt 0 ]]; do
         --branch)         BRANCH="$2"; shift 2 ;;
         --version)        VERSION="$2"; shift 2 ;;
         --source)         SOURCE_DIR="$2"; shift 2 ;;
+        --target)         TARGET_DIR="$2"; shift 2 ;;
+        --verbose)        VERBOSE=true; shift ;;
         -h|--help)
             cat <<'HELPEOF'
 AFX Installer
 
-Usage: ./afx-cli [OPTIONS] <target-project-path>
+Usage: ./afx-cli [OPTIONS] [target-project-path]
 
 Options:
   --update          Update existing AFX installation
@@ -125,7 +128,10 @@ Options:
   --reset           Reset AFX: recreate .afx/ folder and config files
   --branch NAME     Use a specific branch (default: main)
   --version TAG     Use a specific version tag (e.g., 1.5.3 or v1.5.3)
-  --source PATH     Use local AFX checkout instead of downloading from GitHub
+  --source PATH     Use local AFX checkout instead of downloading from GitHub.
+                    Useful for development, testing, or offline installs.
+  --target PATH     Target project directory (alternative to positional argument)
+  --verbose         Show detailed logging (curl, tar, file copies, git operations)
   -h, --help        Show this help message
 
 Pack Management:
@@ -168,6 +174,15 @@ Examples:
   # Update all packs
   ./afx-cli --update --packs .
 
+  # Install from local AFX checkout (dev/testing/offline)
+  ./afx-cli --source ../afx .
+  ./afx-cli --source ../afx --target /path/to/project
+  ./afx-cli --update --source ../afx .
+  ./afx-cli --pack qa --source ../afx .
+
+  # Debug install issues
+  ./afx-cli --verbose .
+
   # Reset AFX (recreate .afx/ folder and config)
   ./afx-cli --reset .
 HELPEOF
@@ -183,6 +198,44 @@ done
 # ============================================================================
 # Section 4: Core Helper Functions
 # ============================================================================
+
+# Log a message only when --verbose is set.
+# Outputs to stderr so it's safe to use inside $() command substitutions.
+# Usage: vlog "downloading from $url"
+vlog() {
+    [[ "$VERBOSE" == "true" ]] && echo -e "${DIM}  [verbose] $*${NC}" >&2
+    return 0
+}
+
+# Create a temp directory inside .afx/.cache/ (project-local, not /tmp/).
+# Falls back to system mktemp if TARGET_DIR is not yet set.
+afx_mktemp_dir() {
+    if [[ -n "$TARGET_DIR" && -d "$TARGET_DIR" ]]; then
+        local cache_dir="$TARGET_DIR/.afx/.cache"
+        mkdir -p "$cache_dir"
+        local dir
+        dir=$(mktemp -d "$cache_dir/tmp.XXXXXXXXXX")
+        vlog "mktemp -d -> $dir"
+        echo "$dir"
+    else
+        mktemp -d
+    fi
+}
+
+# Create a temp file inside .afx/.cache/ (project-local, not /tmp/).
+# Falls back to system mktemp if TARGET_DIR is not yet set.
+afx_mktemp() {
+    if [[ -n "$TARGET_DIR" && -d "$TARGET_DIR" ]]; then
+        local cache_dir="$TARGET_DIR/.afx/.cache"
+        mkdir -p "$cache_dir"
+        local file
+        file=$(mktemp "$cache_dir/tmp.XXXXXXXXXX")
+        vlog "mktemp -> $file"
+        echo "$file"
+    else
+        mktemp
+    fi
+}
 
 # Ask for confirmation. Returns 0 (yes) or 1 (no).
 # Usage: confirm "Do something?" && do_it
@@ -224,13 +277,16 @@ install_file() {
     if [ -e "$dest" ]; then
         if [ "$UPDATE_MODE" = "true" ] || [ "$FORCE" = "true" ] || [ "$always_update" = "true" ]; then
             mkdir -p "$(dirname "$dest")"
+            vlog "cp -r $src -> $dest (update)"
             cp -r "$src" "$dest"
             UPDATED+=("$desc")
         else
+            vlog "skip $dest (exists)"
             SKIPPED+=("$desc (exists)")
         fi
     else
         mkdir -p "$(dirname "$dest")"
+        vlog "cp -r $src -> $dest (new)"
         cp -r "$src" "$dest"
         INSTALLED+=("$desc")
     fi
@@ -281,6 +337,7 @@ update_md_with_markers() {
     local snippet_content="$4"
     local label="$5"
     local header_content="$6"
+    vlog "update_md_with_markers: $md_file ($label)"
 
     local section="${start_marker}
 <!-- AFX Version: ${AFX_VERSION} -->
@@ -516,16 +573,18 @@ resolve_ref() {
 fetch_manifest() {
     local pack_name="$1"
     local ref="$2"
-    local temp_manifest=$(mktemp)
+    local temp_manifest=$(afx_mktemp)
 
     # Prefer local manifest when running from the AFX repo (dev/testing)
     local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "")"
     if [[ -n "$script_dir" && -f "$script_dir/packs/${pack_name}.yaml" ]]; then
+        vlog "fetch_manifest: using local $script_dir/packs/${pack_name}.yaml"
         cp "$script_dir/packs/${pack_name}.yaml" "$temp_manifest"
         echo "$temp_manifest"
         return 0
     fi
 
+    vlog "fetch_manifest: curl https://raw.githubusercontent.com/${AFX_REPO}/${ref}/packs/${pack_name}.yaml"
     curl -sfL "https://raw.githubusercontent.com/${AFX_REPO}/${ref}/packs/${pack_name}.yaml" \
         -o "$temp_manifest" 2>/dev/null
 
@@ -549,8 +608,9 @@ download_items() {
     local items=("$@")
 
     local url="https://codeload.github.com/${repo}/tar.gz/${ref}"
-    local temp_dir=$(mktemp -d)
+    local temp_dir=$(afx_mktemp_dir)
 
+    vlog "download_items: curl -sL $url | tar xz -C $temp_dir"
     curl -sL "$url" | tar xz -C "$temp_dir" --strip-components=1 2>/dev/null
     echo "$temp_dir"
 }
@@ -620,6 +680,7 @@ route_item() {
     local category="$4"
 
     local canonical_dir="$TARGET_DIR/.afx/skills/$category/$item_name"
+    vlog "route_item: $item_name ($type) -> $canonical_dir"
 
     case "$type" in
         skill|openai)
@@ -737,7 +798,7 @@ afx_yaml_set_pack() {
 
     if grep -q "name: $pack_name" "$yaml" 2>/dev/null; then
         # Update existing entry
-        local temp=$(mktemp)
+        local temp=$(afx_mktemp)
         local in_target=false
         while IFS= read -r line || [[ -n "$line" ]]; do
             if [[ "$line" =~ ^\ \ -\ name:\ $pack_name$ ]]; then
@@ -769,7 +830,7 @@ afx_yaml_set_pack() {
     installed_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
 PACKEOF
 )
-        local temp=$(mktemp)
+        local temp=$(afx_mktemp)
         local inserted=false
         local in_packs=false
         while IFS= read -r line || [[ -n "$line" ]]; do
@@ -811,7 +872,7 @@ afx_yaml_remove_pack() {
         return 0
     fi
 
-    local temp=$(mktemp)
+    local temp=$(afx_mktemp)
     local skip=false
     while IFS= read -r line || [[ -n "$line" ]]; do
         if [[ "$line" =~ ^\ \ -\ name:\ $pack_name$ ]]; then skip=true; continue; fi
@@ -859,7 +920,7 @@ skills:\
     item_type: $item_type
 EOF
 )
-    local temp=$(mktemp)
+    local temp=$(afx_mktemp)
     local inserted=false
     local in_skills=false
     local pending_line=""
@@ -897,7 +958,7 @@ afx_yaml_remove_skill() {
     [[ -f "$yaml" ]] || return 0
     [[ "$DRY_RUN" == "true" ]] && return 0
 
-    local temp=$(mktemp)
+    local temp=$(afx_mktemp)
     local skip=false
     while IFS= read -r line || [[ -n "$line" ]]; do
         if [[ "$line" =~ ^\ \ -\ name:\ $skill_name$ ]]; then skip=true; continue; fi
@@ -953,6 +1014,7 @@ skill_sync() {
     local canonical_dir="$TARGET_DIR/.afx/skills/$category/$skill_name"
 
     [[ -d "$canonical_dir" ]] || return 0
+    vlog "skill_sync: $skill_name from $canonical_dir"
 
     # Build target list based on agent selection
     local targets=()
@@ -1250,6 +1312,7 @@ pack_update_all() {
     index_ref=$(resolve_ref) || exit 1
     if [[ "$DRY_RUN" != "true" ]]; then
         mkdir -p "$TARGET_DIR/.afx/.cache"
+        vlog "fetching skills index: skills.json (ref: $index_ref)"
         curl -sL "https://raw.githubusercontent.com/${AFX_REPO}/${index_ref}/skills.json" \
             > "$TARGET_DIR/.afx/.cache/lastIndex.json" 2>/dev/null
     fi
@@ -1750,10 +1813,13 @@ elif [[ -f "$TARGET_DIR/.afx.yaml" ]]; then
         fi
     fi
 fi
+vlog "resolved ref: $_afx_ref"
+vlog "fetching version from CHANGELOG.md (ref: $_afx_ref)"
 AFX_VERSION=$(curl -sL "https://raw.githubusercontent.com/${AFX_REPO}/${_afx_ref}/CHANGELOG.md" | awk '/^## \[/ {print substr($2, 2, length($2)-2); exit}')
 if [ -z "$AFX_VERSION" ]; then
     AFX_VERSION="Unknown"
 fi
+vlog "resolved version: $AFX_VERSION"
 
 # Header
 echo ""
@@ -1845,10 +1911,11 @@ else
 
     if [ -z "$SCRIPT_DIR" ] || [ ! -f "$SCRIPT_DIR/.afx.yaml.template" ]; then
         echo -e "${YELLOW}Downloading AFX from GitHub...${NC}"
-        TEMP_DIR=$(mktemp -d)
+        TEMP_DIR=$(afx_mktemp_dir)
         trap "rm -rf $TEMP_DIR" EXIT
 
         clone_branch="${_afx_ref:-main}"
+        vlog "git clone --depth 1 --branch $clone_branch https://github.com/${AFX_REPO}.git $TEMP_DIR/afx"
         git clone --depth 1 --branch "$clone_branch" --quiet https://github.com/${AFX_REPO}.git "$TEMP_DIR/afx" 2>/dev/null || {
             echo -e "${RED}Error: Failed to clone AFX repository${NC}"
             echo "Check your internet connection or clone manually:"
@@ -2045,6 +2112,13 @@ if [[ "$NO_DOCS" != "true" ]]; then
 fi
 
 run_step "Directory structure" step_directories
+
+# Clean up stale temp files from .afx/.cache/
+if [[ -d "$TARGET_DIR/.afx/.cache" ]]; then
+    vlog "cleaning up .afx/.cache/tmp.* files"
+    rm -f "$TARGET_DIR/.afx/.cache"/tmp.* 2>/dev/null
+    rm -rf "$TARGET_DIR/.afx/.cache"/tmp.*/ 2>/dev/null
+fi
 
 # ============================================================================
 # Summary
