@@ -5,6 +5,33 @@ All notable changes to AFX will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-03-19
+
+### Added
+
+- **VSCode Workbench tab** (`vscode-afx 2.0.0-alpha.2`): New multi-column editor replacing the old Tasks tab. View spec, design, tasks, and sessions documents side by side with resizable columns, inline editing, and preview modes.
+- **Drift detection**: Workbench footer shows document freshness based on `last_verified` frontmatter (green ≤7d, yellow ≤30d, red >30d). Analytics tab includes drift heatmap per feature.
+- **Ghost task detection**: Extension scans `tasks.md` for broken `@see` references pointing to non-existent files. New KPI card in Analytics with expandable detail panel.
+- **Anchor sync scroll**: Clicking a heading in one workbench column scrolls matching headings in other columns.
+- **Workbench state persistence**: Column layout, view modes, and feature selection saved to `.afx/workbench.json` — survives window reloads.
+- **Default kanban board**: Auto-creates `backlog.md` with Backlog/In Progress/Review/Done columns when no boards exist.
+- **"Open Workbench" sidebar action**: Prominent entry in the Project tree and all sidebar view title bars to reveal the bottom panel.
+- **`--verbose` and `--target` flags** for `afx-cli` install script with project-local temp files.
+
+### Changed
+
+- **Tab order**: Reordered to Workbench → Notes → Board → Pipeline → Documents → Analytics → Journal → Architecture → Time Machine.
+- **Column toggle pills**: Redesigned with per-column accent colors (spec=pink, design=blue, tasks=amber, sessions=green) and inline status hints.
+- **Default columns**: First-time view shows Spec, Design, Tasks (sessions hidden by default).
+- **Skill enhancements**: Cross-cutting improvements to journaling, next-command suggestions, execution contracts, and command renames.
+
+### Fixed
+
+- **Stale session references**: Removed dead `session show/search` refs, fixed `work next` → `work pick` in Related Commands.
+- **Bash 5.x compatibility**: Use pre-increment to avoid silent exit on Linux/WSL.
+- **Install docs**: Fixed `install all docs from docs/agenticflowx/` path resolution.
+- **BSD sed compatibility**: Improved cross-platform script support.
+
 ## [2.1.0] - 2026-03-15
 
 ### Added
