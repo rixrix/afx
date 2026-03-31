@@ -38,12 +38,12 @@ tags: [global-adr, framework, tasks]
 
 ## Work Sessions
 
-<!-- Task execution log - updated by /afx-work pick, /afx-dev code -->
+<!-- Task execution log — updated by /afx-task pick, /afx-task code -->
 
-| Date       | Task          | Action                           | Files Modified                                                       | Agent | Human |
-| ---------- | ------------- | -------------------------------- | -------------------------------------------------------------------- | ----- | ----- |
-| 2026-02-24 | Phase 0 (all) | Scaffolded ADR dir + config      | .afx.yaml, ADR-0001, feature spec                                    | [x]  | [x]  |
-| 2026-02-24 | 1.3, 1.4      | Added adr subcommand to afx-init | afx-init.md, design.md                                               | [x]  | [x]  |
-| 2026-02-24 | Phase 0-1     | VERIFIED                         | Tested /afx-init adr in tmp/, generates real content                 | [x]  | [x]  |
-| 2026-02-24 | 3.1-3.3       | Phase 3 Documentation complete   | agenticflowx.md, cheatsheet.md, CLAUDE.md                            | [x]  | [ ]   |
-| 2026-02-24 | 3.1-3.3       | VERIFIED                         | Docs reviewed: prompts/, .afx.yaml.template, afx-cli also updated   | [x]  | [x]  |
+| Date       | Task          | Action                           | Files Modified                                                    | Agent | Human |
+| ---------- | ------------- | -------------------------------- | ----------------------------------------------------------------- | ----- | ----- |
+| 2026-02-24 | Phase 0 (all) | Scaffolded ADR dir + config      | .afx.yaml, ADR-0001, feature spec                                 | [x]   | [x]   |
+| 2026-02-24 | 1.3, 1.4      | Added adr subcommand to afx-init | afx-init.md, design.md                                            | [x]   | [x]   |
+| 2026-02-24 | Phase 0-1     | VERIFIED                         | Tested /afx-init adr in tmp/, generates real content              | [x]   | [x]   |
+| 2026-02-24 | 3.1-3.3       | Phase 3 Documentation complete   | agenticflowx.md, cheatsheet.md, CLAUDE.md                         | [x]   | [ ]   |
+| 2026-02-24 | 3.1-3.3       | VERIFIED                         | Docs reviewed: prompts/, .afx.yaml.template, afx-cli also updated | [x]   | [x]   |

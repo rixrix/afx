@@ -10,15 +10,21 @@
 
 All spec-driven files MUST have a top-level JSDoc with `@see` references linking back to the relevant spec documents.
 
-**Required for:**
+**Required links** (enforced by `/afx-check trace`):
 
-| File Type         | Required Links                                            |
-| ----------------- | --------------------------------------------------------- |
-| `*.repository.ts` | design.md section + tasks.md task number                  |
-| `*.service.ts`    | design.md section + tasks.md task number                  |
-| `*.action.ts`     | design.md section + tasks.md task number (if spec-driven) |
-| `*.model.ts`      | design.md section (if spec-driven)                        |
-| `*.constants.ts`  | research doc or design.md (if decision-driven)            |
+| File Type         | Required Links                                           |
+| ----------------- | -------------------------------------------------------- |
+| `*.repository.ts` | spec.md requirement + design.md section                  |
+| `*.service.ts`    | spec.md requirement + design.md section                  |
+| `*.action.ts`     | spec.md requirement + design.md section (if spec-driven) |
+| `*.model.ts`      | design.md section (if spec-driven)                       |
+| `*.constants.ts`  | research doc or design.md (if decision-driven)           |
+
+**Optional links** (allowed but not enforced):
+
+| Target     | When to use                                                                                                          |
+| ---------- | -------------------------------------------------------------------------------------------------------------------- |
+| `tasks.md` | Developer wants a breadcrumb to the originating task — useful but not required since tasks are transactional history |
 
 **Format:**
 
@@ -26,31 +32,45 @@ All spec-driven files MUST have a top-level JSDoc with `@see` references linking
 /**
  * [Brief description]
  *
- * @see docs/specs/[feature]/design.md#[section]
- * @see docs/specs/[feature]/tasks.md#[task-number]
+ * @see docs/specs/[feature]/spec.md [FR-X]
+ * @see docs/specs/[feature]/design.md [DES-SECTION]
  */
 ```
 
-**Example:**
+**Example (single requirement):**
 
 ```typescript
 /**
  * User Repository Interface
  *
- * @see docs/specs/user-auth/design.md#repository-implementation
- * @see docs/specs/user-auth/tasks.md#21-create-repository-interface
+ * @see docs/specs/user-auth/spec.md [FR-1]
+ * @see docs/specs/user-auth/design.md [DES-REPO]
  */
 ```
 
-**Anchor Format:**
+**Example (multiple requirements from same spec):**
 
-- **Section anchors:** Use kebab-case matching heading text (e.g., `#repository-implementation`)
-- **Task anchors:** Use pattern `#XY-task-description` where X is phase, Y is task number (e.g., `#21-create-repository-interface`)
+```typescript
+/**
+ * Authentication service — handles login, session, and token refresh.
+ *
+ * @see docs/specs/user-auth/spec.md [FR-1] [FR-2] [NFR-1]
+ * @see docs/specs/user-auth/design.md [DES-AUTH] [DES-SESSION]
+ */
+```
+
+Multiple Node IDs on the same `@see` line means the function implements all of those requirements. Use one `@see` line per file, with multiple IDs space-separated.
+
+**Node ID Format:**
+
+- **Spec anchors:** Use `[FR-X]` or `[NFR-X]` matching the requirement ID in the spec table (e.g., `[FR-1]`, `[NFR-3]`)
+- **Design anchors:** Use `[DES-SECTION]` with uppercase kebab-case section name (e.g., `[DES-REPO]`)
+- **Task anchors (optional):** Use `[X.Y]` where X is phase, Y is task number (e.g., `[2.1]`)
 - **Research anchors:** Link directly to research file (e.g., `research/decision-name.md`)
 
 **Inline Annotations:**
 
-Use standard annotation format + `@see` link. **At least one link MUST point to a spec** (`docs/specs/`). External links are optional.
+Use standard annotation format + `@see` link. **At least one link MUST point to a spec or design** (`docs/specs/`). External links are optional.
 
 ```typescript
 // ❌ BAD: Orphaned TODO
@@ -58,7 +78,8 @@ Use standard annotation format + `@see` link. **At least one link MUST point to 
 
 // ✅ GOOD: Spec link required
 // TODO: Implement pagination for claim history
-// @see docs/specs/feature/tasks.md#42-pagination
+// @see docs/specs/feature/spec.md [FR-4]
+// @see docs/specs/feature/design.md [DES-API]
 ```
 
 Standard annotations: `TODO`, `FIXME`, `XXX`, `HACK`, `NOTE`, `BUG`, `OPTIMIZE`, `REVIEW`
@@ -75,10 +96,9 @@ afx: true # AFX ownership marker (required)
 type: SPEC # Document type (required)
 status: Draft # Draft | Approved | Living
 owner: "@handle" # GitHub handle
-priority: High # High | Medium | Low (SPEC only)
-version: 1.0 # Semantic versioning
-created: YYYY-MM-DDTHH:MM:SS.mmmZ # ISO 8601 creation timestamp (millisecond precision)
-last_verified: YYYY-MM-DDTHH:MM:SS.mmmZ # Last review timestamp (millisecond precision)
+version: "1.0" # Semantic versioning (quoted string)
+created_at: YYYY-MM-DDTHH:MM:SS.mmmZ # ISO 8601 creation timestamp (millisecond precision)
+updated_at: YYYY-MM-DDTHH:MM:SS.mmmZ # Last review timestamp (millisecond precision)
 tags: [feature, topic] # Content tags (Obsidian convention)
 ---
 ```
@@ -150,11 +170,11 @@ When starting or resuming work on a ticket:
 
 **Work Orchestration**
 
-- `/afx-work status` - Quick state check after interruption
-- `/afx-work pick <spec-path>` - Pick next task from spec
-- `/afx-work resume [spec|num]` - Continue in-progress work
-- `/afx-work sync [spec] [issue]` - Bidirectional GitHub sync
-- `/afx-work plan [instruction]` - Generate tickets from specs
+- `/afx-next` - Quick state check after interruption
+- `/afx-task pick <spec-path>` - Pick next task from spec
+- `/afx-task resume [spec|num]` - Continue in-progress work
+- `/afx-task sync [spec] [issue]` - Bidirectional GitHub sync
+- `/afx-task plan [instruction]` - Generate tickets from specs
 
 **Task Verification**
 
@@ -172,7 +192,7 @@ When starting or resuming work on a ticket:
 
 **Development Actions**
 
-- `/afx-dev code [instruction]` - Implement with @see traceability
+- `/afx-task code [instruction]` - Implement with @see traceability
 - `/afx-dev debug [error]` - Debug with spec trace
 - `/afx-dev refactor [scope]` - Refactor maintaining spec alignment
 - `/afx-dev review [scope]` - Code review against specs

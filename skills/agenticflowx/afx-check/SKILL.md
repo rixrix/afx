@@ -6,7 +6,7 @@ metadata:
   afx-owner: "@rix"
   afx-status: Living
   afx-tags: "workflow,check,quality,compliance,traceability"
-  afx-argument-hint: "path | trace | links | schema | all"
+  afx-argument-hint: "path | trace | links | schema | deps | coverage | all"
 ---
 
 # /afx-check
@@ -27,7 +27,10 @@ If neither file exists, use defaults.
 ```bash
 /afx-check path <feature-path>   # Trace execution path UI → DB
 /afx-check trace [path]          # Audit @see annotations for PRD compliance
-/afx-check links <spec-path>     # Verify cross-references and update changelog
+/afx-check links <spec-path>     # Verify cross-references between spec artifacts
+/afx-check schema <spec-path>    # Verify database schema consistency in design.md
+/afx-check deps [feature]        # Build and validate dependency graph from depends_on
+/afx-check coverage <spec-path>  # Bidirectional spec-to-code coverage map
 /afx-check all <feature-path>    # Run all checks
 ```
 
@@ -47,7 +50,7 @@ If neither file exists, use defaults.
 If fixes are requested, respond with:
 
 ```text
-Out of scope for /afx-check (read-only audit mode). Use /afx-dev code to fix issues found.
+Out of scope for /afx-check (read-only audit mode). Use /afx-task code to fix issues found.
 ```
 
 ### Proactive Journal Capture
@@ -66,25 +69,25 @@ When this skill detects a high-impact context change, auto-capture to `journal.m
 
 | Context                        | Suggested Next Command                           |
 | ------------------------------ | ------------------------------------------------ |
-| After `path` (ALL VERIFIED)    | `/afx-work pick <spec>` for next task            |
-| After `path` (FAILED)          | `/afx-dev code` to fix the gaps                  |
-| After `trace` (no orphans)     | `/afx-check path` or `/afx-work pick`            |
+| After `path` (ALL VERIFIED)    | `/afx-task pick <spec>` for next task            |
+| After `path` (FAILED)          | `/afx-task code` to fix the gaps                  |
+| After `trace` (no orphans)     | `/afx-check path` or `/afx-task pick`            |
 | After `trace` (orphans found)  | `/afx-check trace <file>:<line>` to fix each     |
-| After `links` (all valid)      | `/afx-work pick <spec>` or `/afx-dev code`       |
+| After `links` (all valid)      | `/afx-task pick <spec>` or `/afx-task code`       |
 | After `links` (broken found)   | Fix broken links, then re-run `/afx-check links` |
-| After `all` (READY FOR REVIEW) | `/afx-work pick <spec>` or create PR             |
-| After `all` (issues found)     | `/afx-dev code` to address issues                |
+| After `all` (READY FOR REVIEW) | `/afx-task pick <spec>` or create PR             |
+| After `all` (issues found)     | `/afx-task code` to address issues                |
 
 **Suggestion Format** (top 3 context-driven, bottom 2 static):
 
 ```
 Next (ranked):
-  1. /afx-dev code                               # Context-driven: Fix gaps if verification failed
-  2. /afx-work pick docs/specs/{feature}          # Context-driven: Move to next task (if verified)
+  1. /afx-task code                               # Context-driven: Fix gaps if verification failed
+  2. /afx-task pick docs/specs/{feature}          # Context-driven: Move to next task (if verified)
   3. /afx-task verify <task-id>                   # Context-driven: Confirm task matches spec
   ──
   4. /afx-session note "<note>"                   # Note issues before switching
-  5. /afx-work status                             # Re-orient after check
+  5. /afx-next                                     # Re-orient after check
 ```
 
 ---
@@ -212,7 +215,7 @@ Repository: insert()
 
 **Result:** ALL PATHS VERIFIED
 
-Next: /afx-work pick docs/specs/{feature} # Proceed to next task
+Next: /afx-task pick docs/specs/{feature} # Proceed to next task
 ```
 
 #### If Gaps Found
@@ -231,7 +234,7 @@ Next: /afx-work pick docs/specs/{feature} # Proceed to next task
    - File: `claim.action.ts:15`
    - Fix: Add try/catch with proper error response
 
-Next: /afx-dev code # Fix the identified gaps
+Next: /afx-task code # Fix the identified gaps
 ```
 
 ### Red Flags Reference
@@ -368,7 +371,8 @@ Audit @see annotations for PRD compliance.
 
    ```typescript
    // TODO: Send email notification to supplier
-   // @see docs/specs/user-auth/tasks.md#phase-2-notifications
+   // @see docs/specs/user-auth/spec.md [FR-3]
+   // @see docs/specs/user-auth/design.md [DES-NOTIFY]
    ```
 
    **Context**: This TODO is in the `assignSupplier` function. Supplier notifications are planned for Phase 2 per the feature claims spec.
@@ -739,7 +743,91 @@ This spec may not have database schema. Skipping schema check.
 
 ---
 
-## 5. all
+## 5. deps
+
+Build and validate the cross-spec dependency graph from `depends_on` frontmatter.
+
+### Usage
+
+```bash
+/afx-check deps                  # All specs
+/afx-check deps <feature>        # Single feature and its dependents
+```
+
+### Process
+
+1. **Scan all specs**: Read `depends_on` from every `spec.md` frontmatter under `docs/specs/`
+2. **Build graph**: Map feature → dependencies
+3. **Validate**:
+   - Every target in `depends_on` exists as a real feature folder
+   - No circular dependencies (A → B → A)
+   - No self-references
+4. **Report**:
+
+```markdown
+## Dependency Graph
+
+marketplace-bookings → [marketplace-auth, marketplace-listings]
+marketplace-listings → [marketplace-auth]
+marketplace-auth → [] (root)
+
+### Validation
+
+✓ All dependency targets exist
+✓ No circular dependencies
+✗ marketplace-payments depends_on "billing-service" — folder not found
+
+### Orphaned Specs (no dependents)
+
+ℹ marketplace-reports (informational — not blocking)
+```
+
+---
+
+## 6. coverage
+
+Bidirectional spec-to-code coverage map.
+
+### Usage
+
+```bash
+/afx-check coverage <spec-path>
+```
+
+Example: `/afx-check coverage docs/specs/user-auth`
+
+### Process
+
+1. **Spec → Code**: For every `[FR-X]` and `[NFR-X]` in `spec.md`, search source code for `@see` links referencing that Node ID. Report uncovered requirements.
+2. **Code → Spec**: For every `@see` link in source code pointing to this spec, verify the target Node ID exists in the spec file. Report broken/stale references.
+3. **Output**:
+
+```markdown
+## Coverage: user-auth
+
+### Spec → Code (Requirements Coverage)
+
+| Requirement | @see in Code | Status  |
+| ----------- | ------------ | ------- |
+| [FR-1]      | auth.service.ts:15, auth.action.ts:8 | ✓ Covered |
+| [FR-2]      | auth.service.ts:42 | ✓ Covered |
+| [FR-3]      | — | ✗ Uncovered |
+| [NFR-1]     | auth.middleware.ts:5 | ✓ Covered |
+
+Coverage: 3/4 (75%)
+
+### Code → Spec (Orphan Check)
+
+| @see Link | Target | Status |
+| --------- | ------ | ------ |
+| auth.helper.ts:10 → spec.md [FR-5] | [FR-5] not found | ✗ Stale |
+
+Stale references: 1
+```
+
+---
+
+## 7. all
 
 Run all verification checks in sequence.
 
@@ -755,6 +843,8 @@ Run all verification checks in sequence.
 2. **Run trace check**: `/afx-check trace <feature-path>`
 3. **Run links check**: Infer spec from feature path
 4. **Run schema check**: `/afx-check schema <spec-path>` (if design.md has CREATE TABLE)
+5. **Run deps check**: `/afx-check deps <feature>`
+6. **Run coverage check**: `/afx-check coverage <spec-path>`
 
 ### Output
 
@@ -779,22 +869,24 @@ Run all verification checks in sequence.
 
 ## Summary
 
-| Check  | Status     |
-| ------ | ---------- |
-| Path   | Pass       |
-| Trace  | 3 warnings |
-| Links  | Pass       |
-| Schema | Pass       |
+| Check    | Status     |
+| -------- | ---------- |
+| Path     | Pass       |
+| Trace    | 3 warnings |
+| Links    | Pass       |
+| Schema   | Pass       |
+| Deps     | Pass       |
+| Coverage | 75%        |
 
 **Overall**: READY FOR REVIEW (with warnings)
 
-Next: /afx-work pick docs/specs/{feature} # Continue to next task
+Next: /afx-task pick docs/specs/{feature} # Continue to next task
 ```
 
 Or if issues found:
 
 ```
-Next: /afx-dev code   # Address the issues first
+Next: /afx-task code {id}   # Address the issues first
 ```
 
 ---
@@ -803,6 +895,7 @@ Next: /afx-dev code   # Address the issues first
 
 | Command        | Relationship                                          |
 | -------------- | ----------------------------------------------------- |
-| `/afx-work`    | Work pick blocks until path check passes              |
-| `/afx-task`    | Task audit checks spec alignment; check verifies code |
-| `/afx-session` | No direct integration                                 |
+| `/afx-task`    | Task lifecycle; check verifies code and spec alignment |
+| `/afx-design`  | Design authoring; check validates design structure     |
+| `/afx-spec`    | Spec management; check validates spec structure        |
+| `/afx-session` | No direct integration                                  |

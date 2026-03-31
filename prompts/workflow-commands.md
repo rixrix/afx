@@ -22,19 +22,14 @@ The spec tells you _what_ to build. The GitHub ticket tells you _where you left 
 
 ### Session Log Format
 
+The Work Sessions table in `tasks.md` must be the **last section** in the file. Append rows — never replace existing ones.
+
 \`\`\`markdown
-| Date             | Task | Action                       | Files Modified         |
-| ---------------- | ---- | ---------------------------- | ---------------------- |
-| 2025-12-07 14:30 | 4.1  | Completed email templates    | mailer/templates/\*.ts |
-| 2025-12-07 15:00 | 4.2  | Integrated mailer in actions | claim.action.ts        |
+| Date | Task | Action | Files Modified | Agent | Human |
+| ---------- | ---- | --------- | ----------------------- | ----- | ----- |
+| 2025-12-07 | 4.1 | Coded | mailer/templates/\*.ts | [x] | - |
+| 2025-12-07 | 4.2 | Completed | claim.action.ts | [x] | - |
 \`\`\`
-
-### GitHub Ticket Workflow
-
-1. **Starting work**: Read GitHub ticket, check Session Log for last entry
-2. **During work**: Check off subtasks as completed
-3. **Completing work**: Update Session Log with final entry
-4. **Before closing**: Verify all subtasks checked, run verification commands
 
 ### Agent Resumption Workflow
 
@@ -49,42 +44,54 @@ When starting or resuming work on a ticket:
 
 ### Commands
 
-**Discovery**
+**Spec Lifecycle**
 
-- `/afx-discover capabilities` - High-level project overview (what exists)
-- `/afx-discover infra [type]` - Find infrastructure provisioning scripts
-- `/afx-discover scripts [keyword]` - Find automation/deployment scripts
-- `/afx-discover tools` - List dev/deployment tools
+- `/afx-spec create <name>` - Initialize new feature spec
+- `/afx-spec validate <name>` - Check spec structure integrity
+- `/afx-spec review <name>` - Automated quality scoring
+- `/afx-spec approve <name>` - Approve spec (unlocks design phase)
 
-**Work Orchestration**
+**Design Lifecycle**
 
-- `/afx-work status` - Quick state check after interruption
-- `/afx-work pick <spec-path>` - Pick next task from spec
-- `/afx-work resume [spec|num]` - Continue in-progress work
-- `/afx-work sync [spec] [issue]` - Bidirectional GitHub sync
-- `/afx-work plan [instruction]` - Generate tickets from specs
+- `/afx-design author <name>` - Generate design.md from approved spec
+- `/afx-design validate <name>` - Check design structure and traceability
+- `/afx-design review <name>` - Advisory quality check
+- `/afx-design approve <name>` - Approve design (unlocks task planning)
 
-**Task Verification**
+**Task Lifecycle & Implementation**
 
-- `/afx-task verify <task-id>` - Verify task implementation vs spec
-- `/afx-task brief <task-id>` - Get implementation summary
-- `/afx-task list [phase]` - List tasks by phase
-- `/afx-task status` - Overall task completion
+- `/afx-task plan <name>` - Generate tasks.md from approved design
+- `/afx-task pick <id>` - Check out a task as active
+- `/afx-task code <id>` - Implement with @see traceability
+- `/afx-task verify <id>` - Verify task implementation vs spec
+- `/afx-task complete <id>` - Mark task done
+- `/afx-task sync [spec] [issue]` - Bidirectional GitHub sync
+- `/afx-task brief <id>` - Get implementation summary
+- `/afx-task review <name>` - Check for planning gaps
+
+**Advanced Diagnostics**
+
+- `/afx-dev debug [error]` - Debug with spec trace
+- `/afx-dev refactor [scope]` - Refactor maintaining spec alignment
+- `/afx-dev review [scope]` - Code review against specs
+- `/afx-dev test [scope]` - Run/generate tests
+- `/afx-dev optimize [target]` - Performance optimization
 
 **Quality Checks**
 
 - `/afx-check path <feature-path>` - Trace execution path UI → DB (Gate 1)
 - `/afx-check trace [path]` - Audit annotations for PRD compliance
 - `/afx-check links <spec-path>` - Verify cross-references
+- `/afx-check deps [feature]` - Validate dependency graph
+- `/afx-check coverage <spec-path>` - Spec-to-code coverage map
 - `/afx-check all <feature-path>` - Run all checks
 
-**Development Actions**
+**Discovery**
 
-- `/afx-dev code [instruction]` - Implement with @see traceability
-- `/afx-dev debug [error]` - Debug with spec trace
-- `/afx-dev refactor [scope]` - Refactor maintaining spec alignment
-- `/afx-dev review [scope]` - Code review against specs
-- `/afx-dev test [scope]` - Run/generate tests
+- `/afx-discover capabilities` - High-level project overview (what exists)
+- `/afx-discover infra [type]` - Find infrastructure provisioning scripts
+- `/afx-discover scripts [keyword]` - Find automation/deployment scripts
+- `/afx-discover tools` - List dev/deployment tools
 
 **Session Capture**
 
@@ -107,6 +114,7 @@ When starting or resuming work on a ticket:
 - `/afx-init adr <title>` - Create global ADR in `docs/adr/`
 - `/afx-context save [feature]` - Generate context bundle
 - `/afx-context load` - Load context from previous context
+- `/afx-hello` - Environment diagnostics
 - `/afx-help` - Show command reference
 
 ### Session Discussion Capture

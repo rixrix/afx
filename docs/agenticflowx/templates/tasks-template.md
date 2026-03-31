@@ -1,68 +1,130 @@
 ---
 afx: true
 type: TASKS
-status: Living
-owner: "@handle"
-version: 2.0
-last_verified: YYYY-MM-DD
+status: Draft
+owner: "@owner"
+version: "1.0"
+created_at: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
+updated_at: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
+tags: ["{feature}"]
+spec: spec.md
+design: design.md
 ---
 
-# Feature Name - Implementation Tasks
-
-**Version:** 2.0
-**Date:** YYYY-MM-DD
-**Status:** Planning
-**Spec:** [spec.md](./spec.md)
-**Design:** [design.md](./design.md)
-
-> This document follows a Work Breakdown Structure (WBS). Every task MUST link back to the spec or design via `@see`. Tasks cannot be marked `[x]` (complete) until path-verification passes (`/afx-check path`).
+# {Feature Name} - Implementation Tasks
 
 ---
 
-## Implementation Order
+## Task Numbering Convention
 
-| Priority | Phase | Description | Status |
-| -------- | ----- | ----------- | ------ |
-| **1** | **Phase 1** | **[High-level phase description]** | **Active** |
-| 1.1   | Phase 1.1   | [Specific component/service task]  | Pending |
-| 1.2   | Phase 1.2   | [Specific component/service task]  | Pending |
-| **2** | **Phase 2** | **[High-level phase description]** | **Pending** |
-| -     | Phase 3     | [Backlog / Future task]            | Backlog |
+Tasks use hierarchical numbering for cross-referencing:
 
----
+- **0.x** - Pre-implementation cleanup (if needed)
+- **1.x** - {Phase 1 name}
+- **2.x** - {Phase 2 name}
+- **3.x** - {Phase 3 name}
+- **n.x** - {Continue as needed}
 
-## Phase 1: [Phase Overview Name]
+References use **Node IDs** for traceability:
 
-> **Goal:** [What should be achieved when this phase is done?]
-> **Design Ref:** [Link to anchor in design.md]
-
-### 1.1 [Task Component/File Name]
-
-- [ ] **Data layer**: Update `schema.sql` or `schema.prisma`.
-- [ ] **Service layer**: Create `feature.service.ts` logic.
-- [ ] **UI layer**: Wire frontend component to `feature.action.ts`.
-- [ ] **Testing**: Create/Update unit tests.
-
-### 1.2 [Another Task Name]
-
-- [ ] [Subtask 1]
-- [ ] [Subtask 2]
+- `[FR-1]` = Functional Requirement 1 from spec.md
+- `[NFR-2]` = Non-Functional Requirement 2 from spec.md
+- `[DES-API]` = Design section from design.md
+- `[1.1]` = Task 1.1 (this file)
 
 ---
 
-## Phase 2: [Another Phase Name]
+## Phase 0: Pre-Implementation Cleanup
 
-> **Goal:** [What should be achieved when this phase is done?]
+> Optional. Include only if cleanup is needed before implementation.
 
-### 2.1 [Task Name]
+### 0.1 {Cleanup Task Name}
 
-- [ ] [Subtask implementation checklist]
+- [ ] {Task item}
+- [ ] {Task item}
 
 ---
 
-## Verification & Handoff
+## Phase 1: {Phase Name}
 
-- [ ] All code contains `@see` backlinks to the target `tasks.md` phase or `spec.md` FR.
-- [ ] `/afx-check path` executed and passed for all major execution routes.
-- [ ] Feature flagged appropriately (if required).
-- [ ] E2E/Unit tests complete.
+> GitHub Issue #XX | Ref: [DESIGN-X.X], [REQ-FR-X]
+
+### 1.1 {Task Group Name}
+<!-- files: path/to/file.ts, path/to/other.ts -->
+<!-- @see design.md [DES-SECTION] | spec.md [FR-X] -->
+
+- [ ] {Task item}
+- [ ] {Task item}
+- [ ] {Task item}
+
+### 1.2 {Task Group Name}
+<!-- files: path/to/another.ts -->
+<!-- @see design.md [DES-SECTION] | spec.md [FR-X] -->
+
+- [ ] {Task item}
+- [ ] {Task item}
+
+---
+
+## Phase 2: {Phase Name}
+
+> GitHub Issue #XX | Ref: [DESIGN-X.X], [REQ-FR-X]
+
+### 2.1 {Task Group Name}
+
+- [ ] {Task item}
+- [ ] {Task item}
+
+### 2.2 {Task Group Name}
+
+- [ ] {Task item}
+- [ ] {Task item}
+
+---
+
+## Phase N: {Additional Phases}
+
+> Add more phases as needed following the same pattern.
+
+---
+
+## Implementation Flow
+
+```
+Phase 0: Pre-Implementation (if needed)
+    ↓
+Phase 1: {Phase 1 name}
+    ↓
+Phase 2: {Phase 2 name}
+    ↓
+Phase N: {Continue as needed}
+```
+
+---
+
+## Cross-Reference Index
+
+| Task | Spec Requirement | Design Section      |
+| ---- | ---------------- | ------------------- |
+| 1.x  | [FR-1], [FR-2]   | [DES-DATA]          |
+| 2.x  | [FR-3], [FR-4]   | [DES-API], [DES-UI] |
+| n.x  | {Requirements}   | {Design Node IDs}   |
+
+---
+
+## Notes
+
+- Tasks are marked complete (`[x]`) as implementation progresses
+- GitHub issue numbers are added when issues are created
+- Cross-references help trace requirements → design → implementation
+
+---
+
+## Work Sessions
+
+<!-- IMPORTANT: This section MUST remain the LAST section in tasks.md. Do not add content below it. -->
+<!-- Task execution log — append-only, updated by /afx-task pick, /afx-task code, /afx-task complete -->
+<!-- Columns: Date (YYYY-MM-DD) | Task (WBS ID) | Action (Picked/Coded/Completed/Verified/Reviewed) | Files Modified (comma-separated or -) | Agent ([x] or -) | Human ([x] or -) -->
+
+| Date | Task | Action | Files Modified | Agent | Human |
+| ---- | ---- | ------ | -------------- | ----- | ----- |

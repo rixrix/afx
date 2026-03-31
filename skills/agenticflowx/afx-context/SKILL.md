@@ -81,7 +81,7 @@ When creating or updating context bundles (`saved` frontmatter, journal archive 
 | ----------------------------- | ------------------------------------------- |
 | After `save` (context ready)  | Share bundle, then session ends             |
 | After `load` (context loaded) | `/afx-dev code` to continue work            |
-| After `history` (reviewing)   | `/afx-work pick` or `/afx-dev`              |
+| After `history` (reviewing)   | `/afx-task pick` or `/afx-dev`              |
 | After `impact` (analyzing)    | Review affected files, then `/afx-dev code` |
 
 ---
@@ -258,7 +258,7 @@ Include specific numbers, findings, or outcomes.}
 
 ```bash
 /afx-context load           # Load this context
-/afx-work resume            # Continue implementation
+/afx-task pick              # Continue implementation
 ```
 ````
 
@@ -299,10 +299,10 @@ The full context bundle content, followed by:
 
 Next (ranked):
   1. /afx-dev code                               # Context-driven: Continue implementation
-  2. /afx-work resume                             # Context-driven: Pick up from task queue
+  2. /afx-task pick                                # Context-driven: Pick up from task queue
   3. /afx-session recap {feature}                  # Context-driven: Review more context
   ──
-  4. /afx-work status                             # Re-orient after context load
+  4. /afx-next                                     # Re-orient after context load
   5. /afx-help                                    # See all options
 ```
 
@@ -360,7 +360,7 @@ Show spec evolution timeline - what changed and when.
 | v1.2    | -       | -         | +session |
 | v1.1    | +enum   | +diagram  | +phase6  |
 
-Next: /afx-work pick user-auth # Continue with latest spec
+Next: /afx-task pick user-auth # Continue with latest spec
 ```
 
 ---
@@ -439,6 +439,6 @@ Next: /afx-dev code # Start migration if approved
 
 | Command              | Relationship                                    |
 | -------------------- | ----------------------------------------------- |
-| `/afx-work status`   | Quick state; context is comprehensive           |
+| `/afx-next`          | Quick state; context is comprehensive           |
 | `/afx-session recap` | Discussion summary; context includes work state |
 | `/afx-report`        | Metrics; context is per-session context         |

@@ -2,7 +2,7 @@
 
 > **Pause. Think. Plan. Ship.**
 
-Commands like `/afx-work pick` and `/afx-spec review` are powered by **Skills** — prompt files following the **agentskills.io** standard that teach your AI coding agent how to run an AFX workflow.
+Commands like `/afx-task pick` and `/afx-spec review` are powered by **Skills** — prompt files following the **agentskills.io** standard that teach your AI coding agent how to run an AFX workflow.
 
 Skills are grouped into **Packs** — curated bundles of related skills that you install once via `afx-cli`. AFX ships with 7 packs out of the box.
 
@@ -39,15 +39,15 @@ includes:
 
 ## Available Packs
 
-| Pack                     | Category | Description                                                                               |
-| :----------------------- | :------- | :---------------------------------------------------------------------------------------- |
-| `afx-pack-starter`       | utility  | Verify AFX installation; multi-provider vibe check                                        |
-| `afx-pack-agenticflowx`  | workflow | **Core AFX pack.** All 13 AFX slash commands (`/afx-next`, `/afx-work`, `/afx-dev`, etc.) |
-| `afx-pack-dev`           | role     | Developer toolkit — clean code, TDD, Git workflows, architecture patterns, debugging      |
-| `afx-pack-architect`     | role     | System design, pattern selection, ADRs, and quality attributes                            |
-| `afx-pack-qa`            | role     | Testing, web-app quality review, PR review, test planning linked to spec tasks            |
-| `afx-pack-security`      | role     | OWASP top-10 checklist, security audits, Claude security-guidance plugin                  |
-| `afx-pack-product-owner` | role     | Product Owner workflow skills                                                             |
+| Pack                     | Category | Description                                                                                              |
+| :----------------------- | :------- | :------------------------------------------------------------------------------------------------------- |
+| `afx-pack-starter`       | utility  | Verify AFX installation; multi-provider vibe check                                                       |
+| `afx-pack-agenticflowx`  | workflow | **Core AFX pack.** All 15 AFX slash commands (`/afx-next`, `/afx-task`, `/afx-design`, `/afx-dev`, etc.) |
+| `afx-pack-dev`           | role     | Developer toolkit — clean code, TDD, Git workflows, architecture patterns, debugging                     |
+| `afx-pack-architect`     | role     | System design, pattern selection, ADRs, and quality attributes                                           |
+| `afx-pack-qa`            | role     | Testing, web-app quality review, PR review, test planning linked to spec tasks                           |
+| `afx-pack-security`      | role     | OWASP top-10 checklist, security audits, Claude security-guidance plugin                                 |
+| `afx-pack-product-owner` | role     | Product Owner workflow skills                                                                            |
 
 > By default, a fresh install adds `afx-pack-starter` and `afx-pack-agenticflowx` automatically.
 
@@ -110,7 +110,7 @@ your-project/
 │   └── skills/
 │       ├── agenticflowx/      # Core workflow skills (13 total)
 │       │   ├── afx-next/
-│       │   ├── afx-work/
+│       │   ├── afx-task/
 │       │   └── ...
 │       ├── qa/
 │       ├── dev/
@@ -155,7 +155,7 @@ mv .claude/skills/afx-check.disabled .claude/skills/afx-check
 # Installed packs:
 #   ● afx-pack-agenticflowx (ref: main)
 #     afx-next
-#     afx-work
+#     afx-task
 #     ...
 ```
 
@@ -184,7 +184,7 @@ packs:
 
 skills:
   - name: afx-clean-code
-    source: afx-pack-dev        # which pack installed this skill
+    source: afx-pack-dev # which pack installed this skill
     category: dev
     providers: { agents: true, copilot: false }
   - name: afx-tdd
@@ -201,23 +201,22 @@ The `source` field links each skill back to its pack — used by `--pack-remove`
 
 AFX skills follow the **agentskills.io** open format — an Anthropic-maintained standard adopted by 26+ platforms (Claude Code, Codex, GitHub Copilot, Cursor, Gemini CLI, Roo Code, Antigravity, and more).
 
-Core idea: *"Write once, use everywhere."* A skill is a folder with a `SKILL.md` file. No build step, no runtime.
+Core idea: _"Write once, use everywhere."_ A skill is a folder with a `SKILL.md` file. No build step, no runtime.
 
 ### SKILL.md Format
 
 ```yaml
 ---
-name: afx-clean-code         # Required. Lowercase + hyphens. Must match folder name.
-description: >               # Required. Describes WHAT it does AND WHEN to activate.
+name: afx-clean-code # Required. Lowercase + hyphens. Must match folder name.
+description: > # Required. Describes WHAT it does AND WHEN to activate.
   Review code for Clean Code principles — naming conventions, function design,
   error handling, and code smells. Use this when asked to review for readability,
   reduce complexity, or identify code smells.
-license: MIT                 # Recommended
-metadata:                    # Optional key-value pairs (AFX uses afx-* prefix)
+license: MIT # Recommended
+metadata: # Optional key-value pairs (AFX uses afx-* prefix)
   afx-owner: "@rix"
   afx-status: Living
 ---
-
 # Instructions (full Markdown body)
 ...
 ```
@@ -244,7 +243,7 @@ Agents only load what they need, protecting the context window:
 | **2** | Full `SKILL.md` body                 | Skill is activated | < 5,000 recommended |
 | **3** | `references/`, `scripts/`, `assets/` | On-demand          | varies              |
 
-For large AFX skills like `/afx-work` (1,100+ lines), `SKILL.md` holds a routing table and each subcommand's full instructions live in `references/`.
+For large AFX skills like `/afx-task` (1,100+ lines), `SKILL.md` holds a routing table and each subcommand's full instructions live in `references/`.
 
 ### Discovery Paths
 
@@ -286,7 +285,7 @@ The 270K+ skills in the ecosystem are general-purpose. AFX skills understand you
 | Capability                             | Generic Ecosystem | AFX Skills                                               |
 | :------------------------------------- | :---------------- | :------------------------------------------------------- |
 | `@see` traceability enforcement        | None              | Core requirement of all `/afx-dev` tasks                 |
-| Reads your `spec.md` / `tasks.md`      | No                | Yes — `/afx-work`, `/afx-next` read active feature state |
+| Reads your `spec.md` / `tasks.md`      | No                | Yes — `/afx-task`, `/afx-next` read active feature state |
 | Two-stage (Agent + Human) verification | No                | Yes — `/afx-check` enforces this gate                    |
 | Session capture across agents          | No                | Yes — `/afx-session` writes to `journal.md`              |
 | Path verification (UI to DB)           | No                | Yes — `/afx-check path` traces the entire call stack     |

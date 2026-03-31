@@ -5,6 +5,47 @@ All notable changes to AFX will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-04-01
+
+### Breaking Changes
+
+- **`/afx-work` removed**: All subcommands absorbed into `/afx-task` (plan, pick, code, verify, complete, sync) and `/afx-next` (status).
+- **`/afx-dev code` removed**: Moved to `/afx-task code` — daily coding is now task-driven with traceability. `/afx-dev` retains diagnostic commands (debug, refactor, review, test, optimize).
+- **`/afx-update` removed**: Replaced by `/afx-hello` for environment diagnostics and installation verification.
+- **`/afx-spec design` and `/afx-spec tasks` removed**: Design authoring moved to new `/afx-design` skill; task planning moved to `/afx-task plan`.
+- **`@see` annotation policy**: `spec.md` and `design.md` links are now **required**; `tasks.md` links are **optional** (allowed but not enforced). Tasks are transactional history, not living truth.
+- **`@see` anchor format**: `#anchor-slug` format replaced by bracket Node IDs: `[FR-1]`, `[DES-API]`, `[NFR-3]`. Multi-ID syntax supported: `@see spec.md [FR-1] [FR-2] [NFR-1]`.
+- **Frontmatter field renames**: `created` → `created_at`, `last_verified` → `updated_at`, `version` now quoted as `"1.0"`.
+
+### Added
+
+- **`/afx-design` skill** (new): Owns `design.md` exclusively — author, validate, review, approve. Lifecycle-gated behind spec approval. Enforces `[DES-ID]` Node IDs on all headings.
+- **`/afx-hello` skill** (new, agenticflowx pack): Environment diagnostics — AI provider detection, installation check, skill availability, project health snapshot.
+- **`/afx-check deps`** subcommand: Build and validate cross-spec dependency graph from `depends_on` frontmatter.
+- **`/afx-check coverage`** subcommand: Bidirectional spec-to-code coverage map (Spec→Code + Code→Spec orphan check).
+- **`/afx-spec validate` enhanced**: Now checks frontmatter depth (version, timestamps, canonical field order), requirement ID uniqueness/sequencing (`[FR-N]`, `[NFR-N]`), and 8 required template sections. Parity with `/afx-design validate`.
+- **Post-Action Checklists**: Added mandatory post-action checklists to `/afx-dev`, `/afx-init`, `/afx-research`, `/afx-session`, `/afx-spec`, `/afx-design`, and `/afx-task` skills.
+- **PRD Reference doc** (`docs/agenticflowx/prd-reference.md`): Comprehensive artifact ownership and lifecycle reference.
+- **Research template** (`docs/agenticflowx/templates/research-template.md`): Canonical template for research artifacts.
+
+### Changed
+
+- **Artifact ownership model**: Each skill now owns exactly one artifact — `/afx-spec` owns `spec.md`, `/afx-design` owns `design.md`, `/afx-task` owns `tasks.md` + source code, `/afx-session` owns `journal.md`.
+- **`/afx-task` expanded**: Absorbed plan, pick, code, verify, complete, sync, brief, review from former `/afx-work` and `/afx-dev code`.
+- **`/afx-dev` scoped down**: Now positioned as "advanced diagnostics" — debug, refactor, review, test, optimize. No longer owns `code` subcommand.
+- **`/afx-init` simplified**: Removed `template`, `prefix`, `config` subcommands. Now only `feature` and `adr`. Uses Write tool + canonical templates instead of inline bash heredocs.
+- **Pack manifest reorganized**: `afx-pack-agenticflowx.yaml` items grouped by lifecycle phase (artifact lifecycle → quality → session → setup). 15 skills (was 13).
+- **All command tables and workflow examples** updated across docs, prompts, templates, and skills to reflect new command surface.
+- **Multi-agent parity table**: Added `/afx-design`, `/afx-research`, `/afx-hello` rows.
+- **Frontmatter standardized** across all templates, specs, and skills to canonical field order and new field names.
+
+### Removed
+
+- **`/afx-work` skill**: Entire SKILL.md deleted (1161 lines). Functionality distributed to `/afx-task` and `/afx-next`.
+- **`/afx-update` skill**: Entire SKILL.md deleted (196 lines). Replaced by `/afx-hello`.
+- **`docs/specs/afx-update/`**: Entire spec directory deleted (spec, design, tasks, journal).
+- **`/afx-spec gaps`** subcommand: Replaced by `/afx-check coverage`.
+
 ## [2.2.0] - 2026-03-19
 
 ### Added

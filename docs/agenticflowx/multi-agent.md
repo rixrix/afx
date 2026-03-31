@@ -11,10 +11,10 @@ AFX supports multiple AI agents through platform-specific command implementation
 
 ## Naming & Execution
 
-| Agent                             | Command Format             | Provider Target        |
-| --------------------------------- | -------------------------- | ---------------------- |
-| **Claude + Codex + Antigravity**  | `/afx-work pick user-auth` | `.agents/skills/afx-*` |
-| **GitHub Copilot**                | `afx-work pick user-auth`  | `.github/agents/afx-*` |
+| Agent                            | Command Format             | Provider Target        |
+| -------------------------------- | -------------------------- | ---------------------- |
+| **Claude + Codex + Antigravity** | `/afx-task pick user-auth` | `.agents/skills/afx-*` |
+| **GitHub Copilot**               | `afx-task pick user-auth`  | `.github/agents/afx-*` |
 
 ## Parity Map
 
@@ -22,17 +22,18 @@ AFX supports multiple AI agents through platform-specific command implementation
 | -------------------- | --------------- | -------------- | ------------------------ |
 | `/afx-next`          | `/afx-next`     | `afx-next`     | `afx-next.prompt.md`     |
 | `/afx-discover`      | `/afx-discover` | `afx-discover` | `afx-discover.prompt.md` |
-| `/afx-work`          | `/afx-work`     | `afx-work`     | `afx-work.prompt.md`     |
+| `/afx-spec`          | `/afx-spec`     | `afx-spec`     | `afx-spec.prompt.md`     |
+| `/afx-design`        | `/afx-design`   | `afx-design`   | `afx-design.prompt.md`   |
+| `/afx-task`          | `/afx-task`     | `afx-task`     | `afx-task.prompt.md`     |
 | `/afx-dev`           | `/afx-dev`      | `afx-dev`      | `afx-dev.prompt.md`      |
 | `/afx-check`         | `/afx-check`    | `afx-check`    | `afx-check.prompt.md`    |
-| `/afx-task`          | `/afx-task`     | `afx-task`     | `afx-task.prompt.md`     |
 | `/afx-session`       | `/afx-session`  | `afx-session`  | `afx-session.prompt.md`  |
 | `/afx-init`          | `/afx-init`     | `afx-init`     | `afx-init.prompt.md`     |
 | `/afx-context`       | `/afx-context`  | `afx-context`  | `afx-context.prompt.md`  |
-| `/afx-spec`          | `/afx-spec`     | `afx-spec`     | `afx-spec.prompt.md`     |
 | `/afx-report`        | `/afx-report`   | `afx-report`   | `afx-report.prompt.md`   |
+| `/afx-research`      | `/afx-research` | `afx-research` | `afx-research.prompt.md` |
+| `/afx-hello`         | `/afx-hello`    | `afx-hello`    | `afx-hello.prompt.md`    |
 | `/afx-help`          | `/afx-help`     | `afx-help`     | `afx-help.prompt.md`     |
-| `/afx-update`        | `/afx-update`   | `afx-update`   | `afx-update.prompt.md`   |
 
 ## Behavior Contract
 

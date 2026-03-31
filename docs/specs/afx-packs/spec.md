@@ -5,12 +5,11 @@ type: SPEC
 status: Approved
 owner: "@rix"
 priority: High
-version: 1.0
+version: "1.0"
 approved_at: "2026-02-28T04:35:00.000Z"
-created: "2026-02-28T00:00:00.000Z"
-last_verified: "2026-02-28T00:00:00.000Z"
+created_at: "2026-02-28T00:00:00.000Z"
+updated_at: "2026-02-28T04:35:00.000Z"
 tags: [packs, install, skills, ecosystem]
-
 ---
 
 # AFX Pack System - Product Specification
@@ -74,14 +73,14 @@ Developers using AFX who want to extend their AI coding assistants with curated 
 
 #### Pack Manifests (`packs/`)
 
-| ID   | Requirement                                                                                               | Priority  |
-| ---- | --------------------------------------------------------------------------------------------------------- | --------- |
-| FR-1 | Create `packs/` directory in AFX repo to hold pack manifest files                                         | Must Have |
-| FR-2 | Each pack manifest is a YAML file: `packs/afx-pack-{name}.yaml`                                           | Must Have |
-| FR-3 | Manifest schema: `name`, `description`, `category`, `platforms`, `includes[]`                             | Must Have |
-| FR-4 | Each `includes` entry specifies: `repo`, `path`, `items[]` (repo URLs inline, no registry indirection)    | Must Have |
+| ID   | Requirement                                                                                                              | Priority  |
+| ---- | ------------------------------------------------------------------------------------------------------------------------ | --------- |
+| FR-1 | Create `packs/` directory in AFX repo to hold pack manifest files                                                        | Must Have |
+| FR-2 | Each pack manifest is a YAML file: `packs/afx-pack-{name}.yaml`                                                          | Must Have |
+| FR-3 | Manifest schema: `name`, `description`, `category`, `platforms`, `includes[]`                                            | Must Have |
+| FR-4 | Each `includes` entry specifies: `repo`, `path`, `items[]` (repo URLs inline, no registry indirection)                   | Must Have |
 | FR-5 | `platforms` field declares provider support: `claude`, `codex`, `antigravity`, `copilot` (best-effort, no forced parity) | Must Have |
-| FR-7 | Create at least one pack manifest (`afx-pack-qa`) as reference implementation                             | Must Have |
+| FR-7 | Create at least one pack manifest (`afx-pack-qa`) as reference implementation                                            | Must Have |
 
 #### Pack Index (`packs/index.json`)
 
@@ -95,79 +94,79 @@ Developers using AFX who want to extend their AI coding assistants with curated 
 
 #### `afx-cli` Pack Management
 
-| ID     | Requirement                                                                                                             | Priority    |
-| ------ | ----------------------------------------------------------------------------------------------------------------------- | ----------- |
-| FR-13  | `--pack {name}` — install and enable a pack (download items, detect types, store in `.afx/`, copy to providers)         | Must Have   |
-| FR-14  | `--pack {a} --pack {b}` — install multiple packs in one command                                                         | Must Have   |
-| ~~FR-15~~ | ~~`--pack-disable {name}`~~ — Removed. Use `--pack-remove` instead.                                                   | Removed     |
-| ~~FR-16~~ | ~~`--pack-enable {name}`~~ — Removed. Re-install with `--pack {name}` instead.                                        | Removed     |
-| FR-17  | `--pack-remove {name}` — delete both provider copies and `.afx/packs/{pack}/`, remove from `.afx.yaml`                  | Must Have   |
-| FR-18  | `--pack-list` — list installed packs with status (enabled/disabled)                                                     | Must Have   |
-| FR-19  | `--skill-disable {name} --pack {pack}` — disable single skill within an enabled pack                                    | Must Have   |
-| FR-20  | `--skill-enable {name} --pack {pack}` — re-enable a disabled skill within a pack                                        | Must Have   |
-| FR-21  | `--update --packs` — fetch latest manifests and update all enabled packs                                                | Must Have   |
-| FR-22  | `--dry-run --pack {name}` — preview changes without applying                                                            | Must Have   |
-| FR-23  | `--add-skill {repo}:{path}/{skill}` — one-off skill install from any repo (no pack)                                     | Should Have |
-| FR-24a | `--branch {name}` — override the default branch (`main`) when downloading AFX packs and index                           | Must Have   |
-| FR-24b | `--version {tag}` — install from a specific version tag (e.g., `v1.5.3` or `1.5.3`); mutually exclusive with `--branch` | Must Have   |
+| ID        | Requirement                                                                                                             | Priority    |
+| --------- | ----------------------------------------------------------------------------------------------------------------------- | ----------- |
+| FR-13     | `--pack {name}` — install and enable a pack (download items, detect types, store in `.afx/`, copy to providers)         | Must Have   |
+| FR-14     | `--pack {a} --pack {b}` — install multiple packs in one command                                                         | Must Have   |
+| ~~FR-15~~ | ~~`--pack-disable {name}`~~ — Removed. Use `--pack-remove` instead.                                                     | Removed     |
+| ~~FR-16~~ | ~~`--pack-enable {name}`~~ — Removed. Re-install with `--pack {name}` instead.                                          | Removed     |
+| FR-17     | `--pack-remove {name}` — delete both provider copies and `.afx/packs/{pack}/`, remove from `.afx.yaml`                  | Must Have   |
+| FR-18     | `--pack-list` — list installed packs with status (enabled/disabled)                                                     | Must Have   |
+| FR-19     | `--skill-disable {name} --pack {pack}` — disable single skill within an enabled pack                                    | Must Have   |
+| FR-20     | `--skill-enable {name} --pack {pack}` — re-enable a disabled skill within a pack                                        | Must Have   |
+| FR-21     | `--update --packs` — fetch latest manifests and update all enabled packs                                                | Must Have   |
+| FR-22     | `--dry-run --pack {name}` — preview changes without applying                                                            | Must Have   |
+| FR-23     | `--add-skill {repo}:{path}/{skill}` — one-off skill install from any repo (no pack)                                     | Should Have |
+| FR-24a    | `--branch {name}` — override the default branch (`main`) when downloading AFX packs and index                           | Must Have   |
+| FR-24b    | `--version {tag}` — install from a specific version tag (e.g., `v1.5.3` or `1.5.3`); mutually exclusive with `--branch` | Must Have   |
 
 #### Skill Type Detection
 
-| ID    | Requirement                                                                                        | Priority  |
-| ----- | -------------------------------------------------------------------------------------------------- | --------- |
+| ID    | Requirement                                                                                                      | Priority  |
+| ----- | ---------------------------------------------------------------------------------------------------------------- | --------- |
 | FR-34 | Detect **Simple Skill**: `SKILL.md` at root, no `.claude-plugin/` → compatible with Claude + Codex + Antigravity | Must Have |
-| FR-25 | Detect **Claude Plugin**: `.claude-plugin/plugin.json` exists → Claude only                        | Must Have |
-| FR-26 | Detect **OpenAI Skill**: `SKILL.md` + `agents/openai.yaml` → Codex only                            | Must Have |
-| FR-27 | External skills are never modified — downloaded pristine, stored pristine, copied pristine         | Must Have |
+| FR-25 | Detect **Claude Plugin**: `.claude-plugin/plugin.json` exists → Claude only                                      | Must Have |
+| FR-26 | Detect **OpenAI Skill**: `SKILL.md` + `agents/openai.yaml` → Codex only                                          | Must Have |
+| FR-27 | External skills are never modified — downloaded pristine, stored pristine, copied pristine                       | Must Have |
 
 #### `.afx/` Directory Structure
 
-| ID    | Requirement                                                                                                                         | Priority  |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| FR-28 | Store master copies at `.afx/packs/{pack-name}/{provider}/` grouped by provider                                                     | Must Have |
+| ID    | Requirement                                                                                                                                                | Priority  |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| FR-28 | Store master copies at `.afx/packs/{pack-name}/{provider}/` grouped by provider                                                                            | Must Have |
 | FR-29 | Provider subdirectories follow each platform's conventions: `claude/skills/`, `claude/plugins/`, `codex/skills/`, `antigravity/skills/`, `copilot/agents/` | Must Have |
-| FR-30 | External skills stored pristine in master; AFX-built guardrails skills sit alongside them                                           | Must Have |
-| FR-31 | Create `.afx/.cache/` directory for cached index data                                                                               | Must Have |
+| FR-30 | External skills stored pristine in master; AFX-built guardrails skills sit alongside them                                                                  | Must Have |
+| FR-31 | Create `.afx/.cache/` directory for cached index data                                                                                                      | Must Have |
 
 #### `.afx.yaml` Pack State
 
-| ID    | Requirement                                                                                       | Priority  |
-| ----- | ------------------------------------------------------------------------------------------------- | --------- |
+| ID    | Requirement                                                                                                        | Priority  |
+| ----- | ------------------------------------------------------------------------------------------------------------------ | --------- |
 | FR-32 | Add `packs:` section to `.afx.yaml` with: `name`, `status` (enabled/disabled), `installed_ref`, `disabled_items[]` | Must Have |
-| FR-33 | `.afx.yaml` is committed (team-shared) and includes `custom_skills:` list for one-off installs    | Must Have |
+| FR-33 | `.afx.yaml` is committed (team-shared) and includes `custom_skills:` list for one-off installs                     | Must Have |
 
 #### AFX-Built Skills (`skills/`)
 
-| ID    | Requirement                                                                                  | Priority  |
-| ----- | -------------------------------------------------------------------------------------------- | --------- |
-| FR-35 | Create `skills/` directory in AFX repo for AFX-authored skills with guardrails baked in      | Must Have |
+| ID    | Requirement                                                                                                    | Priority  |
+| ----- | -------------------------------------------------------------------------------------------------------------- | --------- |
+| FR-35 | Create `skills/` directory in AFX repo for AFX-authored skills with guardrails baked in                        | Must Have |
 | FR-36 | AFX-built skills use provider-native formats: `SKILL.md` for Claude/Codex/Antigravity, `.agent.md` for Copilot | Must Have |
-| FR-37 | Pack manifests reference AFX-built skills via `repo: rixrix/afx`, `path: skills/`            | Must Have |
-| FR-38 | Create guardrails skills for the first pack (`afx-qa-methodology`, `afx-spec-test-planning`) | Must Have |
+| FR-37 | Pack manifests reference AFX-built skills via `repo: rixrix/afx`, `path: skills/`                              | Must Have |
+| FR-38 | Create guardrails skills for the first pack (`afx-qa-methodology`, `afx-spec-test-planning`)                   | Must Have |
 
 #### Provider Copy Management
 
-| ID    | Requirement                                                                                                       | Priority  |
-| ----- | ----------------------------------------------------------------------------------------------------------------- | --------- |
-| FR-39 | Simple Skills (SKILL.md) copied to `.claude/skills/`, `.agents/skills/`, and `.agent/skills/`                       | Must Have |
-| FR-40 | Claude Plugins copied to `.claude/plugins/` only                                                                  | Must Have |
-| FR-41 | OpenAI Skills (with `openai.yaml`) copied to `.agents/skills/` only                                               | Must Have |
+| ID    | Requirement                                                                                                                                                   | Priority  |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| FR-39 | Simple Skills (SKILL.md) copied to `.claude/skills/`, `.agents/skills/`, and `.agent/skills/`                                                                 | Must Have |
+| FR-40 | Claude Plugins copied to `.claude/plugins/` only                                                                                                              | Must Have |
+| FR-41 | OpenAI Skills (with `openai.yaml`) copied to `.agents/skills/` only                                                                                           | Must Have |
 | FR-42 | AFX-built skills are pre-organized by provider directory (claude/, codex/, antigravity/, copilot/) in `rixrix/afx` repo (no routing logic needed — just copy) | Must Have |
-| FR-43 | Copilot receives only AFX-built skills (no conversion of external SKILL.md to `.agent.md`)                        | Must Have |
-| FR-44 | Detect name collisions in provider directories; fail install/enable if a different pack owns the destination      | Must Have |
-| FR-45 | Manifest `platforms:` field gates routing — skills are only copied to providers marked `true` or `partial`        | Must Have |
+| FR-43 | Copilot receives only AFX-built skills (no conversion of external SKILL.md to `.agent.md`)                                                                    | Must Have |
+| FR-44 | Detect name collisions in provider directories; fail install/enable if a different pack owns the destination                                                  | Must Have |
+| FR-45 | Manifest `platforms:` field gates routing — skills are only copied to providers marked `true` or `partial`                                                    | Must Have |
 
 ### Non-Functional Requirements
 
-| ID    | Requirement                                                                               | Target                                                     |
-| ----- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| NFR-1 | Default `afx-cli` (without `--pack`) continues to work unchanged                       | Zero breaking changes to existing installations            |
-| NFR-2 | Pack install downloads via `codeload.github.com` tarballs and extracts specific paths     | No git dependency, no full repo clones                     |
-| NFR-3 | Enable/disable is instant — `cp -r` / `rm -r` with no network or conversion               | Sub-second for packs with ≤ 20 items                       |
-| NFR-4 | Pack prefix `afx-pack-*` to avoid naming conflicts with AFX core commands                 | Convention enforced in manifest naming                     |
-| NFR-5 | `afx-cli` requires only `curl`, `tar`, and `bash` (≥ 4.0) — no git, no node, no python | macOS, Linux, WSL (Windows Subsystem for Linux)            |
-| NFR-6 | All pack operations are idempotent                                                        | Running the same command twice produces the same result    |
-| NFR-7 | `.afx/` directory is gitignored by default (added to `.gitignore` on first pack install)  | Downloaded skills should not be committed to user projects |
+| ID    | Requirement                                                                              | Target                                                     |
+| ----- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| NFR-1 | Default `afx-cli` (without `--pack`) continues to work unchanged                         | Zero breaking changes to existing installations            |
+| NFR-2 | Pack install downloads via `codeload.github.com` tarballs and extracts specific paths    | No git dependency, no full repo clones                     |
+| NFR-3 | Enable/disable is instant — `cp -r` / `rm -r` with no network or conversion              | Sub-second for packs with ≤ 20 items                       |
+| NFR-4 | Pack prefix `afx-pack-*` to avoid naming conflicts with AFX core commands                | Convention enforced in manifest naming                     |
+| NFR-5 | `afx-cli` requires only `curl`, `tar`, and `bash` (≥ 4.0) — no git, no node, no python   | macOS, Linux, WSL (Windows Subsystem for Linux)            |
+| NFR-6 | All pack operations are idempotent                                                       | Running the same command twice produces the same result    |
+| NFR-7 | `.afx/` directory is gitignored by default (added to `.gitignore` on first pack install) | Downloaded skills should not be committed to user projects |
 
 ---
 
@@ -255,7 +254,7 @@ These constraints are settled — they are not open for re-discussion.
 
 | Constraint                                | Detail                                                                          |
 | ----------------------------------------- | ------------------------------------------------------------------------------- |
-| `afx-cli` is the single driver         | All operations go through `afx-cli` — no separate CLI tool                   |
+| `afx-cli` is the single driver            | All operations go through `afx-cli` — no separate CLI tool                      |
 | `.afx/packs/{pack}/{provider}/` is master | External skills pristine, AFX-built skills have guardrails baked in             |
 | Provider dirs are derived copies          | `.claude/`, `.agents/`, `.agent/`, `.github/` populated from `.afx/` master     |
 | Disable = delete provider copies          | Master stays in `.afx/`. Re-enable = `cp -r` from master                        |
@@ -285,12 +284,12 @@ These constraints are settled — they are not open for re-discussion.
 
 ## Open Questions
 
-| #   | Question                                                       | Status   | Resolution                                                                                       |
-| --- | -------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------ |
-| 1   | Download method: sparse checkout vs tarball?                   | Resolved | **Tarball**. Use `codeload.github.com` + `tar` extraction for speed and no git history overhead. |
-| 2   | How to handle offline pack install (pre-downloaded)?           | Open     | —                                                                                                |
+| #   | Question                                                      | Status   | Resolution                                                                                       |
+| --- | ------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------ |
+| 1   | Download method: sparse checkout vs tarball?                  | Resolved | **Tarball**. Use `codeload.github.com` + `tar` extraction for speed and no git history overhead. |
+| 2   | How to handle offline pack install (pre-downloaded)?          | Open     | —                                                                                                |
 | 3   | Should `--add-skill` (one-off, no pack) track in `.afx.yaml`? | Resolved | **Yes**. Track in `custom_skills: []` list to ensure consistent baseline across team.            |
-| 4   | Quality scoring for 950 Antigravity skills?                    | Deferred | Address when building first pack manifests by manually reviewing                                 |
+| 4   | Quality scoring for 950 Antigravity skills?                   | Deferred | Address when building first pack manifests by manually reviewing                                 |
 
 ---
 
@@ -495,12 +494,12 @@ custom_skills:
 
 ### Skill Type Detection Matrix
 
-| Detection Rule                           | Type          | Target Providers              | Modification |
-| ---------------------------------------- | ------------- | ----------------------------- | ------------ |
-| `SKILL.md` at root, no `.claude-plugin/` | Simple Skill  | Claude + Codex + Antigravity  | None         |
-| `.claude-plugin/plugin.json` exists      | Claude Plugin | Claude only                   | None         |
-| `SKILL.md` + `agents/openai.yaml`        | OpenAI Skill  | Codex only                    | None         |
-| From `rixrix/afx` repo                   | AFX-built     | All (pre-organized by provider dir) | N/A    |
+| Detection Rule                           | Type          | Target Providers                    | Modification |
+| ---------------------------------------- | ------------- | ----------------------------------- | ------------ |
+| `SKILL.md` at root, no `.claude-plugin/` | Simple Skill  | Claude + Codex + Antigravity        | None         |
+| `.claude-plugin/plugin.json` exists      | Claude Plugin | Claude only                         | None         |
+| `SKILL.md` + `agents/openai.yaml`        | OpenAI Skill  | Codex only                          | None         |
+| From `rixrix/afx` repo                   | AFX-built     | All (pre-organized by provider dir) | N/A          |
 
 ### Glossary
 

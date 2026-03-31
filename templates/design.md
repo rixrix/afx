@@ -3,9 +3,9 @@ afx: true
 type: DESIGN
 status: Draft
 owner: "@owner"
-version: 1.0
-created: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
-last_verified: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
+version: "1.0"
+created_at: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
+updated_at: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
 tags: ["{feature}"]
 spec: spec.md
 ---
@@ -211,19 +211,18 @@ export interface Filters {
 
 Track implementation files and their required `@see` references for traceability.
 
-| Task  | File                                                               | Required @see       |
-| ----- | ------------------------------------------------------------------ | ------------------- |
-| {X.Y} | `packages/db/src/core/models/{entity}.model.ts`                    | design.md#{section} |
-| {X.Y} | `packages/db/src/core/repositories/{entity}.repository.ts`         | design.md#{section} |
-| {X.Y} | `packages/db/src/adapters/{adapter}/{entity}.repository.ts`        | design.md#{section} |
-| {X.Y} | `packages/db/src/core/services/{entity}.service.ts`                | design.md#{section} |
-| {X.Y} | `apps/{app}/src/app/(group)/{feature}/_actions/{entity}.action.ts` | design.md#{section} |
+| File                                                               | Required @see                         |
+| ------------------------------------------------------------------ | ------------------------------------- |
+| `packages/db/src/core/models/{entity}.model.ts`                    | spec.md [FR-X] + design.md [DES-DATA] |
+| `packages/db/src/core/repositories/{entity}.repository.ts`         | spec.md [FR-X] + design.md [DES-DATA] |
+| `packages/db/src/adapters/{adapter}/{entity}.repository.ts`        | spec.md [FR-X] + design.md [DES-DATA] |
+| `packages/db/src/core/services/{entity}.service.ts`                | spec.md [FR-X] + design.md [DES-API]  |
+| `apps/{app}/src/app/(group)/{feature}/_actions/{entity}.action.ts` | spec.md [FR-X] + design.md [DES-API]  |
 
 **Usage:**
 
-- Fill in task numbers from tasks.md
 - Update file paths for your feature
-- Add `@see` anchors matching design.md section headings
+- Add `@see` links using Node IDs: `spec.md [FR-X]` + `design.md [DES-SECTION]`
 - Verify files have required `@see` references before marking task complete
 
 ---

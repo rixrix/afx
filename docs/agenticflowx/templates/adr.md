@@ -2,10 +2,11 @@
 afx: true
 type: ADR
 status: Proposed # Proposed | Accepted | Rejected | Deprecated | Superseded
-version: 2.0
-created: YYYY-MM-DD
-owner: '@handle'
-tags: [adr, architecture]
+owner: "@owner"
+version: "1.0"
+created_at: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
+updated_at: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
+tags: ["adr", "architecture"]
 ---
 
 # ADR 000X: {Short Noun Phrase Title}

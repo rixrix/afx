@@ -2,11 +2,11 @@
 afx: true
 type: TASKS
 status: Living
-owner: '@owner'
-version: 1.0
-created: '{YYYY-MM-DDTHH:MM:SS.mmmZ}'
-last_verified: '{YYYY-MM-DDTHH:MM:SS.mmmZ}'
-tags: ['{feature}']
+owner: "@owner"
+version: "1.0"
+created_at: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
+updated_at: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
+tags: ["{feature}"]
 spec: spec.md
 design: design.md
 ---
@@ -118,7 +118,7 @@ Phase N: {Continue as needed}
 
 ## Work Sessions
 
-<!-- Task execution log — updated by /afx-work, /afx-dev -->
+<!-- Task execution log — updated by /afx-task, /afx-dev -->
 
 | Date | Task | Action | Files Modified | Agent | Human |
 | ---- | ---- | ------ | -------------- | ----- | ----- |

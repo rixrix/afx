@@ -1,17 +1,17 @@
 ---
 name: afx-dev
-description: Development actions with traceability — implement features, debug issues, refactor code, review against specs, run tests, and optimize performance
+description: Advanced diagnostics — debug issues, refactor code, review against specs, run tests, and optimize performance
 license: MIT
 metadata:
   afx-owner: "@rix"
   afx-status: Living
-  afx-tags: "workflow,development,code,debug,refactor,review,test"
-  afx-argument-hint: "code | debug | refactor | review | test | optimize"
+  afx-tags: "workflow,development,debug,refactor,review,test,optimize"
+  afx-argument-hint: "debug | refactor | review | test | optimize"
 ---
 
 # /afx-dev
 
-Development actions with AFX traceability.
+Advanced diagnostic toolkit for debugging, refactoring, review, testing, and optimization. For spec-driven coding, use `/afx-task code {id}`.
 
 ## Configuration
 
@@ -25,13 +25,14 @@ If neither file exists, use defaults.
 ## Usage
 
 ```bash
-/afx-dev code [instruction]     # Implement features with @see links
 /afx-dev debug [error]          # Debug with spec trace
 /afx-dev refactor [scope]       # Refactor maintaining spec alignment
 /afx-dev review [scope]         # Code review against specs
 /afx-dev test [scope]           # Run/generate tests
 /afx-dev optimize [target]      # Performance optimization
 ```
+
+> **Note:** Daily coding with task traceability has moved to `/afx-task code {id}`. Use `/afx-dev` for diagnostic operations that don't map to a specific task.
 
 ## Execution Contract (STRICT)
 
@@ -62,6 +63,16 @@ When this skill detects a high-impact context change, auto-capture to `journal.m
 
 **Triggers for `/afx-dev`**: Architecture change during refactor, scope cut during implementation, tech debt discovery, spec deviation found during coding.
 
+## Post-Action Checklist (MANDATORY)
+
+After completing any action that modifies source code, you MUST:
+
+1. **`@see` Annotations**: Ensure modified exported classes, interfaces, and functions have `@see` links using Node ID syntax (e.g., `@see docs/specs/{feature}/design.md [DES-API]`). Line-level annotations ONLY for non-obvious requirements.
+2. **No Orphaned Code**: Every new top-level export MUST have at least one `@see` link to a spec.
+3. **No Mock Code**: Do not leave `setTimeout` or `// mock` without a `FIXME` and spec link.
+4. **Session Log**: Update the Work Sessions table in `tasks.md` with date, task, action, files modified.
+5. **Journal Capture**: If high-impact findings (architecture change, scope cut, tech debt), append to `journal.md`.
+
 ---
 
 ## Agent Instructions
@@ -72,13 +83,11 @@ When this skill detects a high-impact context change, auto-capture to `journal.m
 
 | Context                              | Suggested Next Command                       |
 | ------------------------------------ | -------------------------------------------- |
-| After `code` (implementation done)   | `/afx-check path <path>` to verify           |
-| After `code` (more tasks remaining)  | `/afx-dev code` for next subtask             |
 | After `debug` (bug fixed)            | `/afx-check path <path>` to verify fix       |
 | After `refactor` (refactor complete) | `/afx-check path <path>` to verify           |
 | After `review` (issues found)        | `/afx-dev code` to address issues            |
-| After `review` (all pass)            | `/afx-work pick <spec>` for next task        |
-| After `test` (tests pass)            | `/afx-check path <path>` or `/afx-work pick` |
+| After `review` (all pass)            | `/afx-task pick <spec>` for next task        |
+| After `test` (tests pass)            | `/afx-check path <path>` or `/afx-task pick` |
 | After `test` (tests fail)            | `/afx-dev debug` to investigate failures     |
 | After `optimize` (optimization done) | `/afx-check path <path>` to verify           |
 
@@ -90,13 +99,13 @@ Next (ranked):
   2. /afx-task verify <task-id>                  # Context-driven: Confirm task matches spec
   3. /afx-dev test <scope>                       # Context-driven: Run tests to validate
   ──
-  4. /afx-work status                            # Re-orient after implementation
+  4. /afx-next                            # Re-orient after implementation
   5. /afx-session note "<note>"                   # Capture learnings before switching
 ```
 
 ### Timestamp Format (MANDATORY)
 
-When creating or updating Session Log entries, frontmatter (`last_verified`, `created`), and Work Sessions rows, all timestamps MUST use ISO 8601 with millisecond precision: `YYYY-MM-DDTHH:MM:SS.mmmZ` (e.g., `2025-12-17T14:30:00.000Z`). Never write short formats like `2025-12-17 14:30`.
+When creating or updating Session Log entries, frontmatter (`updated_at`, `created_at`), and Work Sessions rows, all timestamps MUST use ISO 8601 with millisecond precision: `YYYY-MM-DDTHH:MM:SS.mmmZ` (e.g., `2025-12-17T14:30:00.000Z`). Never write short formats like `2025-12-17 14:30`.
 
 ---
 
@@ -144,77 +153,7 @@ These artifacts serve as your "save game" - enabling any agent to resume exactly
 
 ---
 
-## 1. code
-
-Implement features with strict adherence to AFX traceability rules.
-
-### Usage
-
-```bash
-/afx-dev code [instruction/ticket-context]
-```
-
-### Context
-
-- **Instruction**: $ARGUMENTS
-- **Role**: Implementation Engineer
-- **Constraint**: Code must link back to PRDs.
-
-### Process
-
-1. **Context Load**:
-   - Read linked Ticket/Issue.
-   - Read `docs/specs/{module}/design.md` (Architecture).
-   - Read `docs/specs/{module}/tasks.md` (Task definition).
-
-2. **Implementation**:
-   - Create/Modify files.
-   - **ADD @see LINKS**: Every major function/class MUST have `@see docs/specs/...`.
-   - **USE ANNOTATIONS**: `TODO`, `FIXME` with `@see`.
-
-3. **Verification**:
-   - Run `/afx-check path` (if applicable).
-   - Run `tsc`, `lint`, `test`.
-
-### Rules
-
-1. **No Orphaned Code**: References to PRD are mandatory for top-level exports.
-2. **No Mock Code**: Do not commit `setTimeout` or `// mock` without distinct `FIXME` and spec link.
-3. **Update Status**: Update `Session Log` in the ticket/issue.
-4. **Living Specs**: When updating specs or designs during implementation, always OVERWRITE to reflect current reality. Log decisions and history in `journal.md`.
-
-### Check Pattern
-
-Before finishing:
-
-- [ ] Execution traces to DB?
-- [ ] `@see` links present?
-- [ ] `tsc` passes?
-- [ ] **Traceability**: Session Log, Task checkbox updated? (See [Bidirectional Traceability](#bidirectional-traceability-mandatory))
-
-**Next Command** (after implementation):
-
-```
-Next: /afx-check path {feature-path}   # Verify execution path
-```
-
-### Example @see Format
-
-```typescript
-/**
- * Submit a feature claim.
- *
- * @see docs/specs/user-auth/design.md#server-actions
- * @see docs/specs/user-auth/tasks.md#31-create-submit-action
- */
-export async function submitClaim(data: ClaimFormData) {
-  // implementation
-}
-```
-
----
-
-## 2. debug
+## 1. debug
 
 Debug issues while maintaining traceability to requirements.
 
@@ -290,7 +229,7 @@ Next: /afx-check path {feature-path} # Verify the fix
 
 ---
 
-## 3. refactor
+## 2. refactor
 
 Refactor code while preserving spec alignment.
 
@@ -352,7 +291,7 @@ Next: /afx-check path {feature-path} # Verify refactored code
 
 ---
 
-## 4. review
+## 3. review
 
 Review code for AFX compliance (traceability, patterns) and functionality.
 
@@ -424,12 +363,12 @@ Next: /afx-dev code # Address the recommendations (if any)
 Or if ready:
 
 ```
-Next: /afx-work pick docs/specs/{feature}   # Proceed to next task
+Next: /afx-task pick docs/specs/{feature}   # Proceed to next task
 ```
 
 ---
 
-## 5. test
+## 4. test
 
 Generate or run tests based on spec requirements.
 
@@ -509,7 +448,7 @@ Next: /afx-dev debug # Investigate test failures
 
 ---
 
-## 6. optimize
+## 5. optimize
 
 Optimize performance based on constraints.
 
@@ -584,8 +523,7 @@ Next: /afx-check path {feature-path} # Verify optimization
 
 | Command        | Relationship                             |
 | -------------- | ---------------------------------------- |
-| `/afx-work`    | Provides workflow context for dev work   |
-| `/afx-task`    | Verify task completion after dev work    |
+| `/afx-task`    | Owns task lifecycle and coding; `/afx-dev` handles diagnostics |
 | `/afx-check`   | Quality gates to run after dev work      |
 | `/afx-session` | Capture discussions about implementation |
 

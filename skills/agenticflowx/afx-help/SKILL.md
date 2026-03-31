@@ -53,49 +53,57 @@ Out of scope for /afx-help (read-only reference mode). Use the suggested command
 /afx-next                        # The "Golden Thread" - what to do next?
 ```
 
-### Work Orchestration
+### Task Lifecycle
 
 ```bash
-/afx-work status              # Quick state check after interruption
-/afx-work pick <spec-path>    # Pick next task from spec
-/afx-work resume [spec|num]   # Continue in-progress work
-/afx-work sync [spec] [issue] # Bidirectional GitHub sync
-/afx-work plan [instruction]  # Generate tickets OR update feature spec
+/afx-task plan <name>         # Generate tasks from approved design
+/afx-task pick <id>           # Check out a task as active
+/afx-task code <id>           # Implement task with @see traceability
+/afx-task complete <id>       # Mark task done
+/afx-task sync [spec] [issue] # Bidirectional GitHub sync
 ```
 
-### Spec Authoring & Review
+### Spec Lifecycle
 
 ```bash
 /afx-spec create <name>                    # Scaffold + author spec.md
 /afx-spec validate <name>                  # Check spec structure integrity
-/afx-spec gaps <name>                      # Requirements vs tasks gap analysis
 /afx-spec discuss <name>                   # Interactive gap analysis + journal
 /afx-spec review <name>                    # Automated quality scoring
-/afx-spec design <name>                    # Author design.md (requires spec approved)
-/afx-spec tasks <name>                     # Author tasks.md (requires design approved)
-/afx-spec approve <name> [--design] [--reviewer "@handle"]  # Lifecycle gate
+/afx-spec approve <name> [--reviewer "@handle"]  # Lifecycle gate
+```
+
+### Design Lifecycle
+
+```bash
+/afx-design author <name>                  # Generate design.md from approved spec
+/afx-design validate <name>                # Check design structure and traceability
+/afx-design review <name>                  # Advisory quality check for design gaps
+/afx-design approve <name>                 # Approve design (unlocks task planning)
 ```
 
 ### Task Verification
 
 ```bash
-/afx-task verify <task-id>        # Audit task implementation vs spec
+/afx-task verify <task-id>     # Audit task implementation vs spec
 /afx-task brief <task-id>      # Get implementation summary
+/afx-task review <name>        # Check for planning gaps
 ```
 
 ### Quality Checks
 
 ```bash
 /afx-check path <feature-path>   # Trace execution path UI → DB (Gate 1)
-/afx-check trace [path]           # Audit annotations for PRD compliance
+/afx-check trace [path]          # Audit annotations for PRD compliance
 /afx-check links <spec-path>     # Verify cross-references
+/afx-check deps [feature]        # Validate dependency graph
+/afx-check coverage <spec-path>  # Spec-to-code coverage map
 /afx-check all <feature-path>    # Run all checks
 ```
 
 ### Development Actions
 
 ```bash
-/afx-dev code [instruction]      # Implement with @see traceability
 /afx-dev debug [error]           # Debug with spec trace
 /afx-dev refactor [scope]        # Refactor maintaining spec alignment
 /afx-dev review [scope]          # Code review against specs
@@ -126,11 +134,10 @@ Out of scope for /afx-help (read-only reference mode). Use the suggested command
 /afx-help guides                         # List all role-based guides
 ```
 
-### Framework Maintenance
+### Environment Check
 
 ```bash
-/afx-update check [--repo owner/repo --ref branch]  # Check local vs upstream AFX version
-/afx-update apply [flags]                            # Apply AFX update via installer
+/afx-hello                    # Verify AFX installation and environment
 ```
 
 ---
@@ -142,22 +149,21 @@ Out of scope for /afx-help (read-only reference mode). Use the suggested command
 | Command             | Purpose                    |
 | ------------------- | -------------------------- |
 | `/afx-next`         | "What do I do now?"        |
-| `/afx-work status`  | "Where was I?"             |
-| `/afx-work pick`    | "What's next task?"        |
+| `/afx-task pick`    | "What's next task?"        |
 | `/afx-task verify`   | "Is task done correctly?"  |
 | `/afx-check path`   | "Does code actually work?" |
 | `/afx-session note` | "Remember this idea"       |
 | `/afx-session log` | "Save this discussion"     |
-| `/afx-update check` | "Is AFX up to date?"       |
+| `/afx-hello`        | "Is AFX set up correctly?" |
 
 ---
 
 ## Typical Workflow
 
 ```
-1. /afx-work status           # Check current state
-2. /afx-work pick <spec>      # Get next task assignment
-3. /afx-dev code              # Implement with traceability
+1. /afx-next                  # Check current state
+2. /afx-task pick <id>        # Get next task assignment
+3. /afx-task code <id>        # Implement with traceability
 4. /afx-check path <path>     # Verify execution path
 5. /afx-task verify <task>     # Audit task vs spec
 6. /afx-session log          # Save session notes
@@ -167,9 +173,9 @@ Out of scope for /afx-help (read-only reference mode). Use the suggested command
 
 | I want to...              | Run...                            |
 | :------------------------ | :-------------------------------- |
-| **Start/Resume Work**     | `/afx-work status` (Find context) |
-| **Pick Next Task**        | `/afx-work pick <spec>`           |
-| **Code Feature**          | `/afx-dev code`                   |
+| **Start/Resume Work**     | `/afx-next` (Find context)        |
+| **Pick Next Task**        | `/afx-task pick <id>`             |
+| **Code Feature**          | `/afx-task code <id>`             |
 | **Check It Runs**         | `/afx-check path <path>`          |
 | **Check It Matches Spec** | `/afx-task verify <task-id>`       |
 | **Log Discussion**        | `/afx-session note "content"`     |
@@ -187,9 +193,9 @@ Run `/afx-help guides` to view these.
 
 ```bash
 # 1. Get Task
-/afx-work pick user-auth
+/afx-task pick 1.1
 # 2. Implement
-/afx-dev code "Implement claim form"
+/afx-task code 1.1
 # 3. Verify
 /afx-check path apps/webapp/claims
 # 4. Audit
@@ -217,7 +223,7 @@ Run `/afx-help guides` to view these.
 
 ```bash
 # New Task (from Spec)
-/afx-work plan "Create phase 3 tasks"
+/afx-task plan "Create phase 3 tasks"
 # New Feature Spec
 /afx-spec create "new-feature"
 # New Bug Report
@@ -245,7 +251,7 @@ gh issue create --label "bug" --title "Fix login timeout"
 # 2. Verify Flows
 /afx-check path apps/webapp/claims
 # 3. Approve
-/afx-work complete user-auth 2.1 "Verified edge cases"
+/afx-task complete 2.1 "Verified edge cases"
 ```
 
 ### 6. The "Security Auditor" (SecOps)
@@ -271,24 +277,24 @@ gh issue create --label "bug" --title "Fix login timeout"
 # 2. Find Orphaned Code
 /afx-report orphans
 # 3. Sync
-/afx-work sync user-auth
+/afx-task sync user-auth
 ```
 
 ---
 
 ## Command Categories
 
-| Category    | Commands | Purpose                        |
-| ----------- | -------- | ------------------------------ |
-| **Spec**    | spec     | Spec authoring and review      |
-| **Work**    | work     | Work orchestration             |
-| **Dev**     | dev      | Development actions            |
-| **Task**    | task     | Task verification against spec |
-| **Check**   | check    | Quality gates and compliance   |
-| **Session** | session  | Session discussion capture     |
-| **Report**  | report   | Traceability metrics           |
-| **Update**  | update   | Framework maintenance          |
-| **Help**    | help     | This reference                 |
+| Category    | Commands | Purpose                         |
+| ----------- | -------- | ------------------------------- |
+| **Spec**    | spec     | Spec authoring and review       |
+| **Design**  | design   | Design authoring and review     |
+| **Task**    | task     | Implementation lifecycle        |
+| **Dev**     | dev      | Development actions             |
+| **Check**   | check    | Quality gates and compliance    |
+| **Session** | session  | Session discussion capture      |
+| **Report**  | report   | Traceability metrics            |
+| **Hello**   | hello    | Environment and install check   |
+| **Help**    | help     | This reference                  |
 
 ---
 

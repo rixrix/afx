@@ -14,5 +14,5 @@ Please act as my Product Manager and Technical Architect:
 2. Once answered, use the `/afx-init` command to scaffold the folder structure.
 3. Write the `spec.md`, `design.md`, and `tasks.md` files based on our discussion. Remember to check `CLAUDE.md` for global UI conventions before writing the design document.
 
-When you're done, ask me if I'm ready to run `/afx-work pick` to start coding!
+When you're done, ask me if I'm ready to run `/afx-task pick` to start coding!
 ```

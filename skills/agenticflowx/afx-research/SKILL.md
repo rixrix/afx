@@ -70,9 +70,18 @@ When this skill detects a high-impact context change, auto-capture to `journal.m
 
 **Triggers for `/afx-research`**: Research finding that invalidates assumption, technology limitation discovered.
 
+## Post-Action Checklist (MANDATORY)
+
+After creating or modifying any research or ADR file, you MUST:
+
+1. **Update `updated_at`**: Set to current ISO 8601 timestamp in frontmatter.
+2. **Canonical Frontmatter**: Use `type: RES` for research, `type: ADR` for ADRs. Field order: `afx → type → status → owner → version → created_at → updated_at → tags → [superseded_by]`. Double quotes for all string values.
+3. **Contextual Tagging**: If research introduces new domains or technologies, append relevant keywords to `tags` array.
+4. **Format Preservation**: Maintain canonical field order. Use double quotes.
+
 ### Timestamp Format (MANDATORY)
 
-When creating or updating research artifacts, ADRs, spec drafts, or frontmatter (`last_verified`, `created`), all timestamps MUST use ISO 8601 with millisecond precision: `YYYY-MM-DDTHH:MM:SS.mmmZ` (e.g., `2025-12-17T14:30:00.000Z`). Never write short formats like `2025-12-17` or `2025-12-17 14:30`.
+When creating or updating research artifacts, ADRs, spec drafts, or frontmatter (`updated_at`, `created_at`), all timestamps MUST use ISO 8601 with millisecond precision: `YYYY-MM-DDTHH:MM:SS.mmmZ` (e.g., `2025-12-17T14:30:00.000Z`). Never write short formats like `2025-12-17` or `2025-12-17 14:30`.
 
 ### Frontmatter (MANDATORY)
 
@@ -84,8 +93,8 @@ afx: true
 type: RES
 status: Living
 owner: "@handle"
-created: YYYY-MM-DDTHH:MM:SS.mmmZ
-last_verified: YYYY-MM-DDTHH:MM:SS.mmmZ
+created_at: "YYYY-MM-DDTHH:MM:SS.mmmZ"
+updated_at: "YYYY-MM-DDTHH:MM:SS.mmmZ"
 tags: [research, <dynamic-topic>, <dynamic-context>]
 ---
 ```
@@ -156,7 +165,7 @@ For save operations:
 | After `summarize`                | `/afx-research finalize <topic> --to adr`       |
 | After `finalize --to adr`        | `/afx-adr review <id>`                         |
 | After `finalize --to spec`       | `/afx-spec review <feature>`                   |
-| If decisions ready for build     | `/afx-work plan <feature-or-instruction>`      |
+| If decisions ready for build     | `/afx-task plan <feature-or-instruction>`       |
 
 **Suggestion Format** (top 3 context-driven, bottom 2 static):
 
@@ -167,7 +176,7 @@ Next (ranked):
   3. /afx-research finalize <topic> --to adr      # Context-driven: Promote to decision
   ──
   4. /afx-session note "research follow-up"       # Capture findings before switching
-  5. /afx-work status                             # Re-orient after research
+  5. /afx-next                                     # Re-orient after research
 ```
 
 ---
@@ -276,5 +285,5 @@ Finalize research outcomes into ADR or Spec draft.
 | -------------- | --------------------------------------------- |
 | `/afx-adr`     | Finalize architecture decisions from research |
 | `/afx-spec`    | Move validated decisions into formal specs    |
-| `/afx-work`    | Plan implementation after decision approval   |
+| `/afx-task`    | Plan implementation after decision approval   |
 | `/afx-dev`     | Implementation (outside research-only mode)   |

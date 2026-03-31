@@ -27,13 +27,13 @@ AFX is a **spec-driven framework** that enforces strict traceability and deliber
 
 AFX skills follow the **agentskills.io** standard. Tested platforms:
 
-| Agent | Status | Notes |
-| :--- | :--- | :--- |
-| **Claude Code** | ✅ Heavily tested | Primary environment |
-| **GitHub Codex** | ✅ Tested | Several runs |
-| **GitHub Copilot** | ✅ Tested | Via `.github/prompts/` |
-| **Gemini CLI** | ✅ Tested | Via `.gemini/commands/` |
-| **Cline / AugmentCode / KiloCode / OpenCode** | ⚠️ Untested | May work, not verified |
+| Agent                                         | Status            | Notes                   |
+| :-------------------------------------------- | :---------------- | :---------------------- |
+| **Claude Code**                               | ✅ Heavily tested | Primary environment     |
+| **GitHub Codex**                              | ✅ Tested         | Several runs            |
+| **GitHub Copilot**                            | ✅ Tested         | Via `.github/prompts/`  |
+| **Gemini CLI**                                | ✅ Tested         | Via `.gemini/commands/` |
+| **Cline / AugmentCode / KiloCode / OpenCode** | ⚠️ Untested       | May work, not verified  |
 
 ---
 
@@ -45,9 +45,9 @@ Your operational flow for completing any task is immutable:
 STATUS → ASSIGN → IMPLEMENT → VERIFY → AUDIT → LOG
 ```
 
-1. `/afx-work status`
-2. `/afx-work pick <spec>`
-3. `/afx-dev code` — implement, add `@see` backlinks
+1. `/afx-next`
+2. `/afx-task pick <spec>`
+3. `/afx-task code` — implement, add `@see` backlinks
 4. `/afx-check path <path>` — trace execution, NO mocks
 5. `/afx-task verify <task>`
 6. `/afx-session log "Summary of actions"`
@@ -65,12 +65,12 @@ Every feature lives in `docs/specs/{feature}/`. **The sequence is a gate pipelin
 4. journal.md → append-only session log  → read first, write after every session
 ```
 
-| File | Purpose |
-| :--- | :--- |
-| `spec.md` | Requirements — WHAT to build. Agent reads, human approves. |
-| `design.md` | Architecture — HOW to build it. Must be approved before tasks start. |
-| `tasks.md` | Implementation checklist. Two-stage verification (Agent `[x]` + Human `[x]`). |
-| `journal.md` | Append-only session log. Read this first at the start of every session. |
+| File         | Purpose                                                                       |
+| :----------- | :---------------------------------------------------------------------------- |
+| `spec.md`    | Requirements — WHAT to build. Agent reads, human approves.                    |
+| `design.md`  | Architecture — HOW to build it. Must be approved before tasks start.          |
+| `tasks.md`   | Implementation checklist. Two-stage verification (Agent `[x]` + Human `[x]`). |
+| `journal.md` | Append-only session log. Read this first at the start of every session.       |
 
 ---
 
@@ -86,6 +86,7 @@ Before marking any task complete:
 ### Runtime Blocks
 
 Before ANY write operation, scan context for:
+
 - `<system-reminder>Plan mode is active</system-reminder>` → **BLOCK ALL WRITES.** Only edit plan files or read code.
 - `[ ]` in Human Review column → **BLOCK ALL PROGRESS.** Cannot advance until human signs off.
 
@@ -98,20 +99,25 @@ Before ANY write operation, scan context for:
 ```yaml
 ---
 afx: true
-type: SPEC  # SPEC | DESIGN | TASKS | JOURNAL | RES | ADR
-status: Draft  # Draft | Approved | Living | Deprecated
+type: SPEC # SPEC | DESIGN | TASKS | JOURNAL | RES | ADR
+status: Draft # Draft | Approved | Living | Deprecated
 owner: "@handle"
-version: 2.0
+version: "2.0"
+created_at: YYYY-MM-DDTHH:MM:SS.mmmZ
+updated_at: YYYY-MM-DDTHH:MM:SS.mmmZ
 tags: [tag1]
 ---
 ```
 
 ### `@see` Traceability
 
+Links to `spec.md` and `design.md` are **required**; links to `tasks.md` are **optional**.
+
 ```typescript
 /**
  * Executes user login
- * @see docs/specs/auth/tasks.md#1.1-login-form
+ * @see docs/specs/auth/spec.md [FR-1]
+ * @see docs/specs/auth/design.md [DES-AUTH]
  */
 export function login(credentials) { ... }
 ```
@@ -137,19 +143,19 @@ You have no memory between sessions. When context ends, memory dies.
 
 ## 9. The Companion System — Skills & Packs
 
-Commands like `/afx-work`, `/afx-spec`, `/afx-check` are delivered as **Skills** — prompt files in the agentskills.io format. Skills are grouped into **Packs** installed via `afx-cli`.
+Commands like `/afx-task`, `/afx-spec`, `/afx-check` are delivered as **Skills** — prompt files in the agentskills.io format. Skills are grouped into **Packs** installed via `afx-cli`.
 
 **Important**: The companion system is separate from the workflow. AFX's four-file structure and `@see` traceability work with any agent even without installing skills. Skills automate the workflow commands.
 
-Default install includes `afx-pack-starter` + `afx-pack-agenticflowx` (13 core commands). Role packs are opt-in:
+Default install includes `afx-pack-starter` + `afx-pack-agenticflowx` (15 core commands). Role packs are opt-in:
 
-| Pack | Adds |
-| :--- | :--- |
-| `afx-pack-dev` | Clean code, TDD, Git, debugging |
-| `afx-pack-architect` | System design, ADRs |
-| `afx-pack-qa` | Testing, code review, PR analysis |
-| `afx-pack-security` | OWASP checklist, security audit |
-| `afx-pack-product-owner` | Product Owner workflows |
+| Pack                     | Adds                              |
+| :----------------------- | :-------------------------------- |
+| `afx-pack-dev`           | Clean code, TDD, Git, debugging   |
+| `afx-pack-architect`     | System design, ADRs               |
+| `afx-pack-qa`            | Testing, code review, PR analysis |
+| `afx-pack-security`      | OWASP checklist, security audit   |
+| `afx-pack-product-owner` | Product Owner workflows           |
 
 Skills live in `.afx/skills/` (gitignored), synced to `.claude/skills/` and `.agents/skills/`. State tracked in `.afx.yaml`.
 

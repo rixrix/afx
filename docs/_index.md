@@ -34,10 +34,15 @@ SORT file.name ASC
 
 > Note: AFX skills are installed to `.claude/skills/` (Claude Code) and `.agents/skills/` (Codex, Copilot, Antigravity).
 
-| Command         | Purpose                            |
-| --------------- | ---------------------------------- |
-| `/afx-discover` | Project discovery (tools, scripts) |
-| `/afx-init`     | Feature spec scaffolding           |
-| `/afx-session`  | Discussion capture                 |
-| `/afx-work`     | Task execution                     |
-| `/afx-update`   | Framework update maintenance       |
+| Command         | Purpose                                            |
+| --------------- | -------------------------------------------------- |
+| `/afx-spec`     | Spec management — validate, review, approve        |
+| `/afx-design`   | Design authoring, validation, and approval         |
+| `/afx-task`     | Implementation lifecycle — plan, pick, code, sync  |
+| `/afx-dev`      | Advanced diagnostics — debug, refactor, test       |
+| `/afx-check`    | Quality gates — path, trace, links, deps, coverage |
+| `/afx-init`     | Feature spec scaffolding                           |
+| `/afx-session`  | Discussion capture                                 |
+| `/afx-discover` | Project discovery (tools, scripts)                 |
+| `/afx-next`     | Context-aware "what should I do now?"              |
+| `/afx-hello`    | Environment diagnostics                            |

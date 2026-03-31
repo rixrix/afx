@@ -2,71 +2,131 @@
 afx: true
 type: SPEC
 status: Draft
-owner: "@handle"
-priority: High
-version: 2.0
-last_verified: YYYY-MM-DD
-tags: [feature-name]
+owner: "@owner"
+version: "1.0"
+created_at: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
+updated_at: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
+tags: ["{feature}"]
 ---
 
-# Feature Name - Product Specification
+# {Feature Name} - Product Specification
 
-**Version:** 2.0
-**Status:** Draft
-**Feature:** [High-level Feature Description]
-**Design:** [design.md](./design.md)
-**Tasks:** [tasks.md](./tasks.md)
+## References
 
----
+> **Upstream Context**: Link to relevant proposals, research, or architecture docs that drove this spec.
 
-## Commercial Context / Goal
-
-[Brief explanation of why this feature is being built, who the target audience is, and what problem it solves.]
+- **Proposal**: [RFC-001 - Feature Name](../../../proposals/rfc-001.md)
+- **Research**: [RES-market-analysis](../../../research/market-analysis.md)
+- **Architecture**: [Application Architecture](../../../architecture/application/application-architecture.md)
 
 ---
 
 ## Problem Statement
 
-[What is the specific pain point this specification aims to address? What is wrong with the current system?]
+{Describe the problem this feature solves. Why are we building this? What user pain point or business need does it address?}
 
 ---
 
 ## User Stories
 
-### Target Persona (e.g., Administrators)
-- **As an** [Actor], **I want** to [Action], **So that** [Benefit].
-- **As an** [Actor], **I want** to [Action], **So that** [Benefit].
+### Primary Users
+
+{Who are the main users of this feature?}
+
+### Stories
+
+**As a** {role}
+**I want** {feature/capability}
+**So that** {benefit/value}
+
+**As a** {role}
+**I want** {feature/capability}
+**So that** {benefit/value}
+
+{Add more user stories as needed}
 
 ---
 
-## Functional Requirements (FRs)
+## Requirements
 
-| ID    | Requirement                                  | Priority  |
-| ----- | -------------------------------------------- | --------- |
-| FR-1  | [Detailed explanation of feature mechanism]  | Must Have |
-| FR-2  | [Detailed explanation of feature mechanism]  | Must Have |
+### Functional Requirements
 
----
+| ID   | Requirement               | Priority     |
+| ---- | ------------------------- | ------------ |
+| FR-1 | {Requirement description} | Must Have    |
+| FR-2 | {Requirement description} | Must Have    |
+| FR-3 | {Requirement description} | Should Have  |
+| FR-4 | {Requirement description} | Nice to Have |
 
-## Non-Functional Requirements (NFRs)
+### Non-Functional Requirements
 
-| ID    | Requirement                 | Metric / Benchmark |
-| ----- | --------------------------- | ------------------ |
-| NFR-1 | Response time for XYZ query | < 200ms            |
-
----
-
-## Data Requirements
-
-- **Entities**: [List of core nouns involved, e.g., Users, Roles]
-- **States**: [List of states, e.g., ACTIVE, SUSPENDED]
+| ID    | Requirement   | Target                                |
+| ----- | ------------- | ------------------------------------- |
+| NFR-1 | Performance   | {e.g., Page load < 2s}                |
+| NFR-2 | Security      | {e.g., Auth required for all actions} |
+| NFR-3 | Accessibility | {e.g., WCAG 2.1 AA compliance}        |
 
 ---
 
 ## Acceptance Criteria
 
-### [Component / Module Name]
-- [ ] [Testable condition 1]
-- [ ] [Testable condition 2]
+### {Feature/Capability 1}
+
+- [ ] {Criterion 1}
+- [ ] {Criterion 2}
+- [ ] {Criterion 3}
+
+### {Feature/Capability 2}
+
+- [ ] {Criterion 1}
+- [ ] {Criterion 2}
+
+{Add sections for each major feature/capability}
 
 ---
+
+## Non-Goals (Out of Scope)
+
+Explicitly listing what this feature does NOT include:
+
+- {Feature/capability that is out of scope}
+- {Feature/capability deferred to future phase}
+- {Feature/capability that won't be built}
+
+---
+
+## Open Questions
+
+| #   | Question                         | Status   | Resolution |
+| --- | -------------------------------- | -------- | ---------- |
+| 1   | {Question needing clarification} | Open     | -          |
+| 2   | {Question needing clarification} | Resolved | {Answer}   |
+
+---
+
+## Dependencies
+
+- {Dependency 1 - e.g., requires completed feature X}
+- {Dependency 2 - e.g., requires third-party service Y}
+
+---
+
+## Appendix
+
+### Wireframes / Mockups
+
+{Link to or embed visual designs}
+
+### Data Examples
+
+{Example data, API payloads, etc.}
+
+### Glossary
+
+| Term   | Definition   |
+| ------ | ------------ |
+| {Term} | {Definition} |
+
+```
+
+```

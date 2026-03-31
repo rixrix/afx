@@ -94,7 +94,7 @@ If something is off (no .afx.yaml, no specs, no packs), replace the last line wi
 
 <!-- @afx:provider-commands -->
 - Use `/afx-discover capabilities` for a deeper project overview
-- Use `/afx-work status` to check current work state
+- Use `/afx-next` to check current work state
 <!-- @afx:/provider-commands -->
 
 ## Output

@@ -49,6 +49,15 @@ If implementation is requested, respond with:
 Out of scope for /afx-session (session capture mode). Use /afx-dev code to implement.
 ```
 
+## Post-Action Checklist (MANDATORY)
+
+After modifying `journal.md`, you MUST:
+
+1. **Update `updated_at`**: Set to current ISO 8601 timestamp in `journal.md` frontmatter.
+2. **Append-Only Entries**: Never edit or remove existing journal entries. Only append new ones.
+3. **Format Preservation**: Maintain canonical frontmatter field order. Use double quotes.
+4. **Discussion IDs**: New discussions must use the next sequential ID (e.g., if last is XX-D003, use XX-D004).
+
 ---
 
 ## Usage
@@ -64,7 +73,7 @@ Out of scope for /afx-session (session capture mode). Use /afx-dev code to imple
 
 ## Purpose
 
-Capture important discussions with AI agents across multiple windows and topics. Unlike `/afx-work status` (task state) or `research/` (permanent decisions), this captures the **in-between** - ideas, tips, and context that matter but aren't yet formal decisions.
+Capture important discussions with AI agents across multiple windows and topics. Unlike `/afx-next` (task state) or `research/` (permanent decisions), this captures the **in-between** - ideas, tips, and context that matter but aren't yet formal decisions.
 
 ## Default Location
 
@@ -83,10 +92,10 @@ When no feature is specified, discussions go to `docs/specs/journal.md`. This is
 | Context                         | Suggested Next Command                     |
 | ------------------------------- | ------------------------------------------ |
 | After `note` (more to discuss)  | Continue discussion or `/afx-session log`  |
-| After `note` (ready to work)    | `/afx-work pick <spec>` or `/afx-dev code` |
+| After `note` (ready to work)    | `/afx-task pick <id>` or `/afx-task code`  |
 | After `note` (quick note added) | Continue working or `/afx-session recap`   |
-| After `log`                     | `/afx-work pick <spec>` or `/afx-dev code` |
-| After `recap` (resuming work)   | `/afx-work status` then `/afx-dev code`    |
+| After `log`                     | `/afx-task pick <id>` or `/afx-task code`  |
+| After `recap` (resuming work)   | `/afx-next` then `/afx-task code`          |
 | After `promote` (ADR created)   | `/afx-dev code` to implement the decision  |
 
 **Suggestion Format** (top 3 context-driven, bottom 2 static):
@@ -97,7 +106,7 @@ Next (ranked):
   2. /afx-session log {feature}                   # Context-driven: Summarize before moving on
   3. /afx-session promote UA-D001                 # Context-driven: Elevate to ADR if significant
   ──
-  4. /afx-work status                             # Re-orient after capture
+  4. /afx-next                                     # Re-orient after capture
   5. /afx-help                                    # See all options
 ```
 
@@ -117,8 +126,8 @@ afx: true
 type: ADR
 status: Proposed
 owner: "@handle"
-created: YYYY-MM-DDTHH:MM:SS.mmmZ
-last_verified: YYYY-MM-DDTHH:MM:SS.mmmZ
+created_at: "YYYY-MM-DDTHH:MM:SS.mmmZ"
+updated_at: "YYYY-MM-DDTHH:MM:SS.mmmZ"
 tags: [<dynamic-feature>, <dynamic-topic>]
 source: journal.md#<discussion-id>
 ---
@@ -315,7 +324,7 @@ Generate comprehensive recap for session resumption:
 
 Continue with: {most recent incomplete work}
 
-Next: /afx-work status # Then continue with suggested task
+Next: /afx-next # Then continue with suggested task
 ```
 
 ---
@@ -355,8 +364,8 @@ afx: true
 type: ADR
 status: Accepted
 owner: "@handle"
-created: YYYY-MM-DDTHH:MM:SS.mmmZ
-last_verified: YYYY-MM-DDTHH:MM:SS.mmmZ
+created_at: "YYYY-MM-DDTHH:MM:SS.mmmZ"
+updated_at: "YYYY-MM-DDTHH:MM:SS.mmmZ"
 tags: [<dynamic-feature>, <dynamic-topic>]
 source: journal.md#{discussion-id}
 ---
@@ -394,7 +403,7 @@ Next: /afx-dev code   # Implement the decision from the ADR
 Or for new feature promotion:
 
 ```
-Next: /afx-work pick docs/specs/{new-feature}/tasks.md   # Start implementing new feature
+Next: /afx-task pick docs/specs/{new-feature}/tasks.md   # Start implementing new feature
 ```
 
 ---
@@ -469,7 +478,7 @@ Next: /afx-work pick docs/specs/{new-feature}/tasks.md   # Start implementing ne
 ...
 ```
 
-> **Note**: Work Sessions table lives in `tasks.md`, not `journal.md`. It is updated by `/afx-work` and `/afx-dev` commands, NOT by `/afx-session`.
+> **Note**: Work Sessions table lives in `tasks.md`, not `journal.md`. It is updated by `/afx-task` and `/afx-dev` commands, NOT by `/afx-session`.
 > **Two-stage verification**: Agent marks `[x]` after checks pass, Human marks `[x]` after code review.
 > See [agenticflowx.md#work-sessions](../../docs/agenticflowx/agenticflowx.md#work-sessions) for update rules.
 
@@ -589,7 +598,7 @@ Later (any window):
 
 | Command      | Relationship                                     |
 | ------------ | ------------------------------------------------ |
-| `/afx-work`  | Shows task state; `/afx-session` for discussions |
+| `/afx-task`  | Shows task state; `/afx-session` for discussions |
 | `/afx-task`  | Reads session logs for task verification         |
 | `/afx-check` | Cross-references journal.md                      |
 | `/afx-dev`   | Captures discussions about implementation        |

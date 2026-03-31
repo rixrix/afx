@@ -2,12 +2,11 @@
 afx: true
 type: SPEC
 status: Draft
-owner: '@owner'
-priority: High
-version: 1.0
-created: '{YYYY-MM-DDTHH:MM:SS.mmmZ}'
-last_verified: '{YYYY-MM-DDTHH:MM:SS.mmmZ}'
-tags: ['{feature}']
+owner: "@owner"
+version: "1.0"
+created_at: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
+updated_at: "{YYYY-MM-DDTHH:MM:SS.mmmZ}"
+tags: ["{feature}"]
 ---
 
 # {Feature Name} - Product Specification

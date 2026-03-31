@@ -63,7 +63,7 @@ Out of scope for /afx-discover (read-only discovery mode). Use /afx-dev code to 
 | After `infra` (scripts found)    | Use the discovered script or `/afx-dev code`        |
 | After `infra` (nothing found)    | `/afx-init` to scaffold or create the script        |
 | After `scripts` (found relevant) | Run the script or document in AFX                   |
-| After `tools` (inventory shown)  | `/afx-dev code` or `/afx-work pick`                 |
+| After `tools` (inventory shown)  | `/afx-dev code` or `/afx-task pick`                 |
 | After `capabilities` (overview)  | `/afx-discover <specific>` for deeper investigation |
 
 **Suggestion Format** (top 3 context-driven, bottom 2 static):
@@ -74,7 +74,7 @@ Next (ranked):
   2. /afx-init script {name}                         # Context-driven: If nothing found
   3. /afx-session note "Missing: {capability}"        # Context-driven: Document gap
   ──
-  4. /afx-work status                                # Re-orient after discovery
+  4. /afx-next                                       # Re-orient after discovery
   5. /afx-help                                       # See all options
 ```
 
@@ -235,7 +235,7 @@ Next (ranked):
   2. /afx-discover scripts deploy                 # Context-driven: Check related scripts
   3. /afx-session note "Infrastructure gap: {type}" # Context-driven: Document gap
   ──
-  4. /afx-work status                            # Re-orient after discovery
+  4. /afx-next                                    # Re-orient after discovery
   5. /afx-help                                   # See all options
 ```
 
@@ -386,7 +386,7 @@ List development and deployment tools configured in the project.
 
 - **{manager}**: {description}
 
-Next: /afx-work pick # Continue with development
+Next: /afx-task pick # Continue with development
 ```
 
 ---
@@ -525,7 +525,7 @@ Or run without type to see all:
 | `/afx-init`    | Create missing scripts/infrastructure             |
 | `/afx-session` | Document infrastructure gaps                      |
 | `/afx-dev`     | Implement discovered tooling improvements         |
-| `/afx-work`    | Continue with tasks after infrastructure is ready |
+| `/afx-task`    | Continue with tasks after infrastructure is ready |
 
 ---
 

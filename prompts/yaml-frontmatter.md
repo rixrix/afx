@@ -14,22 +14,24 @@ afx: true # AFX ownership marker (required)
 type: SPEC # Document type (required)
 status: Draft # Draft | Approved | Living
 owner: "@handle" # GitHub handle
-priority: High # High | Medium | Low (SPEC only)
-version: 1.0 # Semantic versioning
-created: YYYY-MM-DDTHH:MM:SS.mmmZ # ISO 8601 creation timestamp (millisecond precision)
-last_verified: YYYY-MM-DDTHH:MM:SS.mmmZ # Last review timestamp (millisecond precision)
+version: "1.0" # Semantic versioning (quoted string)
+created_at: YYYY-MM-DDTHH:MM:SS.mmmZ # ISO 8601 creation timestamp (millisecond precision)
+updated_at: YYYY-MM-DDTHH:MM:SS.mmmZ # Last review timestamp (millisecond precision)
 tags: [feature, topic] # Content tags (Obsidian convention)
 ---
 ```
 
-**Minimal Schema (COMMAND, JOURNAL):**
+**Minimal Schema (JOURNAL):**
 
 ```yaml
 ---
 afx: true
-type: COMMAND
+type: JOURNAL
 status: Living
-tags: [afx, command, topic]
+owner: "@handle"
+created_at: YYYY-MM-DDTHH:MM:SS.mmmZ
+updated_at: YYYY-MM-DDTHH:MM:SS.mmmZ
+tags: [feature, journal]
 ---
 ```
 
@@ -42,7 +44,9 @@ id: 0001 # Optional numbered ID
 type: RES # RES | ADR
 status: Approved # Draft | Approved | Deprecated
 owner: "@handle"
-date: YYYY-MM-DDTHH:MM:SS.mmmZ # Decision/creation timestamp (millisecond precision)
+version: "1.0"
+created_at: YYYY-MM-DDTHH:MM:SS.mmmZ # Decision/creation timestamp (millisecond precision)
+updated_at: YYYY-MM-DDTHH:MM:SS.mmmZ
 tags: [topic1, topic2]
 ---
 ```
@@ -57,4 +61,3 @@ tags: [topic1, topic2]
 | `JOURNAL` | Session log           | docs/specs/{feature}/journal.md                              |
 | `RES`     | Research/exploration  | docs/specs/{feature}/research/\*.md                          |
 | `ADR`     | Architecture decision | docs/adr/ (global) or docs/specs/{feature}/research/ (local) |
-| `COMMAND` | AFX slash command     | .claude/skills/afx-\*.md                                     |

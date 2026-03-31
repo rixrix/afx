@@ -1,7 +1,5 @@
-# @see docs/specs/afx-packs/spec.md#FR-1
-# @see docs/specs/afx-packs/spec.md#FR-2
-# @see docs/specs/afx-packs/spec.md#FR-3
-# @see docs/specs/afx-packs/design.md#11-pack-manifests
+# @see docs/specs/afx-packs/spec.md [FR-1] [FR-2] [FR-3]
+# @see docs/specs/afx-packs/design.md [1.1]
 
 name: afx-pack-agenticflowx
 description: AgenticFlowX workflow skills — spec-driven development commands for all AI coding agents
@@ -12,17 +10,21 @@ includes:
   - repo: rixrix/afx
     path: skills/agenticflowx/
     items:
-      - afx-next        # Context-aware "what to do next" guidance
-      - afx-work        # Work orchestration (status, next, resume, sync, plan)
-      - afx-dev         # Development actions with traceability
-      - afx-check       # Quality gates and compliance checks
-      - afx-task        # Task verification and auditing
-      - afx-session     # Session discussion capture and recall
-      - afx-spec        # Spec management and validation
+      # Artifact lifecycle (spec → design → task → code)
+      - afx-spec        # Spec management — validate, review, approve (owns spec.md)
+      - afx-design      # Design authoring, validation, approval (owns design.md)
+      - afx-task        # Implementation lifecycle — plan, pick, code, verify, complete, sync (owns tasks.md + source code)
+      - afx-dev         # Advanced diagnostics — debug, refactor, review, test, optimize
+      # Quality & reporting
+      - afx-check       # Quality gates — path, trace, links, schema, deps, coverage
       - afx-report      # Traceability metrics and health reporting
-      - afx-discover    # Project discovery (infra, scripts, tools)
-      - afx-init        # Feature scaffolding and ADR creation
+      # Session & context
+      - afx-session     # Session discussion capture and recall (owns journal.md)
       - afx-context     # Session context transfer between agents
-      - afx-update      # Framework update check and apply
+      - afx-next        # Context-aware "what should I do now?" guidance
+      # Setup & discovery
+      - afx-init        # Feature scaffolding and ADR creation
+      - afx-discover    # Project discovery (infra, scripts, tools)
       - afx-research    # Research workflow and promotion pipeline
+      - afx-hello       # Environment diagnostics and installation verification
       - afx-help        # Command reference and workflow guides

@@ -15,6 +15,7 @@
 
 > [!WARNING]
 > **Alpha Status** — Not yet on the VS Code Marketplace. Expect bugs. Some features may be unstable.
+>
 > - 🔒 Repository is private — not yet public on GitHub.
 > - 📦 Download the `.vsix` from the [Releases page](https://github.com/rixrix/afx/releases).
 > - 🤝 Companion tool — not a replacement for agents like Claude Code or Codex.
@@ -37,14 +38,13 @@ git clone https://github.com/rixrix/afx.git && code afx/examples/vscode-showcase
 
 ---
 
-
 # AFX (AgenticFlowX)
 
 > **Pause. Think. Plan. Ship.**
 
-AFX is a **spec-driven development framework** for AI coding assistants (Claude Code, Codex, Gemini Code Assist, GitHub Copilot). 
+AFX is a **spec-driven development framework** for AI coding assistants (Claude Code, Codex, Gemini Code Assist, GitHub Copilot).
 
-**AFX is NOT a "one-prompt-builds-all" generator.** 
+**AFX is NOT a "one-prompt-builds-all" generator.**
 
 We are currently in an era of rapid, sloppy AI generation where speed is prioritized over technical debt. AFX forces developers and AI agents to slow down, build a "bird's-eye view" of the architecture, and follow a strict, deliberate plan before a single line of code is written.
 
@@ -67,8 +67,6 @@ journey
       Verify execution path: 5: Agent
 ```
 
-
-
 ## The Problem
 
 AI coding assistants are incredibly fast, but they suffer from fundamental flaws when building serious software:
@@ -79,12 +77,12 @@ graph TD
     A --> C[Scope Creep]
     A --> D[Orphaned Code]
     A --> E[Hallucinated Completion]
-    
+
     B -->|Close terminal = restart brain| F(Frustration)
     C -->|Fix a bug = refactors everything| F
     D -->|Why does this function exist?| F
     E -->|Code written but never called| F
-    
+
     style A fill:#f8d7da
     style F fill:#dc3545,color:white
 ```
@@ -95,7 +93,7 @@ AFX gives your AI coding agents a memory, a strict set of rules, and a deliberat
 
 **1. Specs as Source of Truth & Traceability**
 
-Every function gets an automatic `@see` link mapping it back to the exact spec requirement.
+Every function gets an automatic `@see` link mapping it back to the exact spec requirement (`spec.md [FR-X]` and `design.md [DES-ID]` are required; `tasks.md` links are optional).
 
 ```mermaid
 graph LR
@@ -118,7 +116,7 @@ Code isn't done just because it exists. `/afx-check path` traces logic from the 
 graph TD
     A[UI / Controller] -->|Click| B[Business Logic]
     B -->|Query| C[Database / API]
-    
+
     A -.->|AFX Verifies| C
 
     style A fill:#e1f5ff
@@ -169,8 +167,8 @@ AFX isn't just a script you run; it's made up of three parts that work together:
 
 > **Agent Compatibility**: Skills follow the open [agentskills.io](https://agentskills.io) standard. Tested and verified tools:
 
-| Agent              | Status           | Notes                           |
-| :----------------- | :--------------- | :------------------------------ |
+| Agent              | Status            | Notes                           |
+| :----------------- | :---------------- | :------------------------------ |
 | **Claude Code**    | ✅ Heavily tested | Primary development environment |
 | **GitHub Codex**   | ✅ Tested         | Several validation runs         |
 | **GitHub Copilot** | ✅ Tested         | Via `.github/prompts/`          |
@@ -181,7 +179,6 @@ AFX isn't just a script you run; it's made up of three parts that work together:
 | **OpenCode**       | ⚠️ Untested       | May work, not verified          |
 
 Let's look at those templates.
-
 
 ## The Four-File Structure
 
@@ -223,37 +220,52 @@ mindmap
   | FR-2 | Filter by Role, Status, and Verification Context. | Must Have |
   ```
 - **`design.md`**: Technical architecture. How you'll implement the spec.
-  ```markdown
+
+  ````markdown
   ## Data Models
+
   | Column | Type   | Description       |
   | ------ | ------ | ----------------- |
   | `id`   | UUID   | Primary Key       |
   | `role` | String | User Access Level |
 
   ## Server Actions
+
   ```typescript
   export async function createUser(data: CreateUserSchema): Promise<Result<User>> {
     // 1. Validate permissions via CASL
     // 2. Insert into PostgreSQL
   }
   ```
+  ````
+
   ```
+
+  ```
+
 - **`tasks.md`**: Implementation checklist. Structured using dot-notation derived from traditional **Work Breakdown Structures (WBS)**. Requires two-stage verification (Agent + Human) before a phase is closed.
+
   ```markdown
   ## Phase 1: Component Refactor
+
   | Priority | Phase     | Description                   | Status  |
   | -------- | --------- | ----------------------------- | ------- |
   | 1.1      | Phase 1.1 | Wire Users Table Dialogs      | Active  |
   | 1.2      | Phase 1.2 | Role Form Modal - Wire Update | Pending |
   ```
+
 - **`journal.md`**: Append-only historical log of all discussions and decisions.
+
   ```markdown
   ## Agent Session [2025-10-24 14:00]
+
   **Decisions Made:**
+
   - Chose `uuid` over autoincrement integer for `id` to prevent enumeration.
-  **Current State:**
+    **Current State:**
   - API route `/api/users` completed. Next agent should wire frontend table.
   ```
+
 - **`research/`**: (Auxiliary) Dedicated space for feature-local decision records (ADRs).
 
 **Traceability in action**: When the agent writes code, every major function gets a `@see` backlink to the spec or task that required it. This is how AFX eliminates orphaned code.
@@ -262,23 +274,24 @@ mindmap
 // ✅ AFX-compliant: every function is traceable back to its requirement
 
 /**
- * @see docs/specs/user-auth/tasks.md#1.2-generate-verification-token
- * @see docs/specs/user-auth/spec.md#FR-1
+ * @see docs/specs/user-auth/spec.md [FR-1]
+ * @see docs/specs/user-auth/design.md [DES-AUTH]
  */
 export async function generateVerificationToken(email: string): Promise<string> {
   // Implementation...
 }
 
 /**
- * @see docs/specs/user-auth/design.md#server-actions
- * @see docs/specs/user-auth/tasks.md#2.2-wire-login-form
+ * @see docs/specs/user-auth/spec.md [FR-2]
+ * @see docs/specs/user-auth/design.md [DES-API]
  */
 export async function signInWithEmail(data: SignInSchema) {
   // Implementation...
 }
 ```
 
-> **Looking for the full templates or a working example?**  
+> **Looking for the full templates or a working example?**
+>
 > 1. Check out the master schema files in [`docs/agenticflowx/templates/`](docs/agenticflowx/templates/) to see the exact YAML frontmatter and document structures expected by AFX coding agents.
 > 2. Explore the [`examples/minimal-project/`](examples/minimal-project/) directory to see how a complete AFX continuous-development environment is structured in practice.
 
@@ -295,6 +308,7 @@ graph TD
     style B fill:#e1f5ff
     style C fill:#d1e7dd
 ```
+
 ## Commands
 
 ### Context & Navigation
@@ -305,26 +319,29 @@ Analyzes your project state and tells you exactly what to work on next. Checks f
 **`/afx-discover [capabilities|scripts|tools|project]`** - Project intelligence
 Scans your codebase to understand build systems, test runners, package managers, and available tooling. Claude learns how to build, test, and deploy your project.
 
-**`/afx-work status|next|resume|sync`** - Workflow orchestration
+**`/afx-spec validate|discuss|review|approve`** - Specification management (owns `spec.md`)
 
-**`/afx-spec list|show|validate|review|approve`** - Specification management
+**`/afx-design author|validate|review|approve`** - Technical design authoring, validation, and approval
 
 ### Development
 
-**`/afx-dev code|refactor|fix`** - Traced development
-Write code with automatic `@see` annotation insertion. Claude links every function back to the spec section or task that required it. No orphaned code.
+**`/afx-task plan|pick|code|verify|complete|sync`** - Implementation lifecycle — plan, pick, code, verify, complete, sync
+
+**`/afx-dev debug|refactor|review|test|optimize`** - Advanced diagnostics — debug, refactor, review, test, optimize
 
 **`/afx-init feature|adr <name>`** - Scaffold new work
 
 ### Verification
 
-**`/afx-check path|trace|links`** - Quality gates
+**`/afx-check path|trace|links|deps|coverage`** - Quality gates
 
 - `path` - **BLOCKING GATE**: Trace execution from UI → business logic → database
 - `trace` - Verify all code has valid `@see` annotations
 - `links` - Check spec integrity and cross-references
+- `deps` - Check dependency health and compatibility
+- `coverage` - Measure spec-to-code coverage
 
-**`/afx-task verify|close`** - Task management
+**`/afx-hello`** - Environment diagnostics and installation verification
 
 ### Session Management
 
@@ -337,27 +354,27 @@ Package current context for transfer to another agent or future session. Include
 
 **`/afx-report traceability|health|coverage`** - Project metrics
 
-### Framework Maintenance
-
-**`/afx-update check|apply`** - Keep AFX assets current
-
 ## Example Workflow
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Init : init feature
-    Init --> WriteSpec : edit spec
-    WriteSpec --> Approve : get approval
-    Approve --> SelectTask : work pick
-    SelectTask --> Develop : dev code
-    Develop --> PathCheck : check path
+    [*] --> Init : afx-init feature
+    Init --> WriteSpec : afx-spec create
+    WriteSpec --> ApproveSpec : afx-spec approve
+    ApproveSpec --> AuthorDesign : afx-design author
+    AuthorDesign --> ApproveDesign : afx-design approve
+    ApproveDesign --> PlanTasks : afx-task plan
+    PlanTasks --> PickTask : afx-task pick
+    PickTask --> Develop : afx-task code
+    Develop --> PathCheck : afx-check path
     PathCheck --> Failed : path broken
-    PathCheck --> SaveSession : gate passed
+    PathCheck --> Complete : gate passed
     Failed --> Develop : fix path
+    Complete --> SaveSession : afx-task complete
     SaveSession --> [*] : session log
 
     SaveSession --> Resume : next session
-    Resume --> SelectTask : work resume
+    Resume --> PickTask : afx-next
 ```
 
 ## Quick Start
@@ -420,7 +437,7 @@ Please act as my Product Manager and Technical Architect:
 2. Once answered, use the `/afx-init` command to scaffold the folder structure.
 3. Write the `spec.md`, `design.md`, and `tasks.md` files based on our discussion. Remember to check `CLAUDE.md` for global UI conventions before writing the design document.
 
-When you're done, ask me if I'm ready to run `/afx-work pick` to start coding!
+When you're done, ask me if I'm ready to run `/afx-task pick` to start coding!
 ```
 
 **Step 3: Answer the Questions**
@@ -487,6 +504,20 @@ As a user, you should anticipate a hybrid workflow. You will often need to use a
 </td>
 </tr>
 </table>
+
+---
+
+## Standards & References
+
+AFX's template system is a pragmatic hybrid of established industry standards:
+
+- [IEEE 830 / ISO/IEC/IEEE 29148](https://standards.ieee.org/ieee/29148/6937/) -- Software Requirements Specification structure, adapted for agile feature-level specs
+- [MoSCoW (Dai Clegg, 1994 / DSDM)](https://en.wikipedia.org/wiki/MoSCoW_method) -- Requirement prioritization: Must Have / Should Have / Could Have / Won't Have
+- [User Stories (Mike Cohn / XP)](https://www.mountaingoatsoftware.com/agile/user-stories) -- Connextra format: "As a [role], I want [feature], So that [benefit]"
+- [C4 Model (Simon Brown)](https://c4model.com/) -- Software architecture diagram levels (Context, Container, Component, Code)
+- [ADR (Michael Nygard, 2011)](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) -- Architecture Decision Records: Context, Decision, Consequences
+- [WBS (PMI PMBOK Guide)](https://en.wikipedia.org/wiki/Work_breakdown_structure) -- Work Breakdown Structure for hierarchical task decomposition
+- [Traceability Matrix (IEEE 29148 / DO-178C)](https://standards.ieee.org/ieee/29148/6937/) -- Cross-reference mapping from Requirements to Design to Code
 
 ---
 

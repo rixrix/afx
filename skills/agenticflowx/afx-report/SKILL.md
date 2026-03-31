@@ -128,7 +128,7 @@ Next (ranked):
   2. /afx-dev code                               # Context-driven: Add @see links
   3. /afx-report health                          # Context-driven: Re-check after fixes
   ──
-  4. /afx-work status                            # Re-orient after report
+  4. /afx-next                                    # Re-orient after report
   5. /afx-session note "<note>"                   # Capture findings
 ````
 
@@ -204,11 +204,11 @@ done
    - Task: Phase 2 (deferred)
 
 Next (ranked):
-  1. /afx-work pick docs/specs/user-auth         # Context-driven: Implement uncovered
+  1. /afx-task pick docs/specs/user-auth          # Context-driven: Implement uncovered
   2. /afx-task list 7                             # Context-driven: See Phase 7 tasks
   3. /afx-dev code                               # Context-driven: Start implementation
   ──
-  4. /afx-work status                            # Re-orient after report
+  4. /afx-next                                    # Re-orient after report
   5. /afx-session note "<note>"                   # Capture findings
 ```
 
@@ -267,7 +267,7 @@ Next (ranked):
   2. /afx-session recap users-permissions         # Context-driven: Review discussions
   3. /afx-spec review users-permissions           # Context-driven: Check spec quality
   ──
-  4. /afx-work status                            # Re-orient after report
+  4. /afx-next                                    # Re-orient after report
   5. /afx-session note "<note>"                   # Capture findings
 ```
 
@@ -290,4 +290,4 @@ Next (ranked):
 | ------------------ | ------------------------ |
 | `/afx-check trace`  | Fix orphaned annotations |
 | `/afx-check links` | Fix broken links         |
-| `/afx-work status` | See active work state    |
+| `/afx-next`        | See active work state    |

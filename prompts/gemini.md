@@ -19,32 +19,32 @@ All work originates from approved specification documents. Every feature uses a 
 
 ### @see Traceability
 
-Code MUST link back to specs via `@see` annotations:
+Code MUST link back to specs via `@see` annotations. Links to `spec.md` and `design.md` are **required**; links to `tasks.md` are **optional**.
 
 ```
-/** @see docs/specs/{feature}/design.md#section */
-/** @see docs/specs/{feature}/tasks.md#XY-task-description */
+/** @see docs/specs/{feature}/spec.md [FR-1] */
+/** @see docs/specs/{feature}/design.md [DES-SECTION] */
 ```
 
 ### Gemini CLI Commands
 
 Use `/afx-xxx` slash commands (skills installed to project):
 
-| Command         | Purpose                                             |
-| --------------- | --------------------------------------------------- |
-| `/afx-next`     | Context-aware "What should I do now?"               |
-| `/afx-discover` | Project discovery (scripts, tools, capabilities)    |
-| `/afx-work`     | Workflow orchestration (status, next, resume, sync) |
-| `/afx-dev`      | Development with @see traceability                  |
-| `/afx-check`    | Quality gates (path, lint, links)                   |
-| `/afx-task`     | Task verification and auditing                      |
-| `/afx-session`  | Discussion capture and recall                       |
-| `/afx-init`     | Feature scaffolding + ADR creation                  |
-| `/afx-context`  | Agent session context                               |
-| `/afx-spec`     | Spec querying/viewing                               |
-| `/afx-report`   | Reporting (health, orphans, coverage)               |
-| `/afx-help`     | Command reference                                   |
-| `/afx-update`   | Framework update check and apply                    |
+| Command         | Purpose                                          |
+| --------------- | ------------------------------------------------ |
+| `/afx-next`     | Context-aware "What should I do now?"            |
+| `/afx-discover` | Project discovery (scripts, tools, capabilities) |
+| `/afx-design`   | Spec authoring and design workflow               |
+| `/afx-dev`      | Development with @see traceability               |
+| `/afx-check`    | Quality gates (path, lint, links)                |
+| `/afx-task`     | Task verification and auditing                   |
+| `/afx-session`  | Discussion capture and recall                    |
+| `/afx-init`     | Feature scaffolding + ADR creation               |
+| `/afx-context`  | Agent session context                            |
+| `/afx-spec`     | Spec querying/viewing                            |
+| `/afx-report`   | Reporting (health, orphans, coverage)            |
+| `/afx-help`     | Command reference                                |
+| `/afx-hello`    | Installation verification and health check       |
 
 ### Source of Truth
 

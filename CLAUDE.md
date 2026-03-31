@@ -26,7 +26,7 @@ afx/
 │   ├── architect/           # Architect skills (architect, research)
 │   ├── product-owner/       # Product owner skills
 │   ├── starter/             # Starter skills (hello)
-│   └── agenticflowx/       # Workflow skills (next, work, dev, check, task, session, etc.)
+│   └── agenticflowx/       # Workflow skills (next, design, dev, check, task, session, etc.)
 ├── packs/                   # Pack manifests (afx-pack-*.yaml)
 ├── scripts/                 # Utility scripts
 ├── docs/
@@ -64,38 +64,39 @@ All work originates from approved specification documents. The four-file structu
 
 ### @see Traceability
 
-Code MUST link back to specs via JSDoc `@see` annotations:
+Code MUST link back to specs via JSDoc `@see` annotations. Links to `spec.md` and `design.md` are **required**; links to `tasks.md` are **optional** (tasks are transactional history, not living truth).
 
 ```typescript
 /**
- * @see docs/specs/{feature}/design.md#section
- * @see docs/specs/{feature}/tasks.md#2.1-task-slug
+ * @see docs/specs/{feature}/spec.md [FR-1]
+ * @see docs/specs/{feature}/design.md [DES-SECTION]
  */
 ```
 
 ### AFX Commands
 
-| Command         | Purpose                                             |
-| --------------- | --------------------------------------------------- |
-| `/afx-next`     | Context-aware "What should I do now?"               |
-| `/afx-discover` | Project discovery (scripts, tools, capabilities)    |
-| `/afx-work`     | Workflow orchestration (status, next, resume, sync) |
-| `/afx-dev`      | Development with @see traceability                  |
-| `/afx-check`    | Quality gates (path, lint, links)                   |
-| `/afx-task`     | Task verification and auditing                      |
-| `/afx-session`  | Discussion capture and recall                       |
-| `/afx-init`     | Feature scaffolding + ADR creation                  |
-| `/afx-context`  | Agent session context                               |
-| `/afx-update`   | Framework update check and apply                    |
+| Command         | Purpose                                            |
+| --------------- | -------------------------------------------------- |
+| `/afx-next`     | Context-aware "What should I do now?"              |
+| `/afx-discover` | Project discovery (scripts, tools, capabilities)   |
+| `/afx-spec`     | Spec management (validate, review, approve)        |
+| `/afx-design`   | Design authoring and approval                      |
+| `/afx-task`     | Implementation lifecycle (plan, pick, code, sync)  |
+| `/afx-dev`      | Advanced diagnostics (debug, refactor, test)       |
+| `/afx-check`    | Quality gates (path, trace, links, deps, coverage) |
+| `/afx-session`  | Discussion capture and recall                      |
+| `/afx-init`     | Feature scaffolding + ADR creation                 |
+| `/afx-context`  | Agent session context                              |
+| `/afx-hello`    | Installation verification and health check         |
 
 ### Standard Workflow
 
 ```
 /afx-next                      # What do I do now?
 /afx-discover capabilities     # Understand project setup
-/afx-work status               # Check current state
-/afx-work pick <spec>          # Pick next task
-/afx-dev code                  # Implement with @see links
+/afx-next                      # Check current state
+/afx-task pick <spec>          # Pick next task
+/afx-task code                 # Implement with @see links
 /afx-check path                # Trace execution flow (BLOCKING)
 /afx-task verify               # Verify against spec
 /afx-session log               # Save discussion to journal
@@ -116,12 +117,12 @@ All AFX documents use YAML frontmatter:
 ```yaml
 ---
 afx: true # AFX ownership marker
-type: SPEC # SPEC | DESIGN | TASKS | JOURNAL | COMMAND
+type: SPEC # SPEC | DESIGN | TASKS | JOURNAL
 status: Draft # Draft | Approved | Living
 owner: "@handle"
-version: 1.0
-created: YYYY-MM-DDTHH:MM:SS.mmmZ # ISO 8601 with milliseconds
-last_verified: YYYY-MM-DDTHH:MM:SS.mmmZ # Last review timestamp
+version: "1.0" # Quoted string
+created_at: YYYY-MM-DDTHH:MM:SS.mmmZ # ISO 8601 with milliseconds
+updated_at: YYYY-MM-DDTHH:MM:SS.mmmZ # Last review timestamp
 tags: [feature, topic]
 spec: spec.md # Relative link (DESIGN, TASKS only)
 design: design.md # Relative link (TASKS only)

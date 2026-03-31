@@ -3,9 +3,9 @@ afx: true
 type: DESIGN
 status: Approved
 owner: "@rix"
-version: 1.0
-created: "2026-02-28T00:00:00.000Z"
-last_verified: "2026-02-28T00:00:00.000Z"
+version: "1.0"
+created_at: "2026-02-28T00:00:00.000Z"
+updated_at: "2026-02-28T00:00:00.000Z"
 tags: [packs, install, skills, ecosystem]
 spec: spec.md
 ---
@@ -655,8 +655,8 @@ resolve_ref() {
 }
 ```
 
-| Invocation                                  | `{ref}` used |
-| :------------------------------------------ | :----------- |
+| Invocation                               | `{ref}` used |
+| :--------------------------------------- | :----------- |
 | `./afx-cli --pack qa .`                  | `main`       |
 | `./afx-cli --branch dev --pack qa .`     | `dev`        |
 | `./afx-cli --version 1.5.3 --pack qa .`  | `v1.5.3`     |
@@ -1794,17 +1794,17 @@ curl -sL https://raw.githubusercontent.com/rixrix/afx/main/afx-cli | bash -s -- 
 
 All current flags continue to work:
 
-| Flag              | Behavior                             | Pack interaction                |
-| :---------------- | :----------------------------------- | :------------------------------ |
-| `--update`        | Update core AFX commands             | Can combine with `--packs`      |
-| `--skills-only` | Only install command assets          | Ignored when pack flags present |
-| `--no-claude-md`  | Skip CLAUDE.md snippet               | N/A for pack ops                |
-| `--no-agents-md`  | Skip AGENTS.md snippet               | N/A for pack ops                |
-| `--no-gemini-md`  | Skip GEMINI.md snippet               | N/A for pack ops                |
+| Flag               | Behavior                               | Pack interaction                |
+| :----------------- | :------------------------------------- | :------------------------------ |
+| `--update`         | Update core AFX commands               | Can combine with `--packs`      |
+| `--skills-only`    | Only install command assets            | Ignored when pack flags present |
+| `--no-claude-md`   | Skip CLAUDE.md snippet                 | N/A for pack ops                |
+| `--no-agents-md`   | Skip AGENTS.md snippet                 | N/A for pack ops                |
+| `--no-gemini-md`   | Skip GEMINI.md snippet                 | N/A for pack ops                |
 | `--with-gemini-md` | Opt-in to Gemini CLI setup (GEMINI.md) | N/A for pack ops                |
-| `--no-docs`       | Skip docs copy                       | N/A for pack ops                |
-| `--force`         | Overwrite all files                  | Also forces pack overwrites     |
-| `--dry-run`       | Preview without changes              | Works for all pack ops          |
+| `--no-docs`        | Skip docs copy                         | N/A for pack ops                |
+| `--force`          | Overwrite all files                    | Also forces pack overwrites     |
+| `--dry-run`        | Preview without changes                | Works for all pack ops          |
 
 ### 5.3 Help Text Update
 

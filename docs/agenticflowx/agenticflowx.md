@@ -40,17 +40,17 @@ Unlike frameworks that generate code _from_ specs, AFX requires code to link _ba
 
 ## Why bother with this workflow?
 
-1. **Less hallucination**: Code MUST link back to an approved requirement. The AI can't invent features or drift out of scope as easily. 
+1. **Less hallucination**: Code MUST link back to an approved requirement. The AI can't invent features or drift out of scope as easily.
 2. **Focused context**: Separating concerns into 4 files (`spec`, `design`, `tasks`, `journal`) means the AI reads only what it needs, not the whole project.
-3. **Git traceability**: Any developer (or future agent) can follow a `@see` annotation back to `tasks.md`, then to `spec.md`, to understand *why* a line of code exists.
+3. **Git traceability**: Any developer (or future agent) can follow a `@see` annotation back to `tasks.md`, then to `spec.md`, to understand _why_ a line of code exists.
 4. **Session handoff**: Journals and context saves let you resume work across sessions, or hand off state to a different model (e.g., pick up in Gemini where you left off in Claude).
 
 ## Agent Compatibility
 
 AFX skills are designed for the standard **agentskills.io** prompt format and have been tested against a specific set of tools. Your experience may vary on unsupported agents.
 
-| Agent              | Status           | Notes                           |
-| :----------------- | :--------------- | :------------------------------ |
+| Agent              | Status            | Notes                           |
+| :----------------- | :---------------- | :------------------------------ |
 | **Claude Code**    | ✅ Heavily tested | Primary development environment |
 | **GitHub Codex**   | ✅ Tested         | Several validation runs         |
 | **GitHub Copilot** | ✅ Tested         | Via `.github/prompts/`          |
@@ -92,29 +92,29 @@ flowchart TB
     subgraph Phase 1: Planning
         SPEC[spec.md<br/>The WHAT]
     end
-    
+
     subgraph Phase 2: Architecture
         DESIGN[design.md<br/>The HOW]
         SPEC --> DESIGN
     end
-    
+
     subgraph Phase 3: Breakdown
         TASK[tasks.md<br/>The WHEN]
         DESIGN --> TASK
     end
-    
+
     subgraph Phase 4: Execution
         WORK[Work / Next]
         CODE[Traced Code]
         TASK --> WORK --> CODE
     end
-    
+
     subgraph Phase 5: Verification
         CHECK[Path / Lint / Links]
         AUDIT[Requirements Audit]
         CODE --> CHECK --> AUDIT
     end
-    
+
     subgraph Phase 6: Sync
         LOG[Session Log]
         AUDIT --> LOG
@@ -142,22 +142,22 @@ journey
       Save Session: 5: Agent
 ```
 
-| Step             | Command                  | What It Does                                             |
-| :--------------- | :----------------------- | :------------------------------------------------------- |
-| **1. Status**    | `/afx-work status`       | Check current state: What's in progress? What's blocked? |
-| **2. Assign**    | `/afx-work pick <spec>`  | Get the next unassigned task from the spec               |
-| **3. Implement** | `/afx-dev code`          | Write the code with `@see` backlinks                     |
-| **4. Verify**    | `/afx-check path <path>` | Trace execution from UI to DB (no mocks allowed)         |
+| Step             | Command                   | What It Does                                             |
+| :--------------- | :------------------------ | :------------------------------------------------------- |
+| **1. Status**    | `/afx-next`               | Check current state: What's in progress? What's blocked? |
+| **2. Assign**    | `/afx-task pick <spec>`   | Get the next unassigned task from the spec               |
+| **3. Implement** | `/afx-task code`          | Write the code with `@see` backlinks                     |
+| **4. Verify**    | `/afx-check path <path>`  | Trace execution from UI to DB (no mocks allowed)         |
 | **5. Audit**     | `/afx-task verify <task>` | Confirm implementation matches spec requirements         |
-| **6. Log**       | `/afx-session log`       | Record what was done for the next session                |
+| **6. Log**       | `/afx-session log`        | Record what was done for the next session                |
 
 ### Example: Implementing a Login Button
 
 | Step | Action                   | Result                                               |
 | :--- | :----------------------- | :--------------------------------------------------- |
-| 1    | `/afx-work pick auth`    | Returns "Task 1.2: Create Login Button"              |
+| 1    | `/afx-task pick auth`    | Returns "Task 1.2: Create Login Button"              |
 | 2    | Implement button         | Create component with onClick handler                |
-| 3    | Add backlink             | `@see docs/specs/auth/design.md#ui-tokens`           |
+| 3    | Add backlink             | `@see docs/specs/auth/design.md [DES-UI]`            |
 | 4    | `/afx-check path /login` | Verifies button → action → service → DB              |
 | 5    | `/afx-task verify 1.2`   | Confirms files match task definition                 |
 | 6    | `/afx-session log`       | Logs "Implemented login button with primary variant" |
@@ -179,12 +179,14 @@ flowchart LR
     ACTION -.->|Backlink @see| FR
 ```
 
-**Rule**: Every major function MUST carry a JSDoc `@see` tag pointing to its specific task or requirement anchor.
+**Rule**: Every major function MUST carry a JSDoc `@see` tag pointing to its spec requirement or design section. Links to `spec.md` and `design.md` are **required**; links to `tasks.md` are **optional**.
 
 **Example:**
+
 ```typescript
 // TODO: Implement pagination for claim history
-// @see docs/specs/user-auth/tasks.md#4.2-pagination
+// @see docs/specs/user-auth/spec.md [FR-4]
+// @see docs/specs/user-auth/design.md [DES-API]
 export function getClaimHistory() { ... }
 ```
 
@@ -221,18 +223,22 @@ flowchart TD
 ```
 
 ### Gate 1: Path Verification (BLOCKING)
+
 **Command**: `/afx-check path`
 Traces code execution through the stack (UI→DB) to prove the feature actually works. **Mocking is forbidden.** Without this, agents hallucinate completion.
 
 ### Gate 2: Annotation Compliance
+
 **Command**: `/afx-check trace`
 Verifies every function has valid `@see` annotations linking to specs. Finds orphaned code.
 
 ### Gate 3: Spec Integrity
+
 **Command**: `/afx-check links`
 Validates internal cross-references between the 4 specification files.
 
 ### Gate 4: Requirements Alignment
+
 **Command**: `/afx-task verify`
 Compares implementation against task acceptance criteria.
 
@@ -256,6 +262,7 @@ sequenceDiagram
 ```
 
 ### The Journal (`journal.md`)
+
 Each feature has a journal for capturing discussions during development. Make sure your agent runs `/afx-session log` continuously.
 
 ---
@@ -270,27 +277,21 @@ The AFX command suite. See `afx/skills.json` for full integrations.
 | :------------------------- | :--------------------------------- |
 | `/afx-init feature <name>` | Create new feature spec            |
 | `/afx-init adr <title>`    | Create global ADR in `docs/adr/`   |
-| `/afx-init config`         | Manage `.afx.yaml`                 |
 | `/afx-context save`        | Generate context bundle            |
 | `/afx-context load`        | Load context from previous session |
 
-## Work Orchestration
-
-| Command                         | Purpose                              |
-| :------------------------------ | :----------------------------------- |
-| `/afx-work status`              | Quick state check after interruption |
-| `/afx-work pick <spec-path>`    | Pick next task from spec             |
-| `/afx-work resume [spec/num]`   | Continue in-progress work            |
-| `/afx-work sync [spec] [issue]` | Bidirectional GitHub sync            |
-
 ## Task Management
 
-| Command                       | Purpose                            |
-| :---------------------------- | :--------------------------------- |
-| `/afx-task verify <task-id>`  | Verify task implementation vs spec |
-| `/afx-task brief <task-id>`   | Get implementation summary         |
-| `/afx-task list [phase]`      | List tasks by phase                |
-| `/afx-task verify <task>`     | Check spec alignment               |
+| Command                         | Purpose                             |
+| :------------------------------ | :---------------------------------- |
+| `/afx-task plan`                | Generate tasks from approved design |
+| `/afx-task pick <spec-path>`    | Pick next task from spec            |
+| `/afx-task code`                | Implement with `@see` traceability  |
+| `/afx-task verify <task-id>`    | Verify task implementation vs spec  |
+| `/afx-task complete <task-id>`  | Mark task as complete               |
+| `/afx-task sync [spec] [issue]` | Bidirectional GitHub sync           |
+| `/afx-task brief <task-id>`     | Get implementation summary          |
+| `/afx-task review`              | Review task implementation          |
 
 ---
 
@@ -306,8 +307,10 @@ afx: true # AFX ownership marker (required)
 type: SPEC # Document type (SPEC | DESIGN | TASKS | JOURNAL)
 status: Draft # Draft | Approved | Living
 owner: "@handle" # GitHub handle
-version: 2.0 # Semantic versioning
-created: YYYY-MM-DDTHH:MM:SS.mmmZ 
+version: "2.0" # Semantic versioning
+depends_on: [] # List of dependent spec/feature IDs
+created_at: YYYY-MM-DDTHH:MM:SS.mmmZ
+updated_at: YYYY-MM-DDTHH:MM:SS.mmmZ
 tags: [feature, topic]
 ---
 ```
@@ -321,7 +324,7 @@ id: 0001 # Optional numbered ID
 type: RES # Document type (RES | ADR)
 status: Approved # Draft | Approved | Deprecated
 owner: "@handle"
-date: YYYY-MM-DDTHH:MM:SS.mmmZ 
+date: YYYY-MM-DDTHH:MM:SS.mmmZ
 tags: [architecture, database]
 ---
 ```
@@ -341,20 +344,25 @@ afx: true
 type: SPEC
 status: Approved
 owner: "@rix"
-version: 2.0
+version: "2.0"
+created_at: 2025-10-20T10:00:00.000Z
+updated_at: 2025-10-24T14:32:00.000Z
 tags: [auth, login, user-management]
 ---
 
 # User Authentication Feature
 
 ## Overview
+
 We need a robust, magic-link based authentication system to replace our legacy password system.
 
 ## User Stories
+
 - **US-1**: As a returning user, I want to login with a magic link so I don't have to remember a password.
 - **US-2**: As an admin, I want to see a log of all failed login attempts to monitor for brute-force attacks.
 
 ## Functional Requirements
+
 | ID   | Requirement                                                                  | Priority |
 | ---- | ---------------------------------------------------------------------------- | -------- |
 | FR-1 | System shall generate a cryptographically secure, single-use JWT magic link. | P0       |
@@ -362,27 +370,33 @@ We need a robust, magic-link based authentication system to replace our legacy p
 | FR-3 | Dashboard must display a toast notification upon successful login.           | P1       |
 
 ## Non-Functional Requirements
+
 - **Performance**: Email delivery API (Resend) must trigger within 500ms of form submission.
 - **Security**: Prevent enumeration attacks; do not confirm if an email exists on sign-in.
 ```
+
 </details>
 
 <details>
 <summary><b>2. design.md (The "How")</b></summary>
 
-```markdown
+````markdown
 ---
 afx: true
 type: DESIGN
 status: Approved
 owner: "@rix"
-version: 2.0
+version: "2.0"
+created_at: 2025-10-21T09:00:00.000Z
+updated_at: 2025-10-24T14:32:00.000Z
 tags: [auth, architecture, database]
+spec: spec.md
 ---
 
 # Auth System Architecture
 
 ## Core Flow
+
 1. User enters email in `<LoginForm />`.
 2. Action `signInWithEmail()` fires.
 3. Server checks DB. Generates `VerificationToken`.
@@ -391,6 +405,7 @@ tags: [auth, architecture, database]
 6. Server validates, creates session cookie, redirects to `/dashboard`.
 
 ## Database Schema (Prisma)
+
 ```prisma
 model VerificationToken {
   identifier String
@@ -406,11 +421,14 @@ model User {
   sessions      Session[]
 }
 ```
+````
 
 ## Component Architecture
+
 - `LoginForm.tsx`: Client component. Handles React Hook Form state and Zod validation.
 - `SubmitButton.tsx`: Reusable UI button showing loading spinners during network requests.
-```
+
+````
 </details>
 
 <details>
@@ -422,8 +440,12 @@ afx: true
 type: TASKS
 status: Living
 owner: "@rix"
-version: 2.0
+version: "2.0"
+created_at: 2025-10-22T08:00:00.000Z
+updated_at: 2025-10-24T14:32:00.000Z
 tags: [auth, wbs]
+spec: spec.md
+design: design.md
 ---
 
 # Implementation Checklist
@@ -440,7 +462,8 @@ tags: [auth, wbs]
 | -------- | --------- | --------------------------------------------------------------------------- | ------ |
 | 2.1      | Phase 2.1 | Build basic styling for `<LoginForm />` using Tailwind spacing standard.    | [ ]    |
 | 2.2      | Phase 2.2 | Wire `<LoginForm />` to action and handle server-side errors (Zod mapping). | [ ]    |
-```
+````
+
 </details>
 
 <details>
@@ -452,25 +475,31 @@ afx: true
 type: JOURNAL
 status: Living
 owner: "@rix"
-version: 2.0
+created_at: 2025-10-20T10:00:00.000Z
+updated_at: 2025-10-24T14:32:00.000Z
 tags: [auth, logs]
 ---
 
 # Agent Session: 2025-10-24T14:32:00Z
+
 **Agent**: Claude 3.5 Sonnet
 **Goal**: Complete Phase 1.1 and 1.2.
 
 ## Summary of Work
+
 - Modified `schema.prisma`.
 - Generated migrations.
 - Discovered an issue where `cuid()` was throwing a deprecation warning in Prisma v5. Switched to `cuid2()`.
 
 ## Decisions
+
 - **Decision 1**: Instead of using a standard 6-digit OTP, I opted for a full JWT for the verification token to embed the expiration time directly in the token payload, reducing DB lookups by 1.
 
 ## Blockers / Next Steps
+
 - Waiting on the human to provide the Resend API key in the `.env.local` file before I can proceed with Phase 1.3. Halting execution.
 ```
+
 </details>
 
 <details>
@@ -490,22 +519,27 @@ tags: [database, orm, performance]
 # ADR 0042: Migrate from Prisma to Drizzle ORM for Edge Compatibility
 
 ## Context
+
 Our current application uses Prisma as its primary ORM. As we migrate our infrastructure towards Cloudflare Workers and Vercel Edge functions for reduced latency, we are running into cold-start bottlenecks caused by the Rust-based Prisma Query Engine binary.
 
 ## Decision
+
 We will systematically replace Prisma with Drizzle ORM across all data access patterns.
 
 ## Consequences
+
 ### Positive
+
 - **Edge Native**: Drizzle runs flawlessly in V8 isolate environments (Cloudflare, Vercel Edge).
 - **Reduced Bundle Size**: Removing the Prisma binary shaves ~15MB off our serverless deployment size.
 
 ### Negative
+
 - **Migration Cost**: Significant engineering effort required to rewrite existing queries.
 - **Lost Tooling**: We lose Prisma Studio, requiring us to adopt generic SQL explorers (e.g., DBeaver or Turso Studio).
 ```
-</details>
 
+</details>
 
 ---
 
@@ -516,6 +550,7 @@ To prevent LLMs from losing context between sessions or when switching between d
 ### Generating a Context Payload
 
 When you run `/afx-context save`, the agent bundles the current state. The payload includes:
+
 1. **The Global Rules** (`CLAUDE.md`, `AGENTS.md`)
 2. **Current Specifications** (`spec.md` and `design.md` for the active feature)
 3. **Task State** (What is ticked off in `tasks.md` and what is pending)
@@ -523,7 +558,7 @@ When you run `/afx-context save`, the agent bundles the current state. The paylo
 5. **Quality Gate Status** (Did the last path check pass?)
 
 **Where is it saved?**
-Context bundles are output continuously to `.afx/context/latest.md` (or similar, depending on configuration). 
+Context bundles are output continuously to `.afx/context/latest.md` (or similar, depending on configuration).
 
 You can literally drag and drop this file into a fresh Claude or ChatGPT window, or have a new agent run `/afx-context load` to instantly resume the "bird's-eye view" of the project without losing a step.
 
@@ -533,7 +568,7 @@ You can literally drag and drop this file into a fresh Claude or ChatGPT window,
 
 The AFX workflow (specs, tasks, quality gates) is the methodology. **Skills & Packs are the companion system that makes it work in practice.**
 
-Commands like `/afx-work`, `/afx-spec`, and `/afx-check` only work because your AI coding agent has loaded the corresponding **Skill** — a prompt file in the [agentskills.io](https://agentskills.io) open format that tells it exactly what to do. Skills are grouped into **Packs** and installed once via `afx-cli`.
+Commands like `/afx-task`, `/afx-spec`, and `/afx-check` only work because your AI coding agent has loaded the corresponding **Skill** — a prompt file in the [agentskills.io](https://agentskills.io) open format that tells it exactly what to do. Skills are grouped into **Packs** and installed once via `afx-cli`.
 
 The companion system is separate from the workflow by design. You can use AFX's four-file structure and `@see` traceability with any agent, even without installing skills. The skills simply automate the workflow commands so you don't have to prompt everything from scratch.
 
@@ -580,4 +615,3 @@ project-root/
 │           ├── journal.md
 │           └── research/
 ```
-
