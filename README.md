@@ -194,42 +194,82 @@ Every feature gets four files. **The sequence is mandatory** — you cannot star
 ```mermaid
 mindmap
   root((Feature))
-    spec_md["spec.md"]
+    spec_md["1. spec.md"]
       The WHAT
       Requirements
       User Stories
-    design_md["design.md"]
+    design_md["2. design.md"]
       The HOW
       Architecture
       Data Models
-    tasks_md["tasks.md"]
+    tasks_md["3. tasks.md"]
       The WHEN
       Atomic Checklist
       Quality Gates
     journal_md["journal.md"]
-      The WHY
+      Memory
       Session Logs
-      Decisions
+      Decisions & Context
 ```
 
-- **`spec.md`**: Requirements only. No implementation details.
+- **`spec.md`**: Requirements only. No implementation details. `[FR-X]` and `[NFR-X]` IDs are stable anchors that code links back to.
+
   ```markdown
+  ---
+  afx: true
+  type: SPEC
+  status: Draft
+  owner: "@rix"
+  version: "1.0"
+  created_at: "2025-10-20T10:00:00.000Z"
+  updated_at: "2025-10-20T10:00:00.000Z"
+  tags: ["user-management"]
+  ---
+
+  # User Management - Product Specification
+
+  ## Functional Requirements
+
   | ID   | Requirement                                       | Priority  |
   | ---- | ------------------------------------------------- | --------- |
   | FR-1 | Paginated, sortable list of all users.            | Must Have |
   | FR-2 | Filter by Role, Status, and Verification Context. | Must Have |
+
+  ## Non-Functional Requirements
+
+  | ID    | Requirement | Target              |
+  | ----- | ----------- | ------------------- |
+  | NFR-1 | Performance | Page load < 2s      |
+  | NFR-2 | Security    | Auth on all actions |
   ```
-- **`design.md`**: Technical architecture. How you'll implement the spec.
+
+- **`design.md`**: Technical architecture. How you'll implement the spec. Every `##` heading has a `[DES-ID]` Node ID.
 
   ````markdown
-  ## Data Models
+  ---
+  afx: true
+  type: DESIGN
+  status: Draft
+  owner: "@rix"
+  version: "1.0"
+  created_at: "2025-10-21T09:00:00.000Z"
+  updated_at: "2025-10-21T09:00:00.000Z"
+  tags: ["user-management"]
+  spec: spec.md
+  ---
+
+  # User Management - Technical Design
+
+  ## [DES-DATA] Data Model
 
   | Column | Type   | Description       |
   | ------ | ------ | ----------------- |
   | `id`   | UUID   | Primary Key       |
   | `role` | String | User Access Level |
 
-  ## Server Actions
+  ## [DES-API] Server Actions
+
+  <!-- @see spec.md [FR-1] [FR-2] -->
 
   ```typescript
   export async function createUser(data: CreateUserSchema): Promise<Result<User>> {
@@ -239,31 +279,65 @@ mindmap
   ```
   ````
 
-  ```
-
-  ```
-
 - **`tasks.md`**: Implementation checklist. Structured using dot-notation derived from traditional **Work Breakdown Structures (WBS)**. Requires two-stage verification (Agent + Human) before a phase is closed.
 
   ```markdown
-  ## Phase 1: Component Refactor
+  ---
+  afx: true
+  type: TASKS
+  status: Draft
+  owner: "@rix"
+  version: "1.0"
+  created_at: "2025-10-22T08:00:00.000Z"
+  updated_at: "2025-10-22T08:00:00.000Z"
+  tags: ["user-management"]
+  spec: spec.md
+  design: design.md
+  ---
 
-  | Priority | Phase     | Description                   | Status  |
-  | -------- | --------- | ----------------------------- | ------- |
-  | 1.1      | Phase 1.1 | Wire Users Table Dialogs      | Active  |
-  | 1.2      | Phase 1.2 | Role Form Modal - Wire Update | Pending |
+  # User Management - Implementation Tasks
+
+  ## Phase 1: Data Layer
+
+  - [ ] 1.1 Add User model to schema and run migrations
+  - [ ] 1.2 Implement repository interface and adapter
+
+  ## Phase 2: Frontend UI
+
+  - [ ] 2.1 Build `<UsersTable />` with Tailwind styling
+  - [ ] 2.2 Wire table to server action with Zod validation
+
+  ## Work Sessions
+
+  | Date | Task | Action | Files Modified | Agent | Human |
+  | ---- | ---- | ------ | -------------- | ----- | ----- |
   ```
 
 - **`journal.md`**: Append-only historical log of all discussions and decisions.
 
   ```markdown
-  ## Agent Session [2025-10-24 14:00]
+  ---
+  afx: true
+  type: JOURNAL
+  status: Living
+  owner: "@rix"
+  created_at: "2025-10-20T10:00:00.000Z"
+  updated_at: "2025-10-24T14:00:00.000Z"
+  tags: ["user-management"]
+  ---
 
-  **Decisions Made:**
+  # Journal - User Management
 
-  - Chose `uuid` over autoincrement integer for `id` to prevent enumeration.
-    **Current State:**
-  - API route `/api/users` completed. Next agent should wire frontend table.
+  <!-- prefix: UM -->
+
+  ## Captures
+
+  ## Discussions
+
+  ### UM-D001 - 2025-10-24 - Schema decision
+
+  Chose `uuid` over autoincrement integer for `id` to prevent enumeration.
+  API route `/api/users` completed. Next agent should wire frontend table.
   ```
 
 - **`research/`**: (Auxiliary) Dedicated space for feature-local decision records (ADRs).
@@ -345,36 +419,22 @@ Scans your codebase to understand build systems, test runners, package managers,
 
 ### Session Management
 
-**`/afx-session log|recall|list`** - Context preservation
+**`/afx-session note|log|active|recap|promote`** - Discussion capture and context preservation
 
 **`/afx-context save|load`** - Context transitions
 Package current context for transfer to another agent or future session. Includes spec state, task progress, verification status, and discussion history.
 
 ### Reporting
 
-**`/afx-report traceability|health|coverage`** - Project metrics
+**`/afx-report orphans|coverage|stale`** - Traceability metrics and project health
 
 ## Example Workflow
 
-```mermaid
-stateDiagram-v2
-    [*] --> Init : afx-init feature
-    Init --> WriteSpec : afx-spec create
-    WriteSpec --> ApproveSpec : afx-spec approve
-    ApproveSpec --> AuthorDesign : afx-design author
-    AuthorDesign --> ApproveDesign : afx-design approve
-    ApproveDesign --> PlanTasks : afx-task plan
-    PlanTasks --> PickTask : afx-task pick
-    PickTask --> Develop : afx-task code
-    Develop --> PathCheck : afx-check path
-    PathCheck --> Failed : path broken
-    PathCheck --> Complete : gate passed
-    Failed --> Develop : fix path
-    Complete --> SaveSession : afx-task complete
-    SaveSession --> [*] : session log
-
-    SaveSession --> Resume : next session
-    Resume --> PickTask : afx-next
+```
+afx-init feature → afx-spec approve → afx-design author → afx-design approve
+  → afx-task plan → afx-task pick → afx-task code → afx-check path → afx-task complete
+                          ↑                                                |
+                          └────────── afx-next (resume next session) ──────┘
 ```
 
 ## Quick Start
