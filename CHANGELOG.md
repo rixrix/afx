@@ -5,6 +5,28 @@ All notable changes to AFX will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-04-01
+
+### Added
+
+- **`/afx-adr` skill** (new): ADR management — create, review, list, supersede. Reads canonical template from `assets/adr-template.md`. Replaces the ADR subcommands previously in `/afx-init`.
+- **`/afx-scaffold` skill** (new): Thin orchestrator for spec scaffolding — `spec <name>` delegates to `/afx-spec create`, `research <name>` uses `../afx-research/assets/research-template.md`, `adr <title>` delegates to `/afx-adr create`. Replaces `/afx-init`.
+- **Skill `assets/` directories**: Templates are now co-located with their owning skill rather than installed separately. `afx-spec`, `afx-design`, `afx-task`, `afx-session`, `afx-research`, `afx-adr` each carry their canonical template in `assets/`.
+- **Context Resolution section**: Added to `afx-spec`, `afx-adr`, and `afx-scaffold` skills — explicit inference table for resolving feature name, owner, and paths from branch, recent files, and active spec.
+- **Error Handling section**: Added to `afx-research` — covers topic-not-found, existing artifact, ambiguous match, and finalize-without-prior-research.
+
+### Changed
+
+- **`afx-cli` `skill_sync()`**: Changed from cherry-picking `SKILL.md` + `references/` to recursive `cp -r` so `assets/` directories propagate automatically to `.claude/skills/` and `.agents/skills/`.
+- **`/afx-spec create`**: Now owns full spec scaffolding (reads templates from own `assets/` and sibling skills). No longer delegates to `/afx-scaffold`.
+- **Pack manifest** (`afx-pack-agenticflowx.yaml`): Replaced `afx-init` with `afx-scaffold` + `afx-adr`.
+
+### Removed
+
+- **`/afx-init` skill**: Replaced by `/afx-scaffold` (spec/research/adr scaffolding) and `/afx-adr` (ADR lifecycle).
+- **`step_templates()` in `afx-cli`**: Template install step removed — templates now live in skill `assets/` and are synced via `skill_sync()`.
+- **Dead config keys**: Removed `paths.sessions`, `ai_attribution`, `test_traceability`, `anchors`, `quality_gates`, `verification`, `require_see_links`, `scan_for_orphans` from `.afx.yaml.template` and all managed `.afx/.afx.yaml` files. Deep audit confirmed none are read by any skill or extension.
+
 ## [2.3.0] - 2026-04-01
 
 ### Breaking Changes
