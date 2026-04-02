@@ -75,9 +75,9 @@ The `journal.md` file has two sections:
 Discussions use inline status tags for tracking ad-hoc work:
 
 ```markdown
-### INF-D001 - 2025-12-22 - Warranty Claims Dev Deployment
+### INF-D001 - Warranty Claims Dev Deployment
 
-`status:active` `[deployment, aws, user-auth]`
+`status:active` `created:2025-12-22` `[deployment, aws, user-auth]`
 
 **Progress**:
 

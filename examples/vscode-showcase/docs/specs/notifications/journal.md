@@ -17,9 +17,9 @@ tags: [notifications, mvp]
 
 <!-- Permanent discussion records with IDs -->
 
-### NT-D001 - 2026-03-10 - Initial Scoping
+### NT-D001 - Initial Scoping
 
-`status:active` `[planning, scoping]`
+`status:active` `2026-03-10T00:00:00.000Z` `[planning, scoping]`
 
 **Context**: Scoping notifications feature for MVP
 **Summary**: Defined the four notification types needed for MVP. Decided to keep it simple — in-app only, no push notifications or email digests. The bell icon dropdown pattern is well understood and doesn't need a design spec yet. Waiting for stakeholder review of the spec before creating design.md and tasks.md.

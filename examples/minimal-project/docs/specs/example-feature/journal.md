@@ -17,9 +17,9 @@ tags: [example]
 
 <!-- Permanent discussion records with IDs -->
 
-### EX-D001 - 2025-02-01 - Initial Setup
+### EX-D001 - Initial Setup
 
-`status:active` `[setup, planning]`
+`status:active` `2025-02-01T00:00:00.000Z` `[setup, planning]`
 
 **Context**: Starting new feature implementation
 **Summary**: Created initial spec structure for example feature.

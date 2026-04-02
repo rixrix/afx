@@ -372,7 +372,7 @@ source: journal.md#{discussion-id}
 
 # ADR: {Topic Title}
 
-**Promoted From**: [journal.md#UA-D001](journal.md#wc-d001---2025-12-15---topic-title)
+**Promoted From**: [journal.md#UA-D001](journal.md#wc-d001---topic-title)
 
 ## Context
 
@@ -437,18 +437,18 @@ Next: /afx-task pick docs/specs/{new-feature}/tasks.md   # Start implementing ne
 
 <!-- Chronological order: oldest first, newest last -->
 
-### XX-D001 - 2025-12-14 - First Topic
+### XX-D001 - First Topic
 
-`[database, migration]`
+`status:active` `2025-12-14T09:00:00.000Z` `[database, migration]`
 
 **Context**: Initial database setup discussion
 ...
 
 ---
 
-### XX-D002 - 2025-12-15 - Second Topic
+### XX-D002 - Second Topic
 
-`[auth, jwt, multi-tenant, architecture]`
+`status:active` `2025-12-15T10:30:00.000Z` `[auth, jwt, multi-tenant, architecture]`
 
 **Context**: What prompted this discussion
 **Summary**: Key points in 2-3 sentences
@@ -471,9 +471,9 @@ Next: /afx-task pick docs/specs/{new-feature}/tasks.md   # Start implementing ne
 
 ---
 
-### XX-D003 - 2025-12-17 - Latest Topic
+### XX-D003 - Latest Topic
 
-`[api, refactor]`
+`status:active` `2025-12-17T14:00:00.000Z` `[api, refactor]`
 
 ...
 ```
@@ -525,7 +525,7 @@ Each discussion and note gets a globally unique ID with a feature prefix for eas
 
 ## Discussions
 
-### UA-D001 - 2025-12-15 - Topic Title
+### UA-D001 - Topic Title
 ```
 
 **Rules**:
@@ -535,7 +535,7 @@ Each discussion and note gets a globally unique ID with a feature prefix for eas
 - IDs auto-increment within each feature (UA-D001, UA-D002, etc.)
 - IDs never change once assigned
 - When promoting to ADR, the full prefixed ID is preserved in frontmatter
-- Markdown anchor format: `#wc-d001---2025-12-15---topic-title`
+- Markdown anchor format: `#wc-d001---topic-title`
 
 ---
 

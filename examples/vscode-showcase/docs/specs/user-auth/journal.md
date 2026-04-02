@@ -17,9 +17,9 @@ tags: [auth, security, mvp]
 
 <!-- Permanent discussion records with IDs -->
 
-### UA-D001 - 2026-03-09 - Architecture Planning
+### UA-D001 - Architecture Planning
 
-`status:closed` `[architecture, planning]`
+`status:closed` `2026-03-09T00:00:00.000Z` `[architecture, planning]`
 
 **Context**: Initial design session for user authentication feature
 **Summary**: Decided on JWT-based auth with access/refresh token pattern. Considered session cookies but JWT is better for future mobile app support. Auth service uses factory pattern for testability.
@@ -32,9 +32,9 @@ tags: [auth, security, mvp]
 **Related Files**: spec.md, design.md, research/0001-auth-strategy.md
 **Participants**: @rix
 
-### UA-D002 - 2026-03-13 - Token Refresh Edge Cases
+### UA-D002 - Token Refresh Edge Cases
 
-`status:active` `[security, edge-cases]`
+`status:active` `2026-03-13T00:00:00.000Z` `[security, edge-cases]`
 
 **Context**: During login form implementation, discovered edge cases in token refresh flow
 **Summary**: The silent refresh mechanism needs to handle several edge cases: concurrent requests during refresh, network failures mid-refresh, and the race condition where multiple tabs trigger refresh simultaneously. Currently investigating the best approach.
@@ -47,9 +47,9 @@ tags: [auth, security, mvp]
 **Related Files**: auth.service.ts, jwt.ts
 **Participants**: @rix
 
-### UA-D003 - 2026-03-14 - Rate Limiting Dependency
+### UA-D003 - Rate Limiting Dependency
 
-`status:blocked` `[security, infrastructure]`
+`status:blocked` `2026-03-14T00:00:00.000Z` `[security, infrastructure]`
 
 **Context**: Rate limiting for auth endpoints requires a shared Redis instance
 **Summary**: The rate limiting middleware for registration and login endpoints needs a Redis backend for distributed rate limiting across multiple server instances. DevOps team hasn't provisioned the Redis instance yet. Blocked until infrastructure is ready.

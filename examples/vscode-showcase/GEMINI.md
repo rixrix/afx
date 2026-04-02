@@ -61,6 +61,10 @@ When executing AFX commands, leverage Gemini's specialized tools:
 - **`read_file`** — Reading specification documents and command definitions
 - **`run_shell_command`** — Git/GitHub CLI operations for state verification and syncing
 
+### Timestamp Rule (ISO 8601)
+
+All timestamps in AFX-generated documents — frontmatter (`created_at`, `updated_at`), inline metadata, journal entries, session captures — MUST use **ISO 8601 with millisecond precision**: `YYYY-MM-DDTHH:MM:SS.mmmZ` (e.g., `2025-12-17T14:30:00.000Z`). To get the current timestamp, run `date -u +"%Y-%m-%dT%H:%M:%S.000Z"` via shell. Never guess or use midnight (`T00:00:00.000Z`).
+
 ### Quality Gates
 
 Gate 1 (`/afx-check path`) is **blocking** — tasks cannot be closed without path verification that traces execution from UI to DB.

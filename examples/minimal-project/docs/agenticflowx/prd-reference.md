@@ -380,7 +380,7 @@ depends_on:
 │ ┌─────────────────────────────────────────────────────────┐ │
 │ │ ## Captures ·············· Quick notes (scratchpad)     │ │
 │ │ ## Discussions ··········· Permanent records            │ │
-│ │   ### UA-D001 - 2026-03-15 - Auth Strategy              │ │
+│ │   ### UA-D001 - Auth Strategy                           │ │
 │ │     Context, Summary, Decisions, Notes, Related Files   │ │
 │ └─────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
