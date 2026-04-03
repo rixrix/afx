@@ -7,6 +7,13 @@ metadata:
   afx-status: Living
   afx-tags: "workflow,check,quality,compliance,traceability"
   afx-argument-hint: "path | trace | links | schema | deps | coverage | all"
+  modeSlugs:
+    - focus-review-spec
+    - focus-review-design
+    - focus-review-tasks
+    - focus-code
+    - architect
+    - code
 ---
 
 # /afx-check

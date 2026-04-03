@@ -7,6 +7,10 @@ metadata:
   afx-status: Living
   afx-tags: "workflow,task,implementation,coding,verification,lifecycle"
   afx-argument-hint: "plan | pick | code | verify | complete | sync | brief | review"
+  modeSlugs:
+    - focus-review-tasks
+    - focus-code
+    - code
 ---
 
 # /afx-task

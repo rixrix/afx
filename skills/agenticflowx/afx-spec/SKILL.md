@@ -7,6 +7,10 @@ metadata:
   afx-status: Living
   afx-tags: "workflow,spec,requirements,validation,lifecycle"
   afx-argument-hint: "validate | discuss | review | approve | create"
+  modeSlugs:
+    - focus-review-spec
+    - focus-review-design
+    - architect
 ---
 
 # /afx-spec

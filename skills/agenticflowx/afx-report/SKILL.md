@@ -7,6 +7,10 @@ metadata:
   afx-status: Living
   afx-tags: "workflow,report,metrics,health,coverage"
   afx-argument-hint: "orphans | coverage | stale"
+  modeSlugs:
+    - focus-review-spec
+    - focus-review-tasks
+    - architect
 ---
 
 # /afx-report

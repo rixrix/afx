@@ -7,6 +7,12 @@ metadata:
   afx-status: Living
   afx-tags: "workflow,development,debug,refactor,review,test,optimize"
   afx-argument-hint: "debug | refactor | review | test | optimize"
+  modeSlugs:
+    - focus-code
+    - focus-debug
+    - focus-refactor
+    - code
+    - debug
 ---
 
 # /afx-dev

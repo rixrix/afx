@@ -6,6 +6,9 @@ metadata:
   afx-owner: "@rix"
   afx-status: Living
   afx-tags: "workflow,context,guidance,golden-thread"
+  modeSlugs:
+    - focus-next
+    - architect
 ---
 
 # /afx-next

@@ -7,6 +7,9 @@ metadata:
   afx-status: Living
   afx-tags: "workflow,research,discovery,analysis,adr"
   afx-argument-hint: "explore | compare | summarize | finalize"
+  modeSlugs:
+    - focus-research
+    - architect
 ---
 
 # /afx-research
