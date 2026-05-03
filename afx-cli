@@ -1,4 +1,22 @@
 #!/bin/bash
+# === SUNSET NOTICE ============================================================
+cat <<'EOF' >&2
+
+This installer (rixrix/afx) is sunset and no longer maintained.
+
+  AgenticFlowX VSCode extension:
+    https://agenticflowx.github.io/
+
+  Standalone AFX skill workflow (canonical):
+    https://github.com/agenticFlowX/afx
+
+  Re-run installation with the new repo:
+    curl -sL https://raw.githubusercontent.com/agenticFlowX/afx/main/afx-cli | bash -s -- .
+
+EOF
+exit 1
+# === END SUNSET NOTICE ========================================================
+
 # AFX CLI — install, update, and manage AFX skills
 # Usage:
 #   Install:  ./afx-cli /path/to/project

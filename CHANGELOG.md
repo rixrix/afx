@@ -5,6 +5,10 @@ All notable changes to AFX will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [SUNSET] - 2026-05-03
+
+This repository (`rixrix/afx`) is archived. AgenticFlowX is now a dedicated VSCode extension distributed from <https://agenticflowx.github.io/>; the standalone skill workflow continues at <https://github.com/agenticFlowX/afx>. README and `afx-cli` redirect to the canonical locations; older versions in this changelog refer to URLs and release artifacts that are no longer maintained.
+
 ## [2.5.1] - 2026-04-02
 
 ### Changed

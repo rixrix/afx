@@ -1,3 +1,8 @@
+> [!WARNING]
+> **Repository sunset.** AgenticFlowX is now a VSCode extension at <https://agenticflowx.github.io/>. The standalone AFX skill workflow lives at <https://github.com/agenticFlowX/afx>. Install commands and curl URLs below reference the deprecated `rixrix/afx` URL — do not execute them; use the canonical org repo instead.
+
+---
+
 # AGENTS.md
 
 Project instructions for Codex and compatible coding agents working in this repository.
